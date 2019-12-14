@@ -11,16 +11,18 @@
 		B58A314123A1397E0023EA63 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A314023A1397E0023EA63 /* ViewController.swift */; };
 		B58A314323A139810023EA63 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B58A314223A139810023EA63 /* Assets.xcassets */; };
 		B58A314623A139810023EA63 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B58A314423A139810023EA63 /* Main.storyboard */; };
+		B58A314F23A13CF30023EA63 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A314E23A13CF30023EA63 /* Json.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B58A313B23A1397E0023EA63 /* prune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = prune.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B58A313B23A1397E0023EA63 /* Prune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prune.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B58A313E23A1397E0023EA63 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B58A314023A1397E0023EA63 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		B58A314223A139810023EA63 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B58A314523A139810023EA63 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B58A314723A139810023EA63 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B58A314823A139810023EA63 /* prune.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = prune.entitlements; sourceTree = "<group>"; };
+		B58A314E23A13CF30023EA63 /* Json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,7 +47,7 @@
 		B58A313C23A1397E0023EA63 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B58A313B23A1397E0023EA63 /* prune.app */,
+				B58A313B23A1397E0023EA63 /* Prune.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -59,6 +61,7 @@
 				B58A314423A139810023EA63 /* Main.storyboard */,
 				B58A314723A139810023EA63 /* Info.plist */,
 				B58A314823A139810023EA63 /* prune.entitlements */,
+				B58A314E23A13CF30023EA63 /* Json.swift */,
 			);
 			path = prune;
 			sourceTree = "<group>";
@@ -66,9 +69,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B58A313A23A1397E0023EA63 /* prune */ = {
+		B58A313A23A1397E0023EA63 /* Prune */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B58A314B23A139810023EA63 /* Build configuration list for PBXNativeTarget "prune" */;
+			buildConfigurationList = B58A314B23A139810023EA63 /* Build configuration list for PBXNativeTarget "Prune" */;
 			buildPhases = (
 				B58A313723A1397E0023EA63 /* Sources */,
 				B58A313823A1397E0023EA63 /* Frameworks */,
@@ -78,9 +81,9 @@
 			);
 			dependencies = (
 			);
-			name = prune;
+			name = Prune;
 			productName = prune;
-			productReference = B58A313B23A1397E0023EA63 /* prune.app */;
+			productReference = B58A313B23A1397E0023EA63 /* Prune.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -98,7 +101,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B58A313623A1397E0023EA63 /* Build configuration list for PBXProject "prune" */;
+			buildConfigurationList = B58A313623A1397E0023EA63 /* Build configuration list for PBXProject "Prune" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -111,7 +114,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B58A313A23A1397E0023EA63 /* prune */,
+				B58A313A23A1397E0023EA63 /* Prune */,
 			);
 		};
 /* End PBXProject section */
@@ -133,6 +136,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B58A314F23A13CF30023EA63 /* Json.swift in Sources */,
 				B58A314123A1397E0023EA63 /* ViewController.swift in Sources */,
 				B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */,
 			);
@@ -279,6 +283,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 0.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -299,6 +305,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 0.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -308,7 +316,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B58A313623A1397E0023EA63 /* Build configuration list for PBXProject "prune" */ = {
+		B58A313623A1397E0023EA63 /* Build configuration list for PBXProject "Prune" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B58A314923A139810023EA63 /* Debug */,
@@ -317,7 +325,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B58A314B23A139810023EA63 /* Build configuration list for PBXNativeTarget "prune" */ = {
+		B58A314B23A139810023EA63 /* Build configuration list for PBXNativeTarget "Prune" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B58A314C23A139810023EA63 /* Debug */,
