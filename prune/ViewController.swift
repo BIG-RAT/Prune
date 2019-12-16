@@ -7,11 +7,13 @@
 //
 
 import Cocoa
+import Foundation
 
 class ViewController: NSViewController {
 
     
-    var theGetQ = OperationQueue() // create operation queue for API POST/PUT calls
+    var theGetQ    = OperationQueue() // create operation queue for API POST/PUT calls
+    var theDeleteQ = OperationQueue() // queue for delete API calls
     
     @IBOutlet weak var jamfServer_TextField: NSTextField!
     @IBOutlet weak var uname_TextField: NSTextField!
@@ -21,6 +23,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var scripts_Button: NSButton!
     @IBOutlet weak var computerGroups_Button: NSButton!
     
+    @IBOutlet weak var import_Button: NSPathControl!
     
     @IBAction func updateViewButton_Action(_ sender: NSButton) {
         let state = (sender.state.rawValue == 1) ? "on":"off"
@@ -57,16 +60,15 @@ class ViewController: NSViewController {
     }
     
     @IBOutlet var summary_TextField: NSTextView!
-
+    
     var currentServer   = ""
     var jamfCreds       = ""
-//    var jamfUtf8Creds   = ""
     var jamfBase64Creds = ""
     var completed       = 0
     
-    var packagesDict = Dictionary<String,Dictionary<String,String>>()    // id, name, used
-    var scriptsDict  = Dictionary<String,Dictionary<String,String>>()    // id, name, used
-    var policiesDict   = [String:String]()    //:Dictionary<String,String> = [:]
+    var packagesDict              = Dictionary<String,Dictionary<String,String>>()    // id, name, used
+    var scriptsDict               = Dictionary<String,Dictionary<String,String>>()    // id, name, used
+    var policiesDict              = [String:String]()    //:Dictionary<String,String> = [:]
     var computerConfigurationDict = [String:String]()
     var computerGroupsDict        = Dictionary<String,Dictionary<String,String>>()
     var allUnused                 = [[String:[String:String]]]() //Dictionary<String,Dictionary<String,String>>()    // currently unused var
@@ -83,15 +85,16 @@ class ViewController: NSViewController {
         policiesDict.removeAll()
         computerConfigurationDict.removeAll()
         computerGroupsDict.removeAll()
-        summary_TextField.textColor = NSColor.black
-        summary_TextField.font = NSFont(name: "HelveticaNeue", size: CGFloat(12))
-        summary_TextField.string = ""
         
-        currentServer   = jamfServer_TextField.stringValue
-        jamfCreds       = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
+        summary_TextField.textColor = NSColor.black
+        summary_TextField.font      = NSFont(name: "HelveticaNeue", size: CGFloat(12))
+        summary_TextField.string    = ""
+        
+        currentServer       = jamfServer_TextField.stringValue
+        jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
         let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
-        jamfBase64Creds = (jamfUtf8Creds?.base64EncodedString())!
-        completed       = 0
+        jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
+        completed           = 0
         
         print("[go_action caller] start lookups...")
         processItems(type: "packages")
@@ -197,11 +200,14 @@ class ViewController: NSViewController {
                             let computerGroupsArray = result["computer_groups"] as! [Dictionary<String, Any>]
                             let computerGroupsArrayCount = computerGroupsArray.count
                             if computerGroupsArrayCount > 0 {
+                                // loop through all computer groups and mark as unused
+                                // skip All managed clients / servers
                                 for i in (0..<computerGroupsArrayCount) {
                                     if let id = computerGroupsArray[i]["id"], let name = computerGroupsArray[i]["name"] {
-                                        self.computerGroupsDict["\(name)"] = ["id":"\(id)", "used":"false"]
-    //                                        self.computerGroupsDict["\(id)"] = ["name":"\(name)", "used":"false"]
-                                        
+                                        // skip by id rather than name?
+                                        if "\(name)" != "All Managed Clients" && "\(name)" != "All Managed Servers" {
+                                            self.computerGroupsDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        }
                                     }
                                 }   // for i in (0..<computerGroupsArrayCount) - end
                                 // look for nested computer groups
@@ -366,7 +372,7 @@ class ViewController: NSViewController {
                                     if self.completed == policiesArrayCount {
                                         var reportItems = [[String:[String:[String:String]]]]()
                                         if self.packagesButtonState == "on" {
-                                            reportItems.append(["package":self.packagesDict])
+                                            reportItems.append(["packages":self.packagesDict])
                                         }
                                         if self.scriptsButtonState == "on" {
                                             reportItems.append(["scripts":self.scriptsDict])
@@ -375,7 +381,6 @@ class ViewController: NSViewController {
                                             reportItems.append(["computergroups":self.computerGroupsDict])
                                         }
                                         self.unused(itemDictionary: reportItems)
-//                                        self.unused(itemDictionary: [["package":self.packagesDict], ["scripts":self.scriptsDict], ["computergroups":self.computerGroupsDict]])
                                     }
                                 }
                             }
@@ -406,10 +411,10 @@ class ViewController: NSViewController {
         }
         for i in (0..<dictCount) {
             let currentDict = itemDictionary[i]
-//            print("currentDict: \(currentDict)")
+            print("currentDict: \(currentDict)")
             for (type, theDict) in currentDict {
                 print("\ntype: \(type)")
-//                print("theDict: \(theDict)")
+                print("theDict: \(theDict)")
                 let newDict = theDict as! Dictionary<String,Dictionary<String,String>>
                 for (key, _) in newDict {
                     if newDict["\(key)"]?["used"] == "false" {
@@ -462,10 +467,42 @@ class ViewController: NSViewController {
         }
     }
     
+    
+//    func buildDictionary(type: String, used: String, data: [String:Any]) -> [String:[String:String]] {
+    func buildDictionary(type: String, used: String, data: [String:Any]) -> [String:Any] {
+        
+//        var unusedItemsDictionary = [String:[String:String]]()
+        var unusedItemsDictionary = [String:Any]()
+        var category            = ""
+        
+        if let listOfUnused = data[type] {
+            for theDict in listOfUnused as! [[String:String]] {
+                if type != "unusedComputerGroups" {
+                    unusedItemsDictionary[theDict["id"]!] = ["name":theDict["name"]!,"used":"false"]
+                } else {
+                    unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false"]
+                }
+            }
+        }
+        switch type {
+        case "unusedPackages":
+            category = "packages"
+            packagesDict = (unusedItemsDictionary as! [String:[String:String]])
+        case "unusedScripts":
+            category = "scripts"
+        case "unusedComputerGroups":
+            category = "computergroups"
+        default:
+            category = type
+        }
+//        return packagesDict
+        return ["\(category)":unusedItemsDictionary]
+    }
+    
     @IBAction func view_Action(_ sender: NSButton) {
         var reportItems = [[String:[String:[String:String]]]]()
         if sender.title == "Packages" || sender.title == "All" {
-            reportItems.append(["package":self.packagesDict])
+            reportItems.append(["packages":self.packagesDict])
         }
         if sender.title == "Scripts" || sender.title == "All" {
             reportItems.append(["scripts":self.scriptsDict])
@@ -476,6 +513,194 @@ class ViewController: NSViewController {
         self.unused(itemDictionary: reportItems)
     }
     
+    @IBAction func import_Action(_ sender: Any) {
+                
+        if let pathToFile = import_Button.url {
+            let objPath: URL!
+            if let pathOrDirectory = import_Button.url {
+                print("fileOrPath: \(pathOrDirectory)")
+                
+                objPath = URL(string: "\(pathOrDirectory)")!
+                var isDir : ObjCBool = false
+
+                sleep(1)
+                _ = FileManager.default.fileExists(atPath: objPath.path, isDirectory:&isDir)
+                do {
+                    let dataFile =  try Data(contentsOf:pathToFile, options: .mappedIfSafe)
+                    let objectJSON = try JSONSerialization.jsonObject(with: dataFile, options: .mutableLeaves) as? [String:Any]
+                    
+                    print("objectJSON: \(String(describing: objectJSON!))")
+                    for (key, _) in objectJSON! {
+                        print("\(key)")
+                        print("buildDictionary: \(buildDictionary(type: key, used: "false", data: objectJSON!))")
+                        unused(itemDictionary: [buildDictionary(type: key, used: "false", data: objectJSON!)])
+                    }
+
+                } catch {
+                    print("file read error")
+                    return
+                }
+            }
+        }
+    }
+    
+    
+    @IBAction func export_Action(_ sender: Any) {
+        
+        let timeStamp = Time().getCurrent()
+        let exportQ = DispatchQueue(label: "com.jamf.prune.exportQ", qos: DispatchQoS.background)
+        
+        exportQ.sync {
+            if self.packagesButtonState == "on" {
+                let packageLogFile = "prunePackages_\(timeStamp).json"
+//                let packageLogFile = "prunePackages_\(timeStamp).xml"
+                let exportURL = getDownloadDirectory().appendingPathComponent(packageLogFile)
+
+                do {
+                    try "{\"unusedPackages\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+//                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                } catch {
+                    print("failed to write the following: <unusedPackages>")
+                }
+                
+                if let packageLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                    for (key, _) in packagesDict {
+                        if packagesDict[key]?["used"]! == "false" {
+                            packageLogFileOp.seekToEndOfFile()
+                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
+//                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
+//                            let text = "\t<id>\(key)</id><name>\(String(describing: packagesDict[key]!["name"]!))</name>\n"
+                            packageLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                        }
+                    }   // for (key, _) in packagesDict - end
+                    packageLogFileOp.seekToEndOfFile()
+                    packageLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
+//                    packageLogFileOp.write("</unusedPackages>".data(using: String.Encoding.utf8)!)
+                    packageLogFileOp.closeFile()
+                }
+            }
+            
+            if self.scriptsButtonState == "on" {
+                let scriptLogFile = "pruneScripts_\(timeStamp).json"
+//                let scriptLogFile = "pruneScripts_\(timeStamp).xml"
+                let exportURL = getDownloadDirectory().appendingPathComponent(scriptLogFile)
+
+                do {
+                    try "{\"unusedScripts\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+//                    try "<unusedScripts>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                } catch {
+                    print("failed to write the following: <unusedScripts>")
+                }
+                
+                if let scriptLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                    for (key, _) in scriptsDict {
+                        if scriptsDict[key]?["used"]! == "false" {
+                            scriptLogFileOp.seekToEndOfFile()
+                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
+//                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"
+                            scriptLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                        }
+                    }   // for (key, _) in scriptsDict - end
+                    scriptLogFileOp.seekToEndOfFile()
+                    scriptLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
+//                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
+                    scriptLogFileOp.closeFile()
+                }
+            }
+            
+            if self.computerGroupsButtonState == "on" {
+                let computerGroupLogFile = "pruneComputerGroups_\(timeStamp).json"
+//                let computerGroupLogFile = "pruneComputerGroups_\(timeStamp).xml"
+                let exportURL = getDownloadDirectory().appendingPathComponent(computerGroupLogFile)
+
+                do {
+                    try "{\"unusedComputerGroups\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+//                    try "<unusedComputerGroups>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                } catch {
+                    print("failed to write the following: <unusedComputerGroups>")
+                }
+                
+                if let computerGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                    for (key, _) in computerGroupsDict {
+                        if computerGroupsDict[key]?["used"]! == "false" {
+                            computerGroupLogFileOp.seekToEndOfFile()
+                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
+                            computerGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                        }
+                    }   // for (key, _) in scriptsDict - end
+                    computerGroupLogFileOp.seekToEndOfFile()
+                    computerGroupLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
+//                    computerGroupLogFileOp.write("</unusedComputerGroups>".data(using: String.Encoding.utf8)!)
+                    computerGroupLogFileOp.closeFile()
+                }
+            }
+        }
+    }
+    
+    @IBAction func remove_Action(_ sender: Any) {
+        
+        theDeleteQ.maxConcurrentOperationCount = 3
+        
+        let viewing = view_PopUpButton.title
+        print("[remove] viewing: \(viewing)")
+        
+        var masterItemsToDeleteArray = [[String:String]]()
+        if viewing == "All" || viewing == "Packages" {
+            for (key, _) in packagesDict {
+                if packagesDict[key]?["used"] == "false" {
+//                    print("[remove_Action] remove package with id: \(key)")
+                    masterItemsToDeleteArray.append(["packages":key])
+                }
+            }
+        }
+
+        if viewing == "All" || viewing == "Scripts" {
+            for (key, _) in scriptsDict {
+                if scriptsDict[key]?["used"] == "false" {
+//                    print("[remove_Action] remove script with id: \(key)")
+                    masterItemsToDeleteArray.append(["scripts":key])
+                }
+            }
+        }
+
+        if viewing == "All" || viewing == "Computer Groups" {
+            for (key, _) in computerGroupsDict {
+                if computerGroupsDict[key]?["used"] == "false" {
+                    let id = "\(String(describing: computerGroupsDict[key]!["id"]!))"
+//                    print("[remove_Action] remove computer group with id: \(id)")
+                    masterItemsToDeleteArray.append(["computergroups":id])
+                }
+            }
+        }
+        
+
+        theDeleteQ.addOperation {
+            var counter = 0
+            // loop through master list and delete items - start
+            for item in masterItemsToDeleteArray {
+                for (category, id) in item {
+                    Xml().action(action: "DELETE", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
+                        (result: [String:AnyObject]) in
+                        print("[remove_Action] removed \(category) with id: \(id)")
+//                                        print("json returned packages: \(result)")
+                        counter += 1
+                        if counter == masterItemsToDeleteArray.count {
+                            self.summary_TextField.string = "All removals have been processed."
+                        }
+                                        
+                    }
+                }
+            }
+            // loop through master list and delete items - end
+        }
+    }
+    
+    
+    func getDownloadDirectory() -> URL {
+        let downloadsDirectory = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
+        return downloadsDirectory
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -489,6 +714,10 @@ class ViewController: NSViewController {
         uname_TextField.stringValue      = "apiread"
         passwd_TextField.stringValue     = "8p1r33d"
         // for testing - end
+        
+        // configure import button
+        import_Button.url          = getDownloadDirectory()
+        import_Button.allowedTypes = ["json"]
         
     }
 
