@@ -706,14 +706,6 @@ class ViewController: NSViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        // for testing - start
-//        jamfServer_TextField.stringValue = "https://macserver01.eisd.net:8443"
-//        uname_TextField.stringValue      = "jamf_ro"
-//        passwd_TextField.stringValue     = "jamf12345"
-        jamfServer_TextField.stringValue = "https://lhelou.jamfcloud.com"
-        uname_TextField.stringValue      = "apiread"
-        passwd_TextField.stringValue     = "8p1r33d"
-        // for testing - end
         
         // configure import button
         import_Button.url          = getDownloadDirectory()
