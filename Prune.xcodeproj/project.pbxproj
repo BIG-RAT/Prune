@@ -12,6 +12,7 @@
 		B58A314323A139810023EA63 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B58A314223A139810023EA63 /* Assets.xcassets */; };
 		B58A314623A139810023EA63 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B58A314423A139810023EA63 /* Main.storyboard */; };
 		B58A314F23A13CF30023EA63 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A314E23A13CF30023EA63 /* Json.swift */; };
+		B5B3096623AD3857004BA9DB /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B3096523AD3857004BA9DB /* Alert.swift */; };
 		B5DF4D6C23A5771A00225468 /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DF4D6B23A5771A00225468 /* Time.swift */; };
 		B5DF4D6E23A7103200225468 /* Xml.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DF4D6D23A7103200225468 /* Xml.swift */; };
 /* End PBXBuildFile section */
@@ -25,6 +26,7 @@
 		B58A314723A139810023EA63 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B58A314823A139810023EA63 /* prune.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = prune.entitlements; sourceTree = "<group>"; };
 		B58A314E23A13CF30023EA63 /* Json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json.swift; sourceTree = "<group>"; };
+		B5B3096523AD3857004BA9DB /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		B5DF4D6B23A5771A00225468 /* Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
 		B5DF4D6D23A7103200225468 /* Xml.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xml.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -64,6 +66,7 @@
 				B5DF4D6B23A5771A00225468 /* Time.swift */,
 				B58A314023A1397E0023EA63 /* ViewController.swift */,
 				B5DF4D6D23A7103200225468 /* Xml.swift */,
+				B5B3096523AD3857004BA9DB /* Alert.swift */,
 				B58A314223A139810023EA63 /* Assets.xcassets */,
 				B58A314423A139810023EA63 /* Main.storyboard */,
 				B58A314723A139810023EA63 /* Info.plist */,
@@ -142,6 +145,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5B3096623AD3857004BA9DB /* Alert.swift in Sources */,
 				B5DF4D6C23A5771A00225468 /* Time.swift in Sources */,
 				B58A314F23A13CF30023EA63 /* Json.swift in Sources */,
 				B58A314123A1397E0023EA63 /* ViewController.swift in Sources */,
@@ -292,7 +296,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.8.0;
+				MARKETING_VERSION = 0.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -314,7 +318,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.8.0;
+				MARKETING_VERSION = 0.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
