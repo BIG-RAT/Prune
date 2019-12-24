@@ -13,6 +13,7 @@
 		B58A314623A139810023EA63 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B58A314423A139810023EA63 /* Main.storyboard */; };
 		B58A314F23A13CF30023EA63 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A314E23A13CF30023EA63 /* Json.swift */; };
 		B5B3096623AD3857004BA9DB /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B3096523AD3857004BA9DB /* Alert.swift */; };
+		B5B3096C23B05120004BA9DB /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B3096B23B05120004BA9DB /* Globals.swift */; };
 		B5DF4D6C23A5771A00225468 /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DF4D6B23A5771A00225468 /* Time.swift */; };
 		B5DF4D6E23A7103200225468 /* Xml.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DF4D6D23A7103200225468 /* Xml.swift */; };
 /* End PBXBuildFile section */
@@ -27,6 +28,7 @@
 		B58A314823A139810023EA63 /* prune.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = prune.entitlements; sourceTree = "<group>"; };
 		B58A314E23A13CF30023EA63 /* Json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json.swift; sourceTree = "<group>"; };
 		B5B3096523AD3857004BA9DB /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
+		B5B3096B23B05120004BA9DB /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		B5DF4D6B23A5771A00225468 /* Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
 		B5DF4D6D23A7103200225468 /* Xml.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xml.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -61,12 +63,13 @@
 		B58A313D23A1397E0023EA63 /* prune */ = {
 			isa = PBXGroup;
 			children = (
+				B5B3096523AD3857004BA9DB /* Alert.swift */,
 				B58A313E23A1397E0023EA63 /* AppDelegate.swift */,
+				B5B3096B23B05120004BA9DB /* Globals.swift */,
 				B58A314E23A13CF30023EA63 /* Json.swift */,
 				B5DF4D6B23A5771A00225468 /* Time.swift */,
 				B58A314023A1397E0023EA63 /* ViewController.swift */,
 				B5DF4D6D23A7103200225468 /* Xml.swift */,
-				B5B3096523AD3857004BA9DB /* Alert.swift */,
 				B58A314223A139810023EA63 /* Assets.xcassets */,
 				B58A314423A139810023EA63 /* Main.storyboard */,
 				B58A314723A139810023EA63 /* Info.plist */,
@@ -150,6 +153,7 @@
 				B58A314F23A13CF30023EA63 /* Json.swift in Sources */,
 				B58A314123A1397E0023EA63 /* ViewController.swift in Sources */,
 				B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */,
+				B5B3096C23B05120004BA9DB /* Globals.swift in Sources */,
 				B5DF4D6E23A7103200225468 /* Xml.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -296,7 +300,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.9.0;
+				MARKETING_VERSION = 0.9.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -318,7 +322,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.9.0;
+				MARKETING_VERSION = 0.9.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
