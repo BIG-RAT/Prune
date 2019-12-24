@@ -9,9 +9,12 @@
 import Cocoa
 
 class Json: NSURL, URLSessionDelegate {
+    
+    let defaults = UserDefaults.standard
+    
     func getRecord(theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: [String:AnyObject]) -> Void) {
 
-        let getRecordQ = DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
+        let getRecordQ = OperationQueue() // DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
     
         URLCache.shared.removeAllCachedResponses()
         var existingDestUrl = ""
@@ -20,12 +23,13 @@ class Json: NSURL, URLSessionDelegate {
         existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
         
 //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
-//        print("existing endpoints URL: \(existingDestUrl)")
+        print("[Json.getRecord] existing endpoints URL: \(existingDestUrl)")
         let destEncodedURL = NSURL(string: existingDestUrl)
         let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
         
-        let semaphore = DispatchSemaphore(value: 1)
-        getRecordQ.async {
+        let semaphore = DispatchSemaphore(value: 0)
+        getRecordQ.maxConcurrentOperationCount = 3
+        getRecordQ.addOperation {
             
             jsonRequest.httpMethod = "GET"
             let destConf = URLSessionConfiguration.default
