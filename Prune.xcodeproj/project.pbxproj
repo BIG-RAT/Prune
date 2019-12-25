@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B58981E923B3DAC800CC3C5B /* Credentials2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58981E823B3DAC700CC3C5B /* Credentials2.swift */; };
 		B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A313E23A1397E0023EA63 /* AppDelegate.swift */; };
 		B58A314123A1397E0023EA63 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A314023A1397E0023EA63 /* ViewController.swift */; };
 		B58A314323A139810023EA63 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B58A314223A139810023EA63 /* Assets.xcassets */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B58981E823B3DAC700CC3C5B /* Credentials2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials2.swift; sourceTree = "<group>"; };
 		B58A313B23A1397E0023EA63 /* Prune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prune.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B58A313E23A1397E0023EA63 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B58A314023A1397E0023EA63 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 			children = (
 				B5B3096523AD3857004BA9DB /* Alert.swift */,
 				B58A313E23A1397E0023EA63 /* AppDelegate.swift */,
+				B58981E823B3DAC700CC3C5B /* Credentials2.swift */,
 				B5B3096B23B05120004BA9DB /* Globals.swift */,
 				B58A314E23A13CF30023EA63 /* Json.swift */,
 				B5DF4D6B23A5771A00225468 /* Time.swift */,
@@ -153,6 +156,7 @@
 				B58A314F23A13CF30023EA63 /* Json.swift in Sources */,
 				B58A314123A1397E0023EA63 /* ViewController.swift in Sources */,
 				B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */,
+				B58981E923B3DAC800CC3C5B /* Credentials2.swift in Sources */,
 				B5B3096C23B05120004BA9DB /* Globals.swift in Sources */,
 				B5DF4D6E23A7103200225468 /* Xml.swift in Sources */,
 			);
@@ -300,7 +304,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.9.2;
+				MARKETING_VERSION = 0.9.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -322,7 +326,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.9.2;
+				MARKETING_VERSION = 0.9.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
