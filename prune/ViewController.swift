@@ -410,7 +410,7 @@ class ViewController: NSViewController {
                                         while true {
                                             usleep(10)
                                             if !waitFor.computerGroup {
-                                                print("call packages")
+                                                print("[processItems] call packages")
                                                 DispatchQueue.main.async {
                                                     self.processItems(type: "packages")
                                                 }
@@ -423,7 +423,7 @@ class ViewController: NSViewController {
 
                             }
                         } else {
-                            print("call packages")
+                            print("[processItems] skipping computer groups - call packages")
                             DispatchQueue.main.async {
                                 self.processItems(type: "packages")
                             }
@@ -456,7 +456,7 @@ class ViewController: NSViewController {
                         }
                     }
                 } else {
-                    print("call scripts")
+                    print("[processItems] skipping packages - call scripts")
                     DispatchQueue.main.async {
                         self.processItems(type: "scripts")
                     }
@@ -480,13 +480,13 @@ class ViewController: NSViewController {
                                 }
                             }
     //                        print("scriptsDict (\(self.scriptsDict.count)): \(self.scriptsDict)")
-                            print("call computerConfigurations")
+                            print("[processItems] scripts complete - call computerConfigurations")
                             DispatchQueue.main.async {
                                 self.processItems(type: "computerConfigurations")
                             }
                         }
                     } else {
-                        print("call computerConfigurations")
+                        print("[processItems] skipping scripts - call computerConfigurations")
                         DispatchQueue.main.async {
                             self.processItems(type: "computerConfigurations")
                         }
@@ -514,7 +514,7 @@ class ViewController: NSViewController {
                             while true {
                                 usleep(10)
                                 if !waitFor.computerConfiguration {
-                                    print("call osxconfigurationprofiles")
+                                    print("[processItems] computerConfigurations complete - call osxconfigurationprofiles")
                                     DispatchQueue.main.async {
                                         self.processItems(type: "osxconfigurationprofiles")
                                     }
@@ -525,7 +525,7 @@ class ViewController: NSViewController {
                         
                     } else {
                         // no computer configurations exist
-                        print("call osxconfigurationprofiles")
+                        print("[processItems] no computerConfigurations - call osxconfigurationprofiles")
                         DispatchQueue.main.async {
                             self.processItems(type: "osxconfigurationprofiles")
                         }
@@ -557,7 +557,7 @@ class ViewController: NSViewController {
                                     while true {
                                         usleep(10)
                                         if !waitFor.osxconfigurationprofile {
-                                            print("call policies")
+                                            print("[processItems] osxconfigurationprofiles complete - call policies")
                                             DispatchQueue.main.async {
                                                 self.processItems(type: "policies")
                                             }
@@ -565,14 +565,20 @@ class ViewController: NSViewController {
                                         }
                                     }
                                 }
+                            } else {
+                                // no computer configurations exist
+                                print("[processItems] computer configuration profiles complete - call osxconfigurationprofiles")
+                                DispatchQueue.main.async {
+                                    self.processItems(type: "policies")
+                                }
                             }
 
-                            print("call policies")
-                            DispatchQueue.main.async {
-                                self.processItems(type: "policies")
-                            }
+//                            print("call policies")
+//                            DispatchQueue.main.async {
+//                                self.processItems(type: "policies")
+//                            }
                         } else {
-                            print("call policies")
+                            print("[processItems] unable to read computer configuration profiles - call policies")
                             DispatchQueue.main.async {
                                 self.processItems(type: "policies")
                             }
@@ -617,7 +623,7 @@ class ViewController: NSViewController {
                                 while true {
                                     usleep(10)
                                     if !waitFor.policy && !waitFor.osxconfigurationprofile {
-                                        print("call unused")
+                                        print("[processItems] policies complete - call unused")
                                         var reportItems = [[String:[String:[String:String]]]]()
                                         if self.packagesButtonState == "on" {
                                             reportItems.append(["packages":self.packagesDict])
@@ -643,6 +649,39 @@ class ViewController: NSViewController {
                                 }
                             }
                             
+                    } else {
+                        // no policies found
+                        waitFor.policy = false
+                        self.backgroundQ.async {
+                            while true {
+                                usleep(10)
+                                if !waitFor.policy && !waitFor.osxconfigurationprofile {
+                                    print("[processItems] policies complete - call unused")
+                                    var reportItems = [[String:[String:[String:String]]]]()
+                                    if self.packagesButtonState == "on" {
+                                        reportItems.append(["packages":self.packagesDict])
+                                    }
+                                    if self.scriptsButtonState == "on" {
+                                        reportItems.append(["scripts":self.scriptsDict])
+                                    }
+                                    if self.computerGroupsButtonState == "on" {
+                                        reportItems.append(["computergroups":self.computerGroupsDict])
+                                    }
+                                    if self.computerProfilesButtonState == "on" {
+                                        reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
+                                    }
+                                    if self.policiesButtonState == "on" {
+                                        reportItems.append(["policies":self.policiesDict])
+                                    }
+                                    DispatchQueue.main.async {
+                                        self.unused(itemDictionary: reportItems)
+                                    }
+                                    
+                                    break
+                                }
+                            }
+                        }
+                        
                     }
                 }   //         Json().getRecord - policies - end
                 // object that have a scope - end
