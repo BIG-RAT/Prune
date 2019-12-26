@@ -18,6 +18,8 @@ class ViewController: NSViewController {
     @IBOutlet weak var jamfServer_TextField: NSTextField!
     @IBOutlet weak var uname_TextField: NSTextField!
     @IBOutlet weak var passwd_TextField: NSSecureTextField!
+    @IBOutlet weak var savePassword_Button: NSButton!
+    
     @IBOutlet weak var view_PopUpButton: NSPopUpButton!
     @IBOutlet weak var packages_Button: NSButton!
     @IBOutlet weak var scripts_Button: NSButton!
@@ -171,8 +173,19 @@ class ViewController: NSViewController {
             (result: String) in
             if result != "" {
                 DispatchQueue.main.async {
+                    // save password if checked - start
+                let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
+                    if self.savePassword_Button.state.rawValue == 1 {
+                        let credKey = regexKey.stringByReplacingMatches(in: self.currentServer, options: [], range: NSRange(0..<self.currentServer.utf16.count), withTemplate: "")
+                        Credentials2().save(service: "prune - "+credKey, account: self.uname_TextField.stringValue, data: self.passwd_TextField.stringValue)
+                    }
+                    
                     self.defaults.set(self.currentServer, forKey: "server")
                     self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
+                    // save password if checked - start
+                    if self.savePassword_Button.state.rawValue == 1 {
+                        self.defaults.set(self.passwd_TextField.stringValue, forKey: "password")
+                    }
                     self.process_TextField.isHidden = false
                     self.process_TextField.stringValue = "Starting lookups..."
                 }
@@ -1270,6 +1283,17 @@ class ViewController: NSViewController {
         return false
     }
     
+    @IBAction func savePassword_Action(_ sender: Any) {
+        if savePassword_Button.state.rawValue == 1 {
+            self.defaults.set(1, forKey: "passwordButton")
+//            print("save password")
+        } else {
+            self.defaults.set(0, forKey: "passwordButton")
+//            print("don't save password")
+        }
+    }
+    
+    
     func working(isWorking: Bool) {
         if isWorking {
             DispatchQueue.main.async {
@@ -1293,12 +1317,23 @@ class ViewController: NSViewController {
         import_Button.url          = getDownloadDirectory()
         import_Button.allowedTypes = ["json"]
         
-        // for testing - start
         jamfServer_TextField.stringValue = defaults.object(forKey: "server") as? String ?? ""
-        uname_TextField.stringValue      = defaults.object(forKey: "username") as? String ?? ""
-        passwd_TextField.stringValue     = ""
-        // for testing - end
-        
+        if (jamfServer_TextField.stringValue != "") {
+            let regexKey        = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
+            let credKey         = regexKey.stringByReplacingMatches(in: jamfServer_TextField.stringValue, options: [], range: NSRange(0..<jamfServer_TextField.stringValue.utf16.count), withTemplate: "")
+            let credentailArray  = Credentials2().retrieve(service: "prune - "+credKey)
+            if credentailArray.count == 2 {
+                uname_TextField.stringValue  = credentailArray[0]
+                passwd_TextField.stringValue = credentailArray[1]
+            } else {
+                uname_TextField.stringValue  = defaults.object(forKey: "username") as? String ?? ""
+                passwd_TextField.stringValue = ""
+            }
+        } else {
+            uname_TextField.stringValue  = defaults.object(forKey: "username") as? String ?? ""
+            passwd_TextField.stringValue = ""
+        }
+        savePassword_Button.state = NSControl.StateValue(rawValue: defaults.object(forKey: "passwordButton") as? Int ?? 0)
     }
 
     override var representedObject: Any? {
@@ -1306,7 +1341,6 @@ class ViewController: NSViewController {
         // Update the view, if already loaded.
         }
     }
-
 
 }
 
@@ -1320,25 +1354,6 @@ extension ViewController: NSTableViewDataSource {
 
 
 extension ViewController: NSTableViewDelegate {
-    
-//    override func mouseDown(with event: NSEvent) {
-//
-//        let test = keyDown(with: j)
-//    }
-//    override func keyDown(with event: NSEvent) {
-//        print("[extension ViewController] modifer = " + "\(event.modifierFlags.intersection(.deviceIndependentFlagsMask))")
-//        print("[extension ViewController] key = " + (event.charactersIgnoringModifiers ?? ""))
-//        print("\n[extension ViewController] character = " + (event.characters ?? ""))
-//        switch event.modifierFlags.intersection(.deviceIndependentFlagsMask) {
-//
-//        case [.command] where event.characters == "l",
-//             [.command, .shift] where event.characters == "l":
-//            print("[extension ViewController] command-l or command-shift-l")
-//        default:
-//            break
-//        }
-//    }
-
 
     fileprivate enum CellIdentifiers {
         static let NameCell = "ObjectName_Cell-ID"
