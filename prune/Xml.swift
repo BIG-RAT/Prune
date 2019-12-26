@@ -11,7 +11,7 @@ import Cocoa
 class Xml: NSURL, URLSessionDelegate {
     func action(action: String, theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: (Int,String)) -> Void) {
 
-        let getRecordQ = DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
+        let getRecordQ = OperationQueue()   //DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
     
         URLCache.shared.removeAllCachedResponses()
         var existingDestUrl = ""
@@ -25,7 +25,8 @@ class Xml: NSURL, URLSessionDelegate {
         let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
         
         let semaphore = DispatchSemaphore(value: 1)
-        getRecordQ.async {
+        getRecordQ.maxConcurrentOperationCount = 3
+        getRecordQ.addOperation {
             
             jsonRequest.httpMethod = "\(action)"
             let destConf = URLSessionConfiguration.default
@@ -38,14 +39,7 @@ class Xml: NSURL, URLSessionDelegate {
                     if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                         do {
                             let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
-//                            let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-//                            if let endpointJSON = json as? [String:AnyObject] {
-////                                if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] \(endpointJSON)\n") }
-//                                completion(returnedXML)
-//                            } else {
-////                                WriteToLog().message(stringOfText: "[Json.getRecord] error parsing JSON for \(existingDestUrl)\n")
-//                                completion("")
-//                            }
+
                             completion((httpResponse.statusCode,returnedXML))
                         }
                     } else {
