@@ -20,6 +20,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var passwd_TextField: NSSecureTextField!
     @IBOutlet weak var savePassword_Button: NSButton!
     
+    @IBOutlet weak var scan_Button: NSButton!
     @IBOutlet weak var view_PopUpButton: NSPopUpButton!
     @IBOutlet weak var packages_Button: NSButton!
     @IBOutlet weak var scripts_Button: NSButton!
@@ -368,9 +369,15 @@ class ViewController: NSViewController {
                                         usleep(10)
                                         if !waitFor.osxconfigurationprofile {
                                             print("[processItems] osxconfigurationprofiles complete - call mobiledeviceapplications")
-                                            DispatchQueue.main.async {
-                                                self.processItems(type: "mobiledeviceapplications")
-                                            }
+                                            if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
+                                                DispatchQueue.main.async {
+                                                    self.processItems(type: "mobiledeviceapplications")
+                                                }
+                                            } else {
+                                                DispatchQueue.main.async {
+                                                    self.processItems(type: "mobiledeviceconfigurationprofiles")
+                                                }
+                                            }   // if self.mobileDeviceAppsButtonState == "on" - end
                                             break
                                         }
                                     }
@@ -378,9 +385,15 @@ class ViewController: NSViewController {
                             } else {
                                 // no computer profiles exist
                                 print("[processItems] computer configuration profiles complete - call mobiledeviceapplications")
-                                DispatchQueue.main.async {
-                                    self.processItems(type: "mobiledeviceapplications")
-                                }
+                                if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
+                                    DispatchQueue.main.async {
+                                        self.processItems(type: "mobiledeviceapplications")
+                                    }
+                                } else {
+                                    DispatchQueue.main.async {
+                                        self.processItems(type: "mobiledeviceconfigurationprofiles")
+                                    }
+                                }   // if self.mobileDeviceAppsButtonState == "on" - end
                             }
 
 //                            print("call policies")
@@ -390,27 +403,39 @@ class ViewController: NSViewController {
                         } else {
                             print("[processItems] unable to read computer configuration profiles - call mobiledeviceapplications")
                             waitFor.osxconfigurationprofile = false
-                            DispatchQueue.main.async {
-                                self.processItems(type: "mobiledeviceapplications")
-                            }
+                            if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
+                                DispatchQueue.main.async {
+                                    self.processItems(type: "mobiledeviceapplications")
+                                }
+                            } else {
+                                DispatchQueue.main.async {
+                                    self.processItems(type: "mobiledeviceconfigurationprofiles")
+                                }
+                            }   // if self.mobileDeviceAppsButtonState == "on" - end
                         }
                     }
                 } else {
                     // skip computer configuration profiles
                     print("[processItems] skipping computer configuration profiles - call mobiledeviceapplications")
                     waitFor.osxconfigurationprofile = false
-                    DispatchQueue.main.async {
-                        self.processItems(type: "mobiledeviceapplications")
-                    }
+                    if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
+                        DispatchQueue.main.async {
+                            self.processItems(type: "mobiledeviceapplications")
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.processItems(type: "mobiledeviceconfigurationprofiles")
+                        }
+                    }   // if self.mobileDeviceAppsButtonState == "on" - end
                 }
                                                             
             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                 var msgText    = "mobile device profiles"
                 var nextObject = "policies"
-                if self.mobileDeviceAppsButtonState == "on" || self.configurationProfilesButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
+                if (type == "mobiledeviceapplications" && self.mobileDeviceAppsButtonState == "on") || self.mobileDeviceGrpsButtonState == "on" || (type == "mobiledeviceconfigurationprofiles" && self.configurationProfilesButtonState == "on") {
                     var xmlTag = ""
                     DispatchQueue.main.async {
-                        if type == "mobiledeviceapplications" || (type == "mobiledeviceapplications" && self.configurationProfilesButtonState == "on") {
+                        if type == "mobiledeviceapplications" || (type == "mobiledeviceapplications" && self.mobileDeviceGrpsButtonState == "on") {
                             xmlTag     = "mobile_device_applications"
                             nextObject = "mobiledeviceconfigurationprofiles"
                             msgText    = "mobile device apps"
@@ -537,7 +562,7 @@ class ViewController: NSViewController {
                                                 reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
                                             }
                                             if self.configurationProfilesButtonState == "on" {
-                                                reportItems.append(["configurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
+                                                reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
                                             }
                                             DispatchQueue.main.async {
                                                 self.unused(itemDictionary: reportItems)
@@ -579,7 +604,7 @@ class ViewController: NSViewController {
                                             reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
                                         }
                                         if self.configurationProfilesButtonState == "on" {
-                                            reportItems.append(["configurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
+                                            reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
                                         }
                                         DispatchQueue.main.async {
                                             self.unused(itemDictionary: reportItems)
@@ -622,7 +647,7 @@ class ViewController: NSViewController {
                                     reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
                                 }
                                 if self.configurationProfilesButtonState == "on" {
-                                    reportItems.append(["configurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
+                                    reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
                                 }
                                 DispatchQueue.main.async {
                                     self.unused(itemDictionary: reportItems)
@@ -899,10 +924,10 @@ class ViewController: NSViewController {
                 unusedItems_TableDict!.append(["----- header -----":"----- header -----"])
             }
             let currentDict = itemDictionary[i]
-            print("currentDict: \(currentDict)")
+//            print("currentDict: \(currentDict)")
             for (type, theDict) in currentDict {
                 print("\ntype: \(type)")
-                print("theDict: \(theDict)")
+                print("dictionary of objects: \(theDict)")
                 let currentItem = type
                 let newDict = theDict as! Dictionary<String,Dictionary<String,String>>
                 for (key, _) in newDict {
@@ -1056,7 +1081,7 @@ class ViewController: NSViewController {
                     
                     print("objectJSON: \(String(describing: objectJSON!))")
                     for (key, value) in objectJSON! {
-                        print("\(key)")
+//                        print("\(key)")
                         switch key {
                         case "jamfServer":
                             jamfServer_TextField.stringValue = "\(value)"
@@ -1413,8 +1438,9 @@ class ViewController: NSViewController {
                                 } else {
                                    self.masterObjectDict["mobiledeviceapplications"]?.removeValue(forKey: itemName)
                                 }
-
+                                
                                 case "mobiledeviceconfigurationprofiles":
+//                                case "configurationprofiles":
                                 if withOptionKey {
                                     if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/iOSConfigurationProfiles.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
@@ -1717,10 +1743,12 @@ class ViewController: NSViewController {
     func working(isWorking: Bool) {
         if isWorking {
             DispatchQueue.main.async {
+                self.scan_Button.isEnabled = false
                 self.spinner_ProgressIndicator.startAnimation(self)
             }
         } else {
             DispatchQueue.main.async {
+                self.scan_Button.isEnabled = true
                 self.spinner_ProgressIndicator.stopAnimation(self)
             }
         }
@@ -1734,7 +1762,7 @@ class ViewController: NSViewController {
         object_TableView.dataSource = self
         
         // configure import button
-        import_Button.url          = getDownloadDirectory()
+        import_Button.url          = getDownloadDirectory().appendingPathComponent("/.")
         import_Button.allowedTypes = ["json"]
         
         jamfServer_TextField.stringValue = defaults.object(forKey: "server") as? String ?? ""
@@ -1796,6 +1824,7 @@ extension ViewController: NSTableViewDelegate {
             cellIdentifier = CellIdentifiers.NameCell
         } else if tableColumn == object_TableView.tableColumns[1] {
             print("no such column")
+            object_TableView.tableColumns[1].isHidden = true
         }
 //        } else if tableColumn == object_TableView.tableColumns[1] {
 //            let result:NSPopUpButton = tableView.make(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "objectType"), owner: self) as! NSPopUpButton
