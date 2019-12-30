@@ -892,7 +892,7 @@
                                     <constraint firstAttribute="width" constant="118" id="V7o-xb-MXx"/>
                                 </constraints>
                                 <pathCell key="cell" controlSize="small" selectable="YES" editable="YES" alignment="left" placeholderString="Import" pathStyle="popUp" id="ABP-ij-TMx">
-                                    <font key="font" metaFont="menu" size="11"/>
+                                    <font key="font" metaFont="controlContent" size="11"/>
                                     <url key="url" string="file:///Applications/"/>
                                     <connections>
                                         <action selector="import_Action:" target="XfG-lQ-9wD" id="exr-Lo-Om6"/>
@@ -926,7 +926,7 @@
                                             <tableColumns>
                                                 <tableColumn width="668" minWidth="40" maxWidth="1000" id="qyG-E8-ZZ5">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Name">
-                                                        <font key="font" metaFont="menu" size="11"/>
+                                                        <font key="font" metaFont="controlContent" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
@@ -1137,6 +1137,7 @@
                         <outlet property="policies_Button" destination="dlw-9C-Dvf" id="Yor-bk-dpS"/>
                         <outlet property="process_TextField" destination="wAV-VD-ITG" id="M7m-KT-0Fv"/>
                         <outlet property="savePassword_Button" destination="GuW-11-YAB" id="oHh-af-3wo"/>
+                        <outlet property="scan_Button" destination="RE9-hM-mjH" id="Trh-mY-aiN"/>
                         <outlet property="scripts_Button" destination="CHT-iK-owq" id="0ro-lO-nFQ"/>
                         <outlet property="spinner_ProgressIndicator" destination="cnQ-TA-ZNH" id="Fri-OV-bLS"/>
                         <outlet property="uname_TextField" destination="n9P-7I-G9h" id="NTF-lg-97m"/>
