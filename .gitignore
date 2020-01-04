@@ -1,3 +1,4 @@
 localOnly/
 .DS_Store
 **/.DS_Store
+prune.xcodeproj
