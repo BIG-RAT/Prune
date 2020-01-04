@@ -17,5 +17,5 @@ Once the list of unused items is generated you can edit it within the app.  If y
 * Click Remove if you wish to remove the items from the server.
 * Click Export if you wish to save (to your Downloads folder) the lists of objects to remove for review/editing later.  These lists can later be imported into the application.
 
-####Important:
+#### Important:
 This application deletes stuff, use with caution!  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Jamf Migrator](https://github.com/jamf/JamfMigrator) and export the (full) XML of all objects, or do both.
