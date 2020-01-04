@@ -1823,7 +1823,7 @@ extension ViewController: NSTableViewDelegate {
             text = "\(item)"
             cellIdentifier = CellIdentifiers.NameCell
         } else if tableColumn == object_TableView.tableColumns[1] {
-            print("no such column")
+            print("hidden column 1")
             object_TableView.tableColumns[1].isHidden = true
         }
 //        } else if tableColumn == object_TableView.tableColumns[1] {
