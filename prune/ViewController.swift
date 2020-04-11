@@ -8,6 +8,7 @@
 
 import Cocoa
 import Foundation
+import SwiftyXMLParser
 
 class ViewController: NSViewController {
 
@@ -121,7 +122,7 @@ class ViewController: NSViewController {
                     
                     self.defaults.set(self.currentServer, forKey: "server")
                     self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
-                    // save password if checked - start
+                    // save password if checked - end
                     if self.savePassword_Button.state.rawValue == 1 {
                         self.defaults.set(self.passwd_TextField.stringValue, forKey: "password")
                     }
@@ -431,7 +432,8 @@ class ViewController: NSViewController {
                                                             
             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                 var msgText    = "mobile device profiles"
-                var nextObject = "policies"
+//                var nextObject = "policies"
+                var nextObject = "patchpolicies"
                 if (type == "mobiledeviceapplications" && self.mobileDeviceAppsButtonState == "on") || self.mobileDeviceGrpsButtonState == "on" || (type == "mobiledeviceconfigurationprofiles" && self.configurationProfilesButtonState == "on") {
                     var xmlTag = ""
                     DispatchQueue.main.async {
@@ -498,7 +500,96 @@ class ViewController: NSViewController {
                     }
                 }
                             
-                
+    case "patchpolicies":
+        print("patchpolicies")
+//        let nextObject = "patchsoftwaretitles"
+        let nextObject = "policies"
+        if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
+//           var xmlTag = ""
+            DispatchQueue.main.async {
+                   self.process_TextField.stringValue = "Fetching Patch Policies..."
+            }
+
+            self.masterObjectDict[type] = [String:[String:String]]()
+            var patchPoliciesArray = [[String:Any]]()
+            
+            Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
+                (result: (Int,String)) in
+                let (statusCode,returnedXml) = result
+                print("[patcholicies GET] statusCode: \(statusCode)")
+                print("[patcholicies GET] xml: \(returnedXml)")
+                var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
+                nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
+                let xmlData = nameFixedXml.data(using: .utf8)
+                let parsedXmlData = XML.parse(xmlData!)
+
+                for thePolicy in parsedXmlData.patch_software_titles.patch_software_title {
+                    if let id = thePolicy.id.text, let name = thePolicy.Name.text {
+
+                        print("patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
+                        patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
+                        // mark patch policies as unused (reporting only) - start
+                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                        // mark patch policies as unused (reporting only) - end
+                    }
+                }
+
+               /*
+            }
+            Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                (result: [String:AnyObject]) in
+                self.masterObjectDict[type] = [String:[String:String]]()
+                //            print("json returned: \(result)")
+                self.completed = 0
+                let patchPoliciesArray = result["patch_policies"] as! [Dictionary<String, Any>]
+                print("patchPoliciesArray: \(patchPoliciesArray)")
+            
+                // mark patch policies as unused - start
+                for thePolicy in patchPoliciesArray {
+                    if let id = thePolicy["id"], let name = thePolicy["name"] {
+                        // mark the policy as unused
+                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                    }
+                }
+                // mark patch policies as unused - end
+*/
+               let patchPoliciesArrayCount = patchPoliciesArray.count
+               if patchPoliciesArrayCount > 0 {
+                   DispatchQueue.main.async {
+                       self.process_TextField.stringValue = "Scanning Patch Policies..."
+                   }
+
+                   self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
+                   waitFor.policy = true
+                   self.backgroundQ.async {
+                       while true {
+                           usleep(10)
+                           if !waitFor.policy {
+                               print("[processItems] patch policies complete - call patchsoftwaretitles")
+                               DispatchQueue.main.async {
+                                   self.processItems(type: nextObject)
+                               }
+                               break
+                           }
+                       }
+                   }
+                   
+               } else {
+                   // no patch policies exist
+                   print("[processItems] no patch policies - call patchsoftwaretitles")
+                   DispatchQueue.main.async {
+                       self.processItems(type: nextObject)
+                   }
+               }
+           }   //         Json().getRecord - patchpolicies - end
+        } else {
+           print("[processItems] skipping patch policies - call patchsoftwaretitles")
+           DispatchQueue.main.async {
+               self.processItems(type: nextObject)
+           }
+        }
+                  
+            
             case "policies":
                 if self.policiesButtonState == "on" || self.packagesButtonState == "on" || self.scriptsButtonState == "on" || self.computerGroupsButtonState == "on" {
                     DispatchQueue.main.async {
@@ -601,10 +692,10 @@ class ViewController: NSViewController {
                                             reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
                                         }
                                         if self.mobileDeviceAppsButtonState == "on" {
-                                            reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
+                                        reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
                                         }
                                         if self.configurationProfilesButtonState == "on" {
-                                            reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
+                                        reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
                                         }
                                         DispatchQueue.main.async {
                                             self.unused(itemDictionary: reportItems)
@@ -684,6 +775,8 @@ class ViewController: NSViewController {
             objectEndpoint = "osxconfigurationprofiles/id"
         case "policies":
             objectEndpoint = "policies/id"
+        case "patchpolicies":
+            objectEndpoint = "patchpolicies/id"
         case "mobiledevicegroups":
             objectEndpoint = "mobiledevicegroups/id"
         case "mobiledeviceapplications":
@@ -698,206 +791,348 @@ class ViewController: NSViewController {
         let theObject = objectArray[index]
         if let id = theObject["id"], let name = theObject["name"] {
             print("lookup id \(id) \t \(index+1) of \(objectArrayCount)")
-            Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
-                            (result: [String:AnyObject]) in
-                switch theEndpoint {
-                case "computergroups", "mobiledevicegroups":
-                    // look for nested device groups
-                    let computerGroupInfo = (theEndpoint == "computergroups") ? result["computer_group"] as! Dictionary<String, AnyObject>:result["mobile_device_group"] as! Dictionary<String, AnyObject>
-                    let criterion = computerGroupInfo["criteria"] as! [Dictionary<String, Any>]
-                    for theCriteria in criterion {
-                        if let name = theCriteria["name"], let value = theCriteria["value"] {
-//                            if (name as! String) == "Computer Group" || (name as! String) == "Mobile Device Group" {
-//                                self.computerGroupsDict["\(value)"] = ["used":"true"]
-//                            }
-                            switch (name as! String) {
-                            case "Computer Group":
-                                self.computerGroupsDict["\(value)"] = ["used":"true"]
-                            case "Mobile Device Group":
-                                self.mobileDeviceGroupsDict["\(value)"] = ["used":"true"]
+
+            //
+            //                Xml().action(action: "DELETE", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
+            //                (xmlResult: (Int,String)) in
+            //                let (statusCode, _) = xmlResult
+            //                if !(statusCode >= 200 && statusCode <= 299) {
+            //                    if "\(statusCode)" == "401" {
+            //                        self.working(isWorking: false)
+            //                        Alert().display(header: "Alert", message: "Verify username and password.")
+            //                        return
+            //                    }
+            //                    print("[remove_Action] failed to removed \(category) with id: \(id)")
+            //                }
+            //                completed = true
+            //                }
+            
+            switch theEndpoint {
+                case "patchpolicies":
+                    print("hello patchpolicies")
+                    // lookup patch software titles, loop through each by id
+                    
+                        // lookup complete record, XML format
+//                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
+                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles/id/\(id)") {
+                            (xmlResult: (Int,String)) in
+                            let (statusCode, returnedXml) = xmlResult
+                            print("statusCode: \(statusCode)")
+                            let patchPolicyXml = self.nameFixedXml(originalXml: returnedXml)
+//                            print("[patchpolicy] returnedXml: \(patchPolicyXml)")
+
+    
+                            let xmlData = patchPolicyXml.data(using: .utf8)
+                            let parsedXmlData = XML.parse(xmlData!)
+                            
+                            // check of used packages - start
+                            let packageVersionArray = parsedXmlData.patch_software_title.versions.version
+//                            print("[patchPolicy] package name: \(packageVersionArray)")
+                            
+                            for thePackageInfo in packageVersionArray {
+                                if thePackageInfo.package.Name.text != nil {
+                                    print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
+                                    self.packagesDict["\(thePackageInfo.package.Name.text!)"]?["used"] = "true"
+                                }
+
+                            }
+
+//                            self.packagesDict["\(thePackageName)"]?["used"] = "true"
+                            // check of used packages - end
+                            
+                            
+                            if index == objectArrayCount-1 {
+                                waitFor.policy = false
+                            } else {
+                                // check the next item
+                                self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
+                            }
+                            
+                            /*
+                            switch theEndpoint {
+                            case "policies","patchpolicies":
+            //                    self.policiesDict["\(id)"] = "\(name)"
+                                
+                                let thePolicy = (theEndpoint == "policies") ? result["policy"] as! [String:AnyObject]:result["patch_policy"] as! [String:AnyObject]
+                                
+                                // check for used computergroups - start
+                                let policyScope = thePolicy["scope"] as! [String:AnyObject]
+                                print("\(theEndpoint) (\(name)) scope: \(policyScope)")
+            //
+                                if self.isScoped(scope: policyScope) {
+                                    if theEndpoint == "policies" {
+                                        self.policiesDict["\(name) - (\(id))"]!["used"] = "true"
+                                    } else {
+                                        self.masterObjectDict["patchpolicies"]!["\(name)"]!["used"] = "true"
+                                    }
+                                }
+                                
+                                if theEndpoint == "policies" {
+                                    // check of used packages - start
+                                    let packageList = thePolicy["package_configuration"] as! [String:AnyObject]
+                                    let policyPackageList = packageList["packages"] as! [Dictionary<String, Any>]
+                                    for thePackage in policyPackageList {
+                //                                        print("thePackage: \(thePackage)")
+                                        let thePackageName = thePackage["name"]
+                //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                        self.packagesDict["\(thePackageName!)"]?["used"] = "true"
+                                    }
+                                    // check of used packages - end
+
+                                    // check for used scripts - start
+                                    let policyScriptList = thePolicy["scripts"] as! [Dictionary<String, Any>]
+                                    for theScript in policyScriptList {
+                //                                        print("thePackage: \(thePackage)")
+                                        let theScriptName = theScript["name"]
+                //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                        self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
+                                    }
+                                    // check of used scripts - end
+                                }
+
+                                // check for used computergroups - start
+            //                    let computerGroupList = thePolicy["scope"] as! [String:AnyObject]
+            //                                    print("computerGroupList: \(computerGroupList)")
+            //                    let computer_groupList = computerGroupList["computer_groups"] as! [Dictionary<String, Any>]
+                                let computer_groupList = policyScope["computer_groups"] as! [Dictionary<String, Any>]
+                                for theComputerGroup in computer_groupList {
+            //                                        print("thePackage: \(thePackage)")
+                                    let theComputerGroupName = theComputerGroup["name"]
+            //                                        let theComputerGroupID = theComputerGroup["id"]
+            //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                                }
+                                // check exclusions - start
+            //                    let computer_groupExcl = computerGroupList["exclusions"] as! [String:AnyObject]
+                                let computer_groupExcl = policyScope["exclusions"] as! [String:AnyObject]
+                                let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
+                                for theComputerGroupExcl in computer_groupListExcl {
+            //                                        print("thePackage: \(thePackage)")
+                                    let theComputerGroupName = theComputerGroupExcl["name"]
+            //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                                }
+                                // check exclusions - end
+                                // check of used computergroups - end
                             default:
                                 break
                             }
-                        }
-                    }
-                    // look for nested device groups - end
-                    
-                case "computerconfigurations":
-                    // scan each computer configuration - start
-                    self.computerConfigurationDict["\(id)"] = "\(name)"
-                        
-                        if let _ = result["computer_configuration"] {
-                            let theComputerConfiguration = result["computer_configuration"] as! [String:AnyObject]
-//                            let packageList = theComputerConfiguration["packages"] as! [String:AnyObject]
-                            let computerConfigurationPackageList = theComputerConfiguration["packages"] as! [Dictionary<String, Any>]
-                            for thePackage in computerConfigurationPackageList {
-//                                        print("thePackage: \(thePackage)")
-                                let thePackageName = thePackage["name"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                self.packagesDict["\(thePackageName!)"]?["used"] = "true"
-                            }
-
-                            let computerConfigurationScriptList = theComputerConfiguration["scripts"] as! [Dictionary<String, Any>]
-                            for theScript in computerConfigurationScriptList {
-//                                        print("thePackage: \(thePackage)")
-                                let theScriptName = theScript["name"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
-                            }
-//                                    print("packages for policy id: \(id): \(packageList)")
-                        }
-                    // scan each computer configuration - end
-                    
-                case "osxconfigurationprofiles":
-                    self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                    self.osxconfigurationprofilesDict["\(name)"] = ["id":"\(id)", "used":"false"]
-                    // look up each computer profile and check scope/limitations - start
-                                                                    
-                    let theConfigProfile = result["os_x_configuration_profile"] as! [String:AnyObject]
-                    
-                    // check for used computergroups - start
-                    let profileScope = theConfigProfile["scope"] as! [String:AnyObject]
-//
-                    if self.isScoped(scope: profileScope) {
-                        self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"]!["used"] = "true"
-                    }
-                    let computer_groupList = profileScope["computer_groups"] as! [Dictionary<String, Any>]
-                    for theComputerGroup in computer_groupList {
-//                                        print("thePackage: \(thePackage)")
-                        let theComputerGroupName = theComputerGroup["name"]
-//                                        let theComputerGroupID = theComputerGroup["id"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                        self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
-                    }
-                    // check exclusions - start
-                    let computer_groupExcl = profileScope["exclusions"] as! [String:AnyObject]
-                    let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
-                    for theComputerGroupExcl in computer_groupListExcl {
-//                                        print("thePackage: \(thePackage)")
-                        let theComputerGroupName = theComputerGroupExcl["name"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                        self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
-                    }
-                    // check exclusions - end
-                    // check of used computergroups - end
-                    
-                    // look up each computer profile and check scope/limitations - end
-                    
-                case "policies":
-//                    self.policiesDict["\(id)"] = "\(name)"
-                    
-                    let thePolicy = result["policy"] as! [String:AnyObject]
-                    
-                    // check for used computergroups - start
-                    let policyScope = thePolicy["scope"] as! [String:AnyObject]
-//
-                    if self.isScoped(scope: policyScope) {
-                        self.policiesDict["\(name) - (\(id))"]!["used"] = "true"
-                    }
-                    
-                    // check of used packages - start
-                    let packageList = thePolicy["package_configuration"] as! [String:AnyObject]
-                    let policyPackageList = packageList["packages"] as! [Dictionary<String, Any>]
-                    for thePackage in policyPackageList {
-//                                        print("thePackage: \(thePackage)")
-                        let thePackageName = thePackage["name"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                        self.packagesDict["\(thePackageName!)"]?["used"] = "true"
-                    }
-                    // check of used packages - end
-
-                    // check for used scripts - start
-                    let policyScriptList = thePolicy["scripts"] as! [Dictionary<String, Any>]
-                    for theScript in policyScriptList {
-//                                        print("thePackage: \(thePackage)")
-                        let theScriptName = theScript["name"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                        self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
-                    }
-                    // check of used scripts - end
-
-                    // check for used computergroups - start
-                    let computerGroupList = thePolicy["scope"] as! [String:AnyObject]
-//                                    print("computerGroupList: \(computerGroupList)")
-                    let computer_groupList = computerGroupList["computer_groups"] as! [Dictionary<String, Any>]
-                    for theComputerGroup in computer_groupList {
-//                                        print("thePackage: \(thePackage)")
-                        let theComputerGroupName = theComputerGroup["name"]
-//                                        let theComputerGroupID = theComputerGroup["id"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                        self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
-                    }
-                    // check exclusions - start
-                    let computer_groupExcl = computerGroupList["exclusions"] as! [String:AnyObject]
-                    let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
-                    for theComputerGroupExcl in computer_groupListExcl {
-//                                        print("thePackage: \(thePackage)")
-                        let theComputerGroupName = theComputerGroupExcl["name"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                        self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
-                    }
-                    // check exclusions - end
-                    // check of used computergroups - end
-                    
-                case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
-                    
-                    let theMobileDeviceObjectXml = (theEndpoint == "mobiledeviceapplications") ? result["mobile_device_application"] as! [String:AnyObject]:result["configuration_profile"] as! [String:AnyObject]
-                    
-                    // check for used mobiledevicegroups - start
-                    let mobileDeviceAppScope = theMobileDeviceObjectXml["scope"] as! [String:AnyObject]
-//
-                    if self.isScoped(scope: mobileDeviceAppScope) {
-//                        self.mobileDeviceAppsDict["\(name))"]!["used"] = "true"
-                        self.masterObjectDict[theEndpoint]!["\(name)"]!["used"] = "true"
-                    }
-
-                    // check for used mobiledevicegroups - start
-                    let mdaGroupList = theMobileDeviceObjectXml["scope"] as! [String:AnyObject]
-//                                    print("mdaGroupList: \(mdaGroupList)")
-                    let mda_groupList = mdaGroupList["mobile_device_groups"] as! [Dictionary<String, Any>]
-                    for theMdaGroup in mda_groupList {
-//                                        print("thePackage: \(thePackage)")
-                        let theMobileDeviceGroupName = theMdaGroup["name"]
-//                                        let theMdaGroupID = theMdaGroup["id"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                        self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
-                    }
-                    // check exclusions - start
-                    let mobileDevice_groupExcl = mdaGroupList["exclusions"] as! [String:AnyObject]
-                    let mobileDevice_groupListExcl = mobileDevice_groupExcl["mobile_device_groups"] as! [Dictionary<String, Any>]
-                    for theMdaGroupExcl in mobileDevice_groupListExcl {
-//                                        print("thePackage: \(thePackage)")
-                        let theMobileDeviceGroupName = theMdaGroupExcl["name"]
-//                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                        self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
-                    }
-                    // check exclusions - end
-                    // check of used mobiledevicegroups - end
-                    
+                            */
+                    }   // Xml().action patch software titles - end
+       
                 default:
-                    print("[switch theEndpoint] unknown: \(theEndpoint)")
-                }
-                
-                if index == objectArrayCount-1 {
-                    switch theEndpoint {
-                    case "computergroups", "mobiledevicegroups":
-                        waitFor.deviceGroup = false
-                    case "computerconfigurations":
-                        waitFor.computerConfiguration = false
-                    case "osxconfigurationprofiles":
-                        waitFor.osxconfigurationprofile = false
-                    case "policies":
-                        waitFor.policy = false
-                    case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
-                        waitFor.mobiledeviceobject = false
-                    default:
-                        print("[index == objectArrayCount-1] unknown: \(theEndpoint)")
-                    }
-                } else {
-                    // check the next item
-                    self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
-                }
-            }   //Json().getRecord - end
+                    // lookup complete record, JSON format
+                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
+                        (result: [String:AnyObject]) in
+                        switch theEndpoint {
+                        case "computergroups", "mobiledevicegroups":
+                            // look for nested device groups
+                            let computerGroupInfo = (theEndpoint == "computergroups") ? result["computer_group"] as! Dictionary<String, AnyObject>:result["mobile_device_group"] as! Dictionary<String, AnyObject>
+                            let criterion = computerGroupInfo["criteria"] as! [Dictionary<String, Any>]
+                            for theCriteria in criterion {
+                                if let name = theCriteria["name"], let value = theCriteria["value"] {
+        //                            if (name as! String) == "Computer Group" || (name as! String) == "Mobile Device Group" {
+        //                                self.computerGroupsDict["\(value)"] = ["used":"true"]
+        //                            }
+                                    switch (name as! String) {
+                                    case "Computer Group":
+                                        self.computerGroupsDict["\(value)"] = ["used":"true"]
+                                    case "Mobile Device Group":
+                                        self.mobileDeviceGroupsDict["\(value)"] = ["used":"true"]
+                                    default:
+                                        break
+                                    }
+                                }
+                            }
+                            // look for nested device groups - end
+                            
+                        case "computerconfigurations":
+                            // scan each computer configuration - start
+                            self.computerConfigurationDict["\(id)"] = "\(name)"
+                                
+                                if let _ = result["computer_configuration"] {
+                                    let theComputerConfiguration = result["computer_configuration"] as! [String:AnyObject]
+        //                            let packageList = theComputerConfiguration["packages"] as! [String:AnyObject]
+                                    let computerConfigurationPackageList = theComputerConfiguration["packages"] as! [Dictionary<String, Any>]
+                                    for thePackage in computerConfigurationPackageList {
+        //                                        print("thePackage: \(thePackage)")
+                                        let thePackageName = thePackage["name"]
+        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                        self.packagesDict["\(thePackageName!)"]?["used"] = "true"
+                                    }
+
+                                    let computerConfigurationScriptList = theComputerConfiguration["scripts"] as! [Dictionary<String, Any>]
+                                    for theScript in computerConfigurationScriptList {
+        //                                        print("thePackage: \(thePackage)")
+                                        let theScriptName = theScript["name"]
+        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                        self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
+                                    }
+        //                                    print("packages for policy id: \(id): \(packageList)")
+                                }
+                            // scan each computer configuration - end
+                            
+                        case "osxconfigurationprofiles":
+                            self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                            self.osxconfigurationprofilesDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                            // look up each computer profile and check scope/limitations - start
+                                                                            
+                            let theConfigProfile = result["os_x_configuration_profile"] as! [String:AnyObject]
+                            
+                            // check for used computergroups - start
+                            let profileScope = theConfigProfile["scope"] as! [String:AnyObject]
+        //
+                            if self.isScoped(scope: profileScope) {
+                                self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"]!["used"] = "true"
+                            }
+                            let computer_groupList = profileScope["computer_groups"] as! [Dictionary<String, Any>]
+                            for theComputerGroup in computer_groupList {
+        //                                        print("thePackage: \(thePackage)")
+                                let theComputerGroupName = theComputerGroup["name"]
+        //                                        let theComputerGroupID = theComputerGroup["id"]
+        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - start
+                            let computer_groupExcl = profileScope["exclusions"] as! [String:AnyObject]
+                            let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
+                            for theComputerGroupExcl in computer_groupListExcl {
+        //                                        print("thePackage: \(thePackage)")
+                                let theComputerGroupName = theComputerGroupExcl["name"]
+        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - end
+                            // check of used computergroups - end
+                            
+                            // look up each computer profile and check scope/limitations - end
+                            
+                        case "policies":
+        //                    self.policiesDict["\(id)"] = "\(name)"
+                            
+                            let thePolicy = (theEndpoint == "policies") ? result["policy"] as! [String:AnyObject]:result["patch_policy"] as! [String:AnyObject]
+                            
+                            // check for used computergroups - start
+                            let policyScope = thePolicy["scope"] as! [String:AnyObject]
+                            print("\(theEndpoint) (\(name)) scope: \(policyScope)")
+        //
+                            if self.isScoped(scope: policyScope) {
+                                if theEndpoint == "policies" {
+                                    self.policiesDict["\(name) - (\(id))"]!["used"] = "true"
+                                } else {
+                                    self.masterObjectDict["patchpolicies"]!["\(name)"]!["used"] = "true"
+                                }
+                            }
+                            
+                            if theEndpoint == "policies" {
+                                // check of used packages - start
+                                let packageList = thePolicy["package_configuration"] as! [String:AnyObject]
+                                let policyPackageList = packageList["packages"] as! [Dictionary<String, Any>]
+                                for thePackage in policyPackageList {
+            //                                        print("thePackage: \(thePackage)")
+                                    let thePackageName = thePackage["name"]
+            //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                    self.packagesDict["\(thePackageName!)"]?["used"] = "true"
+                                }
+                                // check of used packages - end
+
+                                // check for used scripts - start
+                                let policyScriptList = thePolicy["scripts"] as! [Dictionary<String, Any>]
+                                for theScript in policyScriptList {
+            //                                        print("thePackage: \(thePackage)")
+                                    let theScriptName = theScript["name"]
+            //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                    self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
+                                }
+                                // check of used scripts - end
+                            }
+
+                            // check for used computergroups - start
+        //                    let computerGroupList = thePolicy["scope"] as! [String:AnyObject]
+        //                                    print("computerGroupList: \(computerGroupList)")
+        //                    let computer_groupList = computerGroupList["computer_groups"] as! [Dictionary<String, Any>]
+                            let computer_groupList = policyScope["computer_groups"] as! [Dictionary<String, Any>]
+                            for theComputerGroup in computer_groupList {
+        //                                        print("thePackage: \(thePackage)")
+                                let theComputerGroupName = theComputerGroup["name"]
+        //                                        let theComputerGroupID = theComputerGroup["id"]
+        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - start
+        //                    let computer_groupExcl = computerGroupList["exclusions"] as! [String:AnyObject]
+                            let computer_groupExcl = policyScope["exclusions"] as! [String:AnyObject]
+                            let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
+                            for theComputerGroupExcl in computer_groupListExcl {
+        //                                        print("thePackage: \(thePackage)")
+                                let theComputerGroupName = theComputerGroupExcl["name"]
+        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - end
+                            // check of used computergroups - end
+                            
+                        case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
+                            
+                            let theMobileDeviceObjectXml = (theEndpoint == "mobiledeviceapplications") ? result["mobile_device_application"] as! [String:AnyObject]:result["configuration_profile"] as! [String:AnyObject]
+                            
+                            // check for used mobiledevicegroups - start
+                            let mobileDeviceAppScope = theMobileDeviceObjectXml["scope"] as! [String:AnyObject]
+        //
+                            if self.isScoped(scope: mobileDeviceAppScope) {
+        //                        self.mobileDeviceAppsDict["\(name))"]!["used"] = "true"
+                                self.masterObjectDict[theEndpoint]!["\(name)"]!["used"] = "true"
+                            }
+
+                            // check for used mobiledevicegroups - start
+                            let mdaGroupList = theMobileDeviceObjectXml["scope"] as! [String:AnyObject]
+        //                                    print("mdaGroupList: \(mdaGroupList)")
+                            let mda_groupList = mdaGroupList["mobile_device_groups"] as! [Dictionary<String, Any>]
+                            for theMdaGroup in mda_groupList {
+        //                                        print("thePackage: \(thePackage)")
+                                let theMobileDeviceGroupName = theMdaGroup["name"]
+        //                                        let theMdaGroupID = theMdaGroup["id"]
+        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - start
+                            let mobileDevice_groupExcl = mdaGroupList["exclusions"] as! [String:AnyObject]
+                            let mobileDevice_groupListExcl = mobileDevice_groupExcl["mobile_device_groups"] as! [Dictionary<String, Any>]
+                            for theMdaGroupExcl in mobileDevice_groupListExcl {
+        //                                        print("thePackage: \(thePackage)")
+                                let theMobileDeviceGroupName = theMdaGroupExcl["name"]
+        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - end
+                            // check of used mobiledevicegroups - end
+                            
+                        default:
+                            print("[switch theEndpoint] unknown: \(theEndpoint)")
+                        }
+                        
+                        if index == objectArrayCount-1 {
+                            switch theEndpoint {
+                            case "computergroups", "mobiledevicegroups":
+                                waitFor.deviceGroup = false
+                            case "computerconfigurations":
+                                waitFor.computerConfiguration = false
+                            case "osxconfigurationprofiles":
+                                waitFor.osxconfigurationprofile = false
+                            case "policies","patchpolicies":
+                                waitFor.policy = false
+                            case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
+                                waitFor.mobiledeviceobject = false
+                            default:
+                                print("[index == objectArrayCount-1] unknown: \(theEndpoint)")
+                            }
+                        } else {
+                            // check the next item
+                            self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
+                        }
+                    }   //Json().getRecord - end
+            }
+            
         }   // if let id = theObject["id"], let name = theObject["name"] - end
     }
 
@@ -1031,6 +1266,14 @@ class ViewController: NSViewController {
         }
 //        return packagesDict
         return ["\(category)":unusedItemsDictionary]
+    }
+    
+    // can't use <name> tag with SwiftyXMLParser
+    func nameFixedXml(originalXml: String) -> String {
+        var newXml = ""
+        newXml = originalXml.replacingOccurrences(of: "<name>", with: "<Name>")
+        newXml = newXml.replacingOccurrences(of: "</name>", with: "</Name>")
+        return newXml
     }
     
     @IBAction func view_Action(_ sender: NSButton) {
@@ -1760,7 +2003,7 @@ class ViewController: NSViewController {
         // Do any additional setup after loading the view.
         object_TableView.delegate   = self
         object_TableView.dataSource = self
-        
+                
         // configure import button
         import_Button.url          = getDownloadDirectory().appendingPathComponent("/.")
         import_Button.allowedTypes = ["json"]

@@ -22,17 +22,17 @@ class Xml: NSURL, URLSessionDelegate {
 //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
         print("[Xml.action] existing endpoints URL: \(existingDestUrl)")
         let destEncodedURL = NSURL(string: existingDestUrl)
-        let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
+        let xmlRequest     = NSMutableURLRequest(url: destEncodedURL! as URL)
         
         let semaphore = DispatchSemaphore(value: 1)
         getRecordQ.maxConcurrentOperationCount = 3
         getRecordQ.addOperation {
             
-            jsonRequest.httpMethod = "\(action)"
+            xmlRequest.httpMethod = "\(action.uppercased())"
             let destConf = URLSessionConfiguration.default
             destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml"]
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
-            let task = destSession.dataTask(with: jsonRequest as URLRequest, completionHandler: {
+            let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
                 if let httpResponse = response as? HTTPURLResponse {
 //                    print("[Json.getRecord] httpResponse: \(String(describing: httpResponse))")

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -706,8 +706,8 @@
         <scene sceneID="hIz-AP-VOD">
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="Prune" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="715" height="309"/>
+                    <view key="view" misplaced="YES" id="m2S-Jp-Qdl">
+                        <rect key="frame" x="0.0" y="0.0" width="725" height="309"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <userGuides>
                             <userLayoutGuide location="21" affinity="minX"/>
@@ -828,7 +828,7 @@
                                 </connections>
                             </popUpButton>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LaG-E8-vJA">
-                                <rect key="frame" x="616" y="1" width="89" height="32"/>
+                                <rect key="frame" x="626" y="1" width="89" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="77" id="4TO-C9-e2l"/>
                                     <constraint firstAttribute="height" constant="21" id="tpz-El-Eoe"/>
@@ -842,7 +842,7 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9cz-XW-pvG">
-                                <rect key="frame" x="540" y="1" width="80" height="32"/>
+                                <rect key="frame" x="550" y="1" width="80" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="BQ8-ot-Lf9"/>
                                     <constraint firstAttribute="width" constant="68" id="NBG-4m-CwM"/>
@@ -886,13 +886,13 @@
                                 </connections>
                             </button>
                             <pathControl verticalHuggingPriority="750" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6dX-JG-2TQ">
-                                <rect key="frame" x="421" y="7" width="124" height="22"/>
+                                <rect key="frame" x="431" y="7" width="124" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="17" id="Ssn-1C-RTa"/>
                                     <constraint firstAttribute="width" constant="118" id="V7o-xb-MXx"/>
                                 </constraints>
                                 <pathCell key="cell" controlSize="small" selectable="YES" editable="YES" alignment="left" placeholderString="Import" pathStyle="popUp" id="ABP-ij-TMx">
-                                    <font key="font" metaFont="controlContent" size="11"/>
+                                    <font key="font" metaFont="menu" size="11"/>
                                     <url key="url" string="file:///Applications/"/>
                                     <connections>
                                         <action selector="import_Action:" target="XfG-lQ-9wD" id="exr-Lo-Om6"/>
@@ -900,13 +900,13 @@
                                 </pathCell>
                             </pathControl>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="2Gz-TZ-Nnb">
-                                <rect key="frame" x="378" y="12" width="54" height="16"/>
+                                <rect key="frame" x="388" y="12" width="54" height="16"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="16" id="MUa-QJ-W0f"/>
                                     <constraint firstAttribute="width" constant="50" id="kHK-WA-RYk"/>
                                 </constraints>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Import:" id="HX8-Lx-nVA">
-                                    <font key="font" metaFont="menu" size="14"/>
+                                    <font key="font" metaFont="system" size="14"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -926,7 +926,7 @@
                                             <tableColumns>
                                                 <tableColumn width="668" minWidth="40" maxWidth="1000" id="qyG-E8-ZZ5">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Name">
-                                                        <font key="font" metaFont="controlContent" size="11"/>
+                                                        <font key="font" metaFont="menu" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
@@ -985,7 +985,7 @@
                                 </scroller>
                             </scrollView>
                             <progressIndicator wantsLayer="YES" maxValue="100" displayedWhenStopped="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="cnQ-TA-ZNH">
-                                <rect key="frame" x="342" y="106" width="32" height="32"/>
+                                <rect key="frame" x="347" y="106" width="32" height="32"/>
                             </progressIndicator>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iIu-PQ-eWL">
                                 <rect key="frame" x="346" y="184" width="132" height="18"/>
@@ -1018,7 +1018,7 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dlw-9C-Dvf">
-                                <rect key="frame" x="492" y="253" width="128" height="18"/>
+                                <rect key="frame" x="492" y="253" width="138" height="18"/>
                                 <buttonCell key="cell" type="check" title="Policies" bezelStyle="regularSquare" imagePosition="left" inset="2" id="5xJ-yv-hWu">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -1035,20 +1035,6 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RE9-hM-mjH">
-                                <rect key="frame" x="657" y="277" width="42" height="19"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="18" id="fB3-YJ-3d1"/>
-                                    <constraint firstAttribute="width" constant="42" id="wJb-3n-lMy"/>
-                                </constraints>
-                                <buttonCell key="cell" type="roundRect" title="Scan" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nMc-tw-BGO">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="label" size="12"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="go_action:" target="XfG-lQ-9wD" id="mBe-qJ-qBL"/>
-                                </connections>
-                            </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1KQ-oR-uJ5">
                                 <rect key="frame" x="492" y="230" width="155" height="18"/>
                                 <buttonCell key="cell" type="check" title="Mobile Device Groups" bezelStyle="regularSquare" imagePosition="left" inset="2" id="x3P-Hy-Mkr">
@@ -1059,12 +1045,21 @@
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="iLk-fB-TZr"/>
                                 </connections>
                             </button>
+                            <button verticalHuggingPriority="750" imageHugsTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Qaq-HO-yMo">
+                                <rect key="frame" x="606" y="269" width="96" height="32"/>
+                                <buttonCell key="cell" type="push" title="Scan" bezelStyle="rounded" image="magnifyingGlass" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="Guz-jY-sqt">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system" size="16"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="go_action:" target="XfG-lQ-9wD" id="duc-T8-XLM"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="gaw-sp-OyP" firstAttribute="top" secondItem="IPy-ls-na8" secondAttribute="bottom" constant="15" id="0L8-jI-9FZ"/>
                             <constraint firstItem="iIu-PQ-eWL" firstAttribute="leading" secondItem="DX4-YY-TMA" secondAttribute="trailing" constant="-77" id="0fF-hu-eT1"/>
                             <constraint firstItem="BTF-MF-pnr" firstAttribute="leading" secondItem="n9P-7I-G9h" secondAttribute="leading" id="1Jk-UQ-E52"/>
-                            <constraint firstItem="IPy-ls-na8" firstAttribute="top" secondItem="RE9-hM-mjH" secondAttribute="bottom" constant="99" id="1zi-9k-7U1"/>
                             <constraint firstItem="n9P-7I-G9h" firstAttribute="leading" secondItem="ocR-3i-qMJ" secondAttribute="trailing" constant="5" id="3Da-8A-UCB"/>
                             <constraint firstItem="3Ur-1I-4K7" firstAttribute="top" secondItem="CHT-iK-owq" secondAttribute="bottom" constant="9" id="4h8-pV-8WR"/>
                             <constraint firstItem="BTF-MF-pnr" firstAttribute="trailing" secondItem="n9P-7I-G9h" secondAttribute="trailing" id="53a-lC-rJ6"/>
@@ -1075,19 +1070,22 @@
                             <constraint firstItem="iIu-PQ-eWL" firstAttribute="top" secondItem="JcO-81-SqS" secondAttribute="bottom" constant="77" id="9ZW-V4-xy0"/>
                             <constraint firstItem="IPy-ls-na8" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="21" id="9fp-a7-tXd"/>
                             <constraint firstItem="U1z-r5-Qn3" firstAttribute="top" secondItem="dlw-9C-Dvf" secondAttribute="bottom" constant="32" id="AuP-XU-vUn"/>
+                            <constraint firstItem="Qaq-HO-yMo" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="JcO-81-SqS" secondAttribute="trailing" constant="77" id="BnQ-j0-n8f"/>
                             <constraint firstItem="1KQ-oR-uJ5" firstAttribute="top" secondItem="dlw-9C-Dvf" secondAttribute="bottom" constant="9" id="DI4-KI-brl"/>
                             <constraint firstItem="dlw-9C-Dvf" firstAttribute="baseline" secondItem="CHT-iK-owq" secondAttribute="baseline" constant="-23" id="Dum-9f-UvZ"/>
-                            <constraint firstItem="RE9-hM-mjH" firstAttribute="baseline" secondItem="GuW-11-YAB" secondAttribute="baseline" constant="-72" id="FLj-an-JzQ"/>
                             <constraint firstItem="cOM-vc-k2S" firstAttribute="top" secondItem="ocR-3i-qMJ" secondAttribute="bottom" constant="7" id="FRB-Jt-hwV"/>
                             <constraint firstItem="DLw-Z1-gVI" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="21" id="FXL-r4-qq9"/>
+                            <constraint firstItem="IPy-ls-na8" firstAttribute="top" secondItem="BTF-MF-pnr" secondAttribute="bottom" constant="46" id="Fkj-Ib-m9y"/>
                             <constraint firstItem="1KQ-oR-uJ5" firstAttribute="leading" secondItem="CHT-iK-owq" secondAttribute="trailing" constant="85" id="Hj1-jW-pa2"/>
                             <constraint firstAttribute="bottom" secondItem="gaw-sp-OyP" secondAttribute="bottom" constant="8" id="ILD-1n-Pcf"/>
                             <constraint firstItem="cnQ-TA-ZNH" firstAttribute="top" secondItem="3Ur-1I-4K7" secondAttribute="bottom" constant="71" id="IUb-Pt-bd0"/>
                             <constraint firstItem="LaG-E8-vJA" firstAttribute="leading" secondItem="9cz-XW-pvG" secondAttribute="trailing" constant="8" id="IvO-Oo-weK"/>
                             <constraint firstItem="JcO-81-SqS" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="11" id="LJ9-lN-aNn"/>
+                            <constraint firstItem="Qaq-HO-yMo" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="12" id="LUr-pC-gBi"/>
                             <constraint firstAttribute="bottom" secondItem="nEi-ky-DQi" secondAttribute="bottom" constant="11" id="Lq9-Au-b5U"/>
                             <constraint firstAttribute="bottom" secondItem="9cz-XW-pvG" secondAttribute="bottom" constant="8" id="M9F-6L-NrY"/>
                             <constraint firstAttribute="trailing" secondItem="LaG-E8-vJA" secondAttribute="trailing" constant="16" id="P5X-fI-yyE"/>
+                            <constraint firstAttribute="trailing" secondItem="Qaq-HO-yMo" secondAttribute="trailing" constant="29" id="P6z-D5-lef"/>
                             <constraint firstAttribute="bottom" secondItem="LaG-E8-vJA" secondAttribute="bottom" constant="8" id="ST6-4p-Rji"/>
                             <constraint firstItem="n9P-7I-G9h" firstAttribute="top" secondItem="JcO-81-SqS" secondAttribute="bottom" constant="8" id="Vg9-NY-kIv"/>
                             <constraint firstAttribute="trailing" secondItem="dlw-9C-Dvf" secondAttribute="trailing" constant="97" id="XQc-bh-D56"/>
@@ -1120,7 +1118,6 @@
                             <constraint firstItem="DLw-Z1-gVI" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="13" id="xRW-bp-nTE"/>
                             <constraint firstItem="AJ3-ix-IV2" firstAttribute="top" secondItem="U1z-r5-Qn3" secondAttribute="bottom" constant="9" id="yEr-M4-uWB"/>
                             <constraint firstItem="3Ur-1I-4K7" firstAttribute="leading" secondItem="CHT-iK-owq" secondAttribute="leading" id="yaD-TY-Acs"/>
-                            <constraint firstAttribute="trailing" secondItem="RE9-hM-mjH" secondAttribute="trailing" constant="16" id="zMP-2M-0FS"/>
                         </constraints>
                     </view>
                     <connections>
@@ -1137,7 +1134,7 @@
                         <outlet property="policies_Button" destination="dlw-9C-Dvf" id="Yor-bk-dpS"/>
                         <outlet property="process_TextField" destination="wAV-VD-ITG" id="M7m-KT-0Fv"/>
                         <outlet property="savePassword_Button" destination="GuW-11-YAB" id="oHh-af-3wo"/>
-                        <outlet property="scan_Button" destination="RE9-hM-mjH" id="Trh-mY-aiN"/>
+                        <outlet property="scan_Button" destination="Qaq-HO-yMo" id="Gbj-rN-8el"/>
                         <outlet property="scripts_Button" destination="CHT-iK-owq" id="0ro-lO-nFQ"/>
                         <outlet property="spinner_ProgressIndicator" destination="cnQ-TA-ZNH" id="Fri-OV-bLS"/>
                         <outlet property="uname_TextField" destination="n9P-7I-G9h" id="NTF-lg-97m"/>
@@ -1149,4 +1146,7 @@
             <point key="canvasLocation" x="307.5" y="674.5"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="magnifyingGlass" width="128" height="158"/>
+    </resources>
 </document>
