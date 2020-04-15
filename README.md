@@ -1,9 +1,9 @@
 # Prune
+Download: [Prune](https://github.com/BIG-RAT/prune/releases/download/current/prune.zip)
 
 As your Jamf server ages it often accumulates more and more unused items, such as outdated packages, unscoped policies, mobile device apps...  Use Prune to help identify and remove those unused items.
 
 ![alt text](./images/pruneApp.png "Prune")
-Download: [Prune](https://github.com/BIG-RAT/prune/releases/download/current/prune.zip)
 
 Once the list of unused items is generated you can edit it within the app.  If you see an object you wish to keep, say some policy, simply click the item in the list.  The item will be removed from the list, and hence not removed from the server.  Perhaps you'd like to review the item on the server before deleting, not a problem, just option-click the item and you'll be taken to it on the Jamf server (may need to authenticate first).
 
