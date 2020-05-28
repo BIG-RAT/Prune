@@ -1274,6 +1274,15 @@ class ViewController: NSViewController {
         }
     }
     
+    func sortedArrayFromDict(theDict: [String:[String:String]]) -> [String] {
+        var sortedArray = [String]()
+        for (key, _) in theDict {
+            sortedArray.append(key)
+        }
+        sortedArray = sortedArray.sorted{$0.localizedCaseInsensitiveCompare($1) == .orderedAscending}
+        return sortedArray
+    }
+    
     
     @IBAction func export_Action(_ sender: Any) {
         
@@ -1325,7 +1334,8 @@ class ViewController: NSViewController {
                 }
                 
                 if let scriptLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for (key, _) in scriptsDict {
+                    for key in sortedArrayFromDict(theDict: scriptsDict) {
+//                    for (key, _) in scriptsDict {
                         if scriptsDict[key]?["used"]! == "false" {
                             scriptLogFileOp.seekToEndOfFile()
                             let text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
@@ -1528,108 +1538,84 @@ class ViewController: NSViewController {
                     if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
                         for (_, objectType) in itemDict as [String:String] {
                             if NSEvent.modifierFlags.contains(.option) {
-                            //                               print("check for option key - success")
+//                               print("check for option key - success")
                                 withOptionKey = true
                             }
-                            print("[removeObject_Action] itemDict: \(itemName) and type \(objectType)")
+                            print("[removeObject_Action]      itemDict: \(itemName) and type \(objectType)")
+                            print("[removeObject_Action] withOptionKey: \(withOptionKey)")
                             
                             switch objectType {
                                 case "packages":
-                                if withOptionKey {
-                                    if let objectId = self.packagesDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/packages.html?id=\(objectId)&o=r") {
-                                        print("[removeObject_Action] package URL: \(objectURL)")
-                                //                                    NSWorkspace.shared.openURL(NSURL(string: "\(currentServer)/policies.html?id=306&o=r"))
-                                        NSWorkspace.shared.open(objectURL)
+                                    if withOptionKey {
+                                        self.packagesDict.removeValue(forKey: itemName)
+                                    } else {
+                                        print("[removeObject_Action] single click \(objectType) - without option key")
                                         return
                                     }
-                                } else {
-                                   self.packagesDict.removeValue(forKey: itemName)
-                                }
+                                
                                 case "scripts":
-                                if withOptionKey {
-                                    if let objectId = self.scriptsDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/view/settings/computer/scripts/\(objectId)") {
-                                        print("[removeObject_Action] script URL: \(objectURL)")
-                                //                                    NSWorkspace.shared.openURL(NSURL(string: "\(currentServer)/policies.html?id=306&o=r"))
-                                      NSWorkspace.shared.open(objectURL)
+                                    if withOptionKey {
+                                        self.scriptsDict.removeValue(forKey: itemName)
+                                    } else {
+                                        print("[removeObject_Action] single click \(objectType) - without option key")
                                         return
                                     }
-                                } else {
-                                    self.scriptsDict.removeValue(forKey: itemName)
-                                }
+                                
                                 case "computergroups":
-                                  if withOptionKey {
-                                      if let objectId = self.computerGroupsDict[itemName]?["id"], let groupType = self.computerGroupsDict[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
-                                          print("[removeObject_Action] computergroup URL: \(objectURL)")
-                                        NSWorkspace.shared.open(objectURL)
-                                          return
-                                      }
-                                  } else {
+                                    if withOptionKey {
                                       self.computerGroupsDict.removeValue(forKey: itemName)
-                                  }
+                                    } else {
+                                      print("[removeObject_Action] single click \(objectType) - without option key")
+                                      return
+                                    }
+                                
                                 case "osxconfigurationprofiles":
-                                  if withOptionKey {
-                                      if let objectId = self.masterObjectDict["osxconfigurationprofiles"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/OSXConfigurationProfiles.html?id=\(objectId)&o=r") {
-                                //                                    NSWorkspace.shared.openURL(NSURL(string: "\(currentServer)/policies.html?id=306&o=r"))
-                                          NSWorkspace.shared.open(objectURL)
-                                          return
-                                      }
-                                  } else {
-                                     self.masterObjectDict["osxconfigurationprofiles"]?.removeValue(forKey: itemName)
-                                  }
-                                //                          print("before - computerGroups dictionary: \(computerGroupsDict)")
-                                //                            masterObjectDict["osxconfigurationprofiles"]?.removeValue(forKey: itemName)
-                                //                          print("after - computerGroups dictionary: \(computerGroupsDict)")
+                                    if withOptionKey {
+                                      self.masterObjectDict["osxconfigurationprofiles"]?.removeValue(forKey: itemName)
+                                    } else {
+                                      print("[removeObject_Action] single click \(objectType) - without option key")
+                                      return
+                                    }
+                                
                                 case "policies":
-                                if withOptionKey {
-                                    if let objectId = self.policiesDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/policies.html?id=\(objectId)&o=r") {
-                                //                                    NSWorkspace.shared.openURL(NSURL(string: "\(currentServer)/policies.html?id=306&o=r"))
-                                        NSWorkspace.shared.open(objectURL)
+                                    if withOptionKey {
+                                        self.policiesDict.removeValue(forKey: itemName)
+                                    } else {
+                                        print("[removeObject_Action] single click \(objectType) - without option key")
                                         return
                                     }
-                                } else {
-                                   self.policiesDict.removeValue(forKey: itemName)
-                                }
 
                                 case "mobiledevicegroups":
-                                if withOptionKey {
-                                    if let objectId = self.mobileDeviceGroupsDict[itemName]?["id"], let groupType = self.mobileDeviceGroupsDict[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
-                                        print("[removeObject_Action] mobiledevicegroup URL: \(objectURL)")
-                                        NSWorkspace.shared.open(objectURL)
+                                    if withOptionKey {
+                                        self.mobileDeviceGroupsDict.removeValue(forKey: itemName)
+                                    } else {
+                                        print("[removeObject_Action] single click \(objectType) - without option key")
                                         return
                                     }
-                                } else {
-                                   self.mobileDeviceGroupsDict.removeValue(forKey: itemName)
-                                }
 
                                 case "mobiledeviceapplications":
-                                if withOptionKey {
-                                    if let objectId = self.masterObjectDict["mobiledeviceapplications"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/mobileDeviceApps.html?id=\(objectId)&o=r") {
-                                        NSWorkspace.shared.open(objectURL)
+                                    if withOptionKey {
+                                        self.masterObjectDict["mobiledeviceapplications"]?.removeValue(forKey: itemName)
+                                    } else {
+                                        print("[removeObject_Action] single click \(objectType) - without option key")
                                         return
                                     }
-                                } else {
-                                   self.masterObjectDict["mobiledeviceapplications"]?.removeValue(forKey: itemName)
-                                }
                                 
                                 case "mobiledeviceconfigurationprofiles":
-//                                case "configurationprofiles":
-                                if withOptionKey {
-                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/iOSConfigurationProfiles.html?id=\(objectId)&o=r") {
-                                        NSWorkspace.shared.open(objectURL)
+                                    if withOptionKey {
+                                        self.masterObjectDict[objectType]?.removeValue(forKey: itemName)
+                                    } else {
+                                        print("[removeObject_Action] single click \(objectType) - without option key")
                                         return
                                     }
-                                } else {
-                                   self.masterObjectDict[objectType]?.removeValue(forKey: itemName)
-                                }
 
                                 default:
-                                print("[removeObject_Action] unknown objectType: \(String(describing: self.removeObject_Action))")
-                                return
+                                    print("[removeObject_Action] unknown objectType: \(String(describing: self.removeObject_Action))")
+                                    return
                             }
-                          self.unusedItems_TableDict?.remove(at: theRow)
-                          self.unusedItems_TableArray?.remove(at: theRow)
+                        self.unusedItems_TableDict?.remove(at: theRow)
+                        self.unusedItems_TableArray?.remove(at: theRow)
                         }
-    //                    unusedItems_TableArray?.remove(at: theRow)
                         self.object_TableView.reloadData()
                     }
                 }
@@ -1926,9 +1912,79 @@ class ViewController: NSViewController {
         }
     }
     
-//    @objc func doubleClickRow() {
-//        print("doubleClicked Row: \(String(object_TableView.clickedRow))")
-//    }
+    @objc func viewSelectObject() {
+        print("doubleClicked Row: \(String(object_TableView.clickedRow))")
+
+        DispatchQueue.main.async {
+            let theRow = self.object_TableView.selectedRow
+
+            if let itemName = self.unusedItems_TableArray?[theRow] {
+                
+                if let itemDict = self.unusedItems_TableDict?[theRow] {
+                    if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
+                        for (_, objectType) in itemDict as [String:String] {
+                            
+                            print("[viewSelectObject] open itemDict: \(itemName) of type \(objectType) in browser")
+                            
+                            switch objectType {
+                                case "packages":
+                                    if let objectId = self.packagesDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/packages.html?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+                                
+                                case "scripts":
+                                    if let objectId = self.scriptsDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/view/settings/computer/scripts/\(objectId)") {
+                                      NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+                                
+                                case "computergroups":
+                                      if let objectId = self.computerGroupsDict[itemName]?["id"], let groupType = self.computerGroupsDict[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                          return
+                                      }
+                                
+                                case "osxconfigurationprofiles":
+                                      if let objectId = self.masterObjectDict["osxconfigurationprofiles"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/OSXConfigurationProfiles.html?id=\(objectId)&o=r") {
+                                          NSWorkspace.shared.open(objectURL)
+                                          return
+                                      }
+                                
+                                case "policies":
+                                    if let objectId = self.policiesDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/policies.html?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+
+                                case "mobiledevicegroups":
+                                    if let objectId = self.mobileDeviceGroupsDict[itemName]?["id"], let groupType = self.mobileDeviceGroupsDict[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+
+                                case "mobiledeviceapplications":
+                                    if let objectId = self.masterObjectDict["mobiledeviceapplications"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/mobileDeviceApps.html?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+                                
+                                case "mobiledeviceconfigurationprofiles":
+                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/iOSConfigurationProfiles.html?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+
+                                default:
+                                    print("[viewSelectObject] unknown objectType: \(String(describing: self.removeObject_Action))")
+                                    return
+                            }
+                        }
+                    }
+                }   //if let itemDict - end
+            }   // if let itemName - end
+        }   // dispatchQueue.main.async - end
+    }   // func viewSelectObject - end
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -1936,7 +1992,7 @@ class ViewController: NSViewController {
         // Do any additional setup after loading the view.
         object_TableView.delegate   = self
         object_TableView.dataSource = self
-//        object_TableView.doubleAction = #selector(doubleClickRow)
+        object_TableView.doubleAction = #selector(viewSelectObject)
         
                 
         // configure import button
