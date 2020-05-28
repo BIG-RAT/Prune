@@ -35,7 +35,7 @@ class Xml: NSURL, URLSessionDelegate {
             let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
                 if let httpResponse = response as? HTTPURLResponse {
-//                    print("[Json.getRecord] httpResponse: \(String(describing: httpResponse))")
+//                    print("[Xml.action] httpResponse: \(String(describing: httpResponse))")
                     if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                         do {
                             let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
@@ -43,7 +43,7 @@ class Xml: NSURL, URLSessionDelegate {
                             completion((httpResponse.statusCode,returnedXML))
                         }
                     } else {
-//                        WriteToLog().message(stringOfText: "[Json.getRecord] error HTTP Status Code: \(httpResponse.statusCode)\n")
+//                        WriteToLog().message(stringOfText: "[Xml.action] error HTTP Status Code: \(httpResponse.statusCode)\n")
                         print("[Xml.action] error HTTP Status Code: \(httpResponse.statusCode)\n")
                         if action != "DELETE" {
                             completion((httpResponse.statusCode,""))
@@ -52,7 +52,7 @@ class Xml: NSURL, URLSessionDelegate {
                         }
                     }
                 } else {
-//                    WriteToLog().message(stringOfText: "[Json.getRecord] error parsing JSON for \(existingDestUrl)\n")
+//                    WriteToLog().message(stringOfText: "[Xml.action] error parsing JSON for \(existingDestUrl)\n")
                     completion((0,""))
                 }   // if let httpResponse - end
                 semaphore.signal()

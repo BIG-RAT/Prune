@@ -814,7 +814,7 @@ class ViewController: NSViewController {
                     
                         // lookup complete record, XML format
 //                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
-                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles/id/\(id)") {
+                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
                             print("statusCode: \(statusCode)")
@@ -847,77 +847,6 @@ class ViewController: NSViewController {
                                 // check the next item
                                 self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
                             }
-                            
-                            /*
-                            switch theEndpoint {
-                            case "policies","patchpolicies":
-            //                    self.policiesDict["\(id)"] = "\(name)"
-                                
-                                let thePolicy = (theEndpoint == "policies") ? result["policy"] as! [String:AnyObject]:result["patch_policy"] as! [String:AnyObject]
-                                
-                                // check for used computergroups - start
-                                let policyScope = thePolicy["scope"] as! [String:AnyObject]
-                                print("\(theEndpoint) (\(name)) scope: \(policyScope)")
-            //
-                                if self.isScoped(scope: policyScope) {
-                                    if theEndpoint == "policies" {
-                                        self.policiesDict["\(name) - (\(id))"]!["used"] = "true"
-                                    } else {
-                                        self.masterObjectDict["patchpolicies"]!["\(name)"]!["used"] = "true"
-                                    }
-                                }
-                                
-                                if theEndpoint == "policies" {
-                                    // check of used packages - start
-                                    let packageList = thePolicy["package_configuration"] as! [String:AnyObject]
-                                    let policyPackageList = packageList["packages"] as! [Dictionary<String, Any>]
-                                    for thePackage in policyPackageList {
-                //                                        print("thePackage: \(thePackage)")
-                                        let thePackageName = thePackage["name"]
-                //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                        self.packagesDict["\(thePackageName!)"]?["used"] = "true"
-                                    }
-                                    // check of used packages - end
-
-                                    // check for used scripts - start
-                                    let policyScriptList = thePolicy["scripts"] as! [Dictionary<String, Any>]
-                                    for theScript in policyScriptList {
-                //                                        print("thePackage: \(thePackage)")
-                                        let theScriptName = theScript["name"]
-                //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                        self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
-                                    }
-                                    // check of used scripts - end
-                                }
-
-                                // check for used computergroups - start
-            //                    let computerGroupList = thePolicy["scope"] as! [String:AnyObject]
-            //                                    print("computerGroupList: \(computerGroupList)")
-            //                    let computer_groupList = computerGroupList["computer_groups"] as! [Dictionary<String, Any>]
-                                let computer_groupList = policyScope["computer_groups"] as! [Dictionary<String, Any>]
-                                for theComputerGroup in computer_groupList {
-            //                                        print("thePackage: \(thePackage)")
-                                    let theComputerGroupName = theComputerGroup["name"]
-            //                                        let theComputerGroupID = theComputerGroup["id"]
-            //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
-                                }
-                                // check exclusions - start
-            //                    let computer_groupExcl = computerGroupList["exclusions"] as! [String:AnyObject]
-                                let computer_groupExcl = policyScope["exclusions"] as! [String:AnyObject]
-                                let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
-                                for theComputerGroupExcl in computer_groupListExcl {
-            //                                        print("thePackage: \(thePackage)")
-                                    let theComputerGroupName = theComputerGroupExcl["name"]
-            //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
-                                }
-                                // check exclusions - end
-                                // check of used computergroups - end
-                            default:
-                                break
-                            }
-                            */
                     }   // Xml().action patch software titles - end
        
                 default:
@@ -1997,12 +1926,18 @@ class ViewController: NSViewController {
         }
     }
     
+//    @objc func doubleClickRow() {
+//        print("doubleClicked Row: \(String(object_TableView.clickedRow))")
+//    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         object_TableView.delegate   = self
         object_TableView.dataSource = self
+//        object_TableView.doubleAction = #selector(doubleClickRow)
+        
                 
         // configure import button
         import_Button.url          = getDownloadDirectory().appendingPathComponent("/.")
