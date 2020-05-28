@@ -153,119 +153,119 @@ class ViewController: NSViewController {
 
         theGetQ.addOperation {
             switch type {
-                    case "computerGroups", "mobileDeviceGroups":
-                        if self.computerGroupsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
-                            DispatchQueue.main.async {
-                                self.process_TextField.stringValue = "Fetching Computer Groups..."
-                            }
-                            let groupEndpoint = (type == "computerGroups") ? "computergroups":"mobiledevicegroups"
-                            Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint) {
-                                (result: [String:AnyObject]) in
-        //                            print("json returned scripts: \(result)")
-                                let computerGroupsArray = (type == "computerGroups") ? result["computer_groups"] as! [Dictionary<String, Any>]:result["mobile_device_groups"] as! [Dictionary<String, Any>]
-                                let computerGroupsArrayCount = computerGroupsArray.count
-                                if computerGroupsArrayCount > 0 {
+                case "computerGroups", "mobileDeviceGroups":
+                    if self.computerGroupsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
+                        DispatchQueue.main.async {
+                            self.process_TextField.stringValue = "Fetching Computer Groups..."
+                        }
+                        let groupEndpoint = (type == "computerGroups") ? "computergroups":"mobiledevicegroups"
+                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint) {
+                            (result: [String:AnyObject]) in
+    //                            print("json returned scripts: \(result)")
+                            let computerGroupsArray = (type == "computerGroups") ? result["computer_groups"] as! [Dictionary<String, Any>]:result["mobile_device_groups"] as! [Dictionary<String, Any>]
+                            let computerGroupsArrayCount = computerGroupsArray.count
+                            if computerGroupsArrayCount > 0 {
 //                                    var groupType = (type == "computerGroups") ? "smartComputerGroup":"smartMobileDeviceGroup"
-                                    // loop through all computer groups and mark as unused
-                                    // skip All managed clients / servers
-                                    for i in (0..<computerGroupsArrayCount) {
-                                        if let id = computerGroupsArray[i]["id"], let name = computerGroupsArray[i]["name"], let isSmart = computerGroupsArray[i]["is_smart"] {
-                                            // skip by id rather than name?
-                                            if (isSmart as! Bool) {
-                                                groupType = (type == "computerGroups") ? "smartComputerGroup":"smartMobileDeviceGroup"
-                                            } else {
-                                                groupType = (type == "computerGroups") ? "staticComputerGroup":"staticMobileDeviceGroup"
+                                // loop through all computer groups and mark as unused
+                                // skip All managed clients / servers
+                                for i in (0..<computerGroupsArrayCount) {
+                                    if let id = computerGroupsArray[i]["id"], let name = computerGroupsArray[i]["name"], let isSmart = computerGroupsArray[i]["is_smart"] {
+                                        // skip by id rather than name?
+                                        if (isSmart as! Bool) {
+                                            groupType = (type == "computerGroups") ? "smartComputerGroup":"smartMobileDeviceGroup"
+                                        } else {
+                                            groupType = (type == "computerGroups") ? "staticComputerGroup":"staticMobileDeviceGroup"
+                                        }
+                                        if type == "computerGroups" {
+                                            if "\(name)" != "All Managed Clients" && "\(name)" != "All Managed Servers" {
+                                                self.computerGroupsDict["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
                                             }
+                                        } else {
+                                            if "\(name)" != "All Managed iPads" && "\(name)" != "All Managed iPhones" && "\(name)" != "All Managed iPod touches" {
+                                                self.mobileDeviceGroupsDict["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
+                                            }
+                                        }
+                                            
+                                    }
+                                }   // for i in (0..<computerGroupsArrayCount) - end
+                                // look for nested device groups
+                                DispatchQueue.main.async {
+                                    self.process_TextField.stringValue = "Scanning for nested device groups..."
+                                }
+                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint, theData: computerGroupsArray, index: 0)
+                                waitFor.deviceGroup = true
+                                self.backgroundQ.async {
+                                    while true {
+                                        usleep(10)
+                                        if !waitFor.deviceGroup {
                                             if type == "computerGroups" {
-                                                if "\(name)" != "All Managed Clients" && "\(name)" != "All Managed Servers" {
-                                                    self.computerGroupsDict["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
+                                                print("[processItems] skipping \(type) - call mobileDeviceGroups")
+                                                DispatchQueue.main.async {
+                                                    self.processItems(type: "mobileDeviceGroups")
                                                 }
-                                            } else {
-                                                if "\(name)" != "All Managed iPads" && "\(name)" != "All Managed iPhones" && "\(name)" != "All Managed iPod touches" {
-                                                    self.mobileDeviceGroupsDict["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
-                                                }
-                                            }
                                                 
-                                        }
-                                    }   // for i in (0..<computerGroupsArrayCount) - end
-                                    // look for nested device groups
-                                    DispatchQueue.main.async {
-                                        self.process_TextField.stringValue = "Scanning for nested device groups..."
-                                    }
-                                    self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint, theData: computerGroupsArray, index: 0)
-                                    waitFor.deviceGroup = true
-                                    self.backgroundQ.async {
-                                        while true {
-                                            usleep(10)
-                                            if !waitFor.deviceGroup {
-                                                if type == "computerGroups" {
-                                                    print("[processItems] skipping \(type) - call mobileDeviceGroups")
-                                                    DispatchQueue.main.async {
-                                                        self.processItems(type: "mobileDeviceGroups")
-                                                    }
-                                                    
-                                                } else {
-                                                    print("[processItems] skipping \(type) - call packages")
-                                                    DispatchQueue.main.async {
-                                                        self.processItems(type: "packages")
-                                                    }
+                                            } else {
+                                                print("[processItems] skipping \(type) - call packages")
+                                                DispatchQueue.main.async {
+                                                    self.processItems(type: "packages")
                                                 }
-                                                break
                                             }
+                                            break
                                         }
                                     }
-
                                 }
 
                             }
-                        } else {
-                            if type == "computerGroups" {
-                                print("[processItems] skipping \(type) - call mobileDeviceGroups")
-                                DispatchQueue.main.async {
-                                    self.processItems(type: "mobileDeviceGroups")
-                                }
-                                
-                            } else {
-                                print("[processItems] skipping \(type) - call packages")
-                                DispatchQueue.main.async {
-                                    self.processItems(type: "packages")
-                                }
-                            }
-                        }   // if self.computerGroupsButtonState == "on" - end
-                                
-            case "packages":
-                if self.packagesButtonState == "on" {
-                    DispatchQueue.main.async {
-                        self.process_TextField.stringValue = "Fetching Packages..."
-                    }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
-                        (result: [String:AnyObject]) in
-    //                    print("json returned packages: \(result)")
-                        if let _ = result["packages"] {
-                            let packagesArray = result["packages"] as! [Dictionary<String, Any>]
-                            let packagesArrayCount = packagesArray.count
-                            // loop through all packages and mark as unused
-                            if packagesArrayCount > 0 {
-                                for i in (0..<packagesArrayCount) {
-                                    if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
-                                        self.packagesDict["\(name)"] = ["id":"\(id)", "used":"false"]
-                                    }
-                                }
-                            }
-        //                    print("packagesDict (\(self.packagesDict.count)): \(self.packagesDict)")
-                            print("call scripts")
+
+                        }
+                    } else {
+                        if type == "computerGroups" {
+                            print("[processItems] skipping \(type) - call mobileDeviceGroups")
                             DispatchQueue.main.async {
-                                self.processItems(type: "scripts")
+                                self.processItems(type: "mobileDeviceGroups")
+                            }
+                            
+                        } else {
+                            print("[processItems] skipping \(type) - call packages")
+                            DispatchQueue.main.async {
+                                self.processItems(type: "packages")
                             }
                         }
+                    }   // if self.computerGroupsButtonState == "on" - end
+                                
+                case "packages":
+                    if self.packagesButtonState == "on" {
+                        DispatchQueue.main.async {
+                            self.process_TextField.stringValue = "Fetching Packages..."
+                        }
+                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
+                            (result: [String:AnyObject]) in
+        //                    print("json returned packages: \(result)")
+                            if let _ = result["packages"] {
+                                let packagesArray = result["packages"] as! [Dictionary<String, Any>]
+                                let packagesArrayCount = packagesArray.count
+                                // loop through all packages and mark as unused
+                                if packagesArrayCount > 0 {
+                                    for i in (0..<packagesArrayCount) {
+                                        if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
+                                            self.packagesDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        }
+                                    }
+                                }
+            //                    print("packagesDict (\(self.packagesDict.count)): \(self.packagesDict)")
+                                print("call scripts")
+                                DispatchQueue.main.async {
+                                    self.processItems(type: "scripts")
+                                }
+                            }
+                        }
+                    } else {
+                        print("[processItems] skipping packages - call scripts")
+                        DispatchQueue.main.async {
+                            self.processItems(type: "scripts")
+                        }
                     }
-                } else {
-                    print("[processItems] skipping packages - call scripts")
-                    DispatchQueue.main.async {
-                        self.processItems(type: "scripts")
-                    }
-                }
-                
+                    
                 case "scripts":
                     if self.scriptsButtonState == "on" {
                         DispatchQueue.main.async {
@@ -295,97 +295,115 @@ class ViewController: NSViewController {
                             self.processItems(type: "computerConfigurations")
                         }
                    }
-                           
-            // object that have a scope - start
-            case "computerConfigurations":
-                if self.packagesButtonState == "on" || self.scriptsButtonState == "on" {
-                    DispatchQueue.main.async {
-                        self.process_TextField.stringValue = "Fetching Computer Configurations..."
-                    }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations") {
-                        (result: [String:AnyObject]) in
-            //            print("json returned: \(result)")
-                        self.completed = 0
-                        let computerConfigurationsArray = result["computer_configurations"] as! [Dictionary<String, Any>]
-                        let computerConfigurationsArrayCount = computerConfigurationsArray.count
-                        if computerConfigurationsArrayCount > 0 {
-                            // loop through all the computerConfigurations
-                            DispatchQueue.main.async {
-                                self.process_TextField.stringValue = "Scanning Computer Configurations for packages and scripts..."
-                            }
-                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations", theData: computerConfigurationsArray, index: 0)
-                            waitFor.computerConfiguration = true
-                            self.backgroundQ.async {
-                                while true {
-                                    usleep(10)
-                                    if !waitFor.computerConfiguration {
-                                        print("[processItems] computerConfigurations complete - call osxconfigurationprofiles")
-                                        DispatchQueue.main.async {
-                                            self.processItems(type: "osxconfigurationprofiles")
-                                        }
-                                        break
-                                    }
-                                }
-                            }
-                            
-                        } else {
-                            // no computer configurations exist
-                            print("[processItems] no computerConfigurations - call osxconfigurationprofiles")
-                            DispatchQueue.main.async {
-                                self.processItems(type: "osxconfigurationprofiles")
-                            }
+                               
+                // object that have a scope - start
+                case "computerConfigurations":
+                    if self.packagesButtonState == "on" || self.scriptsButtonState == "on" {
+                        DispatchQueue.main.async {
+                            self.process_TextField.stringValue = "Fetching Computer Configurations..."
                         }
-                    }   //         Json().getRecord - computerConfigurations - end
-                } else {
-                    print("[processItems] skipping computerConfigurations - call osxconfigurationprofiles")
-                    DispatchQueue.main.async {
-                        self.processItems(type: "osxconfigurationprofiles")
-                    }
-                }
-                                                
-            case "osxconfigurationprofiles":
-                if self.computerGroupsButtonState == "on" || self.computerProfilesButtonState == "on" {
-                    DispatchQueue.main.async {
-                        self.process_TextField.stringValue = "Fetching Computer Configuration Profiles..."
-                    }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
-                        (result: [String:AnyObject]) in
-    //                    print("json returned packages: \(result)")
-                        self.masterObjectDict["osxconfigurationprofiles"] = [String:[String:String]]()
-                        if let _  = result["os_x_configuration_profiles"] {
-                            let osxconfigurationprofilesArray = result["os_x_configuration_profiles"] as! [Dictionary<String, Any>]
-                            let osxconfigurationprofilesArrayCount = osxconfigurationprofilesArray.count
-                            if osxconfigurationprofilesArrayCount > 0 {
-                                for i in (0..<osxconfigurationprofilesArrayCount) {
-                                    
-                                    if let id = osxconfigurationprofilesArray[i]["id"], let name = osxconfigurationprofilesArray[i]["name"] {
-                                        self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                                    }
+                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations") {
+                            (result: [String:AnyObject]) in
+                //            print("json returned: \(result)")
+                            self.completed = 0
+                            let computerConfigurationsArray = result["computer_configurations"] as! [Dictionary<String, Any>]
+                            let computerConfigurationsArrayCount = computerConfigurationsArray.count
+                            if computerConfigurationsArrayCount > 0 {
+                                // loop through all the computerConfigurations
+                                DispatchQueue.main.async {
+                                    self.process_TextField.stringValue = "Scanning Computer Configurations for packages and scripts..."
                                 }
-
-                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "osxconfigurationprofiles", theData: osxconfigurationprofilesArray, index: 0)
-                                waitFor.osxconfigurationprofile = true
+                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations", theData: computerConfigurationsArray, index: 0)
+                                waitFor.computerConfiguration = true
                                 self.backgroundQ.async {
                                     while true {
                                         usleep(10)
-                                        if !waitFor.osxconfigurationprofile {
-                                            print("[processItems] osxconfigurationprofiles complete - call mobiledeviceapplications")
-                                            if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
-                                                DispatchQueue.main.async {
-                                                    self.processItems(type: "mobiledeviceapplications")
-                                                }
-                                            } else {
-                                                DispatchQueue.main.async {
-                                                    self.processItems(type: "mobiledeviceconfigurationprofiles")
-                                                }
-                                            }   // if self.mobileDeviceAppsButtonState == "on" - end
+                                        if !waitFor.computerConfiguration {
+                                            print("[processItems] computerConfigurations complete - call osxconfigurationprofiles")
+                                            DispatchQueue.main.async {
+                                                self.processItems(type: "osxconfigurationprofiles")
+                                            }
                                             break
                                         }
                                     }
                                 }
+                                
                             } else {
-                                // no computer profiles exist
-                                print("[processItems] computer configuration profiles complete - call mobiledeviceapplications")
+                                // no computer configurations exist
+                                print("[processItems] no computerConfigurations - call osxconfigurationprofiles")
+                                DispatchQueue.main.async {
+                                    self.processItems(type: "osxconfigurationprofiles")
+                                }
+                            }
+                        }   //         Json().getRecord - computerConfigurations - end
+                    } else {
+                        print("[processItems] skipping computerConfigurations - call osxconfigurationprofiles")
+                        DispatchQueue.main.async {
+                            self.processItems(type: "osxconfigurationprofiles")
+                        }
+                    }
+                                                    
+                case "osxconfigurationprofiles":
+                    if self.computerGroupsButtonState == "on" || self.computerProfilesButtonState == "on" {
+                        DispatchQueue.main.async {
+                            self.process_TextField.stringValue = "Fetching Computer Configuration Profiles..."
+                        }
+                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                            (result: [String:AnyObject]) in
+        //                    print("json returned packages: \(result)")
+                            self.masterObjectDict["osxconfigurationprofiles"] = [String:[String:String]]()
+                            if let _  = result["os_x_configuration_profiles"] {
+                                let osxconfigurationprofilesArray = result["os_x_configuration_profiles"] as! [Dictionary<String, Any>]
+                                let osxconfigurationprofilesArrayCount = osxconfigurationprofilesArray.count
+                                if osxconfigurationprofilesArrayCount > 0 {
+                                    for i in (0..<osxconfigurationprofilesArrayCount) {
+                                        
+                                        if let id = osxconfigurationprofilesArray[i]["id"], let name = osxconfigurationprofilesArray[i]["name"] {
+                                            self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        }
+                                    }
+
+                                    self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "osxconfigurationprofiles", theData: osxconfigurationprofilesArray, index: 0)
+                                    waitFor.osxconfigurationprofile = true
+                                    self.backgroundQ.async {
+                                        while true {
+                                            usleep(10)
+                                            if !waitFor.osxconfigurationprofile {
+                                                print("[processItems] osxconfigurationprofiles complete - call mobiledeviceapplications")
+                                                if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
+                                                    DispatchQueue.main.async {
+                                                        self.processItems(type: "mobiledeviceapplications")
+                                                    }
+                                                } else {
+                                                    DispatchQueue.main.async {
+                                                        self.processItems(type: "mobiledeviceconfigurationprofiles")
+                                                    }
+                                                }   // if self.mobileDeviceAppsButtonState == "on" - end
+                                                break
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    // no computer profiles exist
+                                    print("[processItems] computer configuration profiles complete - call mobiledeviceapplications")
+                                    if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
+                                        DispatchQueue.main.async {
+                                            self.processItems(type: "mobiledeviceapplications")
+                                        }
+                                    } else {
+                                        DispatchQueue.main.async {
+                                            self.processItems(type: "mobiledeviceconfigurationprofiles")
+                                        }
+                                    }   // if self.mobileDeviceAppsButtonState == "on" - end
+                                }
+
+    //                            print("call policies")
+    //                            DispatchQueue.main.async {
+    //                                self.processItems(type: "policies")
+    //                            }
+                            } else {
+                                print("[processItems] unable to read computer configuration profiles - call mobiledeviceapplications")
+                                waitFor.osxconfigurationprofile = false
                                 if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
                                     DispatchQueue.main.async {
                                         self.processItems(type: "mobiledeviceapplications")
@@ -396,235 +414,261 @@ class ViewController: NSViewController {
                                     }
                                 }   // if self.mobileDeviceAppsButtonState == "on" - end
                             }
-
-//                            print("call policies")
-//                            DispatchQueue.main.async {
-//                                self.processItems(type: "policies")
-//                            }
-                        } else {
-                            print("[processItems] unable to read computer configuration profiles - call mobiledeviceapplications")
-                            waitFor.osxconfigurationprofile = false
-                            if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
-                                DispatchQueue.main.async {
-                                    self.processItems(type: "mobiledeviceapplications")
-                                }
-                            } else {
-                                DispatchQueue.main.async {
-                                    self.processItems(type: "mobiledeviceconfigurationprofiles")
-                                }
-                            }   // if self.mobileDeviceAppsButtonState == "on" - end
-                        }
-                    }
-                } else {
-                    // skip computer configuration profiles
-                    print("[processItems] skipping computer configuration profiles - call mobiledeviceapplications")
-                    waitFor.osxconfigurationprofile = false
-                    if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
-                        DispatchQueue.main.async {
-                            self.processItems(type: "mobiledeviceapplications")
                         }
                     } else {
-                        DispatchQueue.main.async {
-                            self.processItems(type: "mobiledeviceconfigurationprofiles")
-                        }
-                    }   // if self.mobileDeviceAppsButtonState == "on" - end
-                }
-                                                            
-            case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
-                var msgText    = "mobile device profiles"
-//                var nextObject = "policies"
-                var nextObject = "patchpolicies"
-                if (type == "mobiledeviceapplications" && self.mobileDeviceAppsButtonState == "on") || self.mobileDeviceGrpsButtonState == "on" || (type == "mobiledeviceconfigurationprofiles" && self.configurationProfilesButtonState == "on") {
-                    var xmlTag = ""
-                    DispatchQueue.main.async {
-                        if type == "mobiledeviceapplications" || (type == "mobiledeviceapplications" && self.mobileDeviceGrpsButtonState == "on") {
-                            xmlTag     = "mobile_device_applications"
-                            nextObject = "mobiledeviceconfigurationprofiles"
-                            msgText    = "mobile device apps"
-                            self.process_TextField.stringValue = "Fetching Mobile Device Apps..."
+                        // skip computer configuration profiles
+                        print("[processItems] skipping computer configuration profiles - call mobiledeviceapplications")
+                        waitFor.osxconfigurationprofile = false
+                        if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
+                            DispatchQueue.main.async {
+                                self.processItems(type: "mobiledeviceapplications")
+                            }
                         } else {
-                            xmlTag = "configuration_profiles"
-                            self.process_TextField.stringValue = "Fetching Mobile Device Configuration Profiles..."
-                        }
+                            DispatchQueue.main.async {
+                                self.processItems(type: "mobiledeviceconfigurationprofiles")
+                            }
+                        }   // if self.mobileDeviceAppsButtonState == "on" - end
                     }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
-                        (result: [String:AnyObject]) in
-    //                    print("json returned packages: \(result)")
-                        self.masterObjectDict[type] = [String:[String:String]]()
-                        if let _ = result[xmlTag] {
-                            let mobileDeviceObjectArray = result[xmlTag] as! [Dictionary<String, Any>]
-                            let mobileDeviceObjectArrayCount = mobileDeviceObjectArray.count
-                            if mobileDeviceObjectArrayCount > 0 {
-                                for i in (0..<mobileDeviceObjectArrayCount) {
-                                    
-                                    if let id = mobileDeviceObjectArray[i]["id"], let name = mobileDeviceObjectArray[i]["name"] {
-                                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                                    }
-                                }
-
-                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
-                                waitFor.mobiledeviceobject = true
-                                self.backgroundQ.async {
-                                    while true {
-                                        usleep(10)
-                                        if !waitFor.mobiledeviceobject {
-                                            print("[processItems] \(msgText) complete - \(nextObject)")
-                                            DispatchQueue.main.async {
-                                                self.processItems(type: nextObject)
-                                            }
-                                            break
+                                                                
+                case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
+                    var msgText    = "mobile device profiles"
+    //                var nextObject = "policies"
+                    var nextObject = "patchpolicies"
+                    if (type == "mobiledeviceapplications" && self.mobileDeviceAppsButtonState == "on") || self.mobileDeviceGrpsButtonState == "on" || (type == "mobiledeviceconfigurationprofiles" && self.configurationProfilesButtonState == "on") {
+                        var xmlTag = ""
+                        DispatchQueue.main.async {
+                            if type == "mobiledeviceapplications" || (type == "mobiledeviceapplications" && self.mobileDeviceGrpsButtonState == "on") {
+                                xmlTag     = "mobile_device_applications"
+                                nextObject = "mobiledeviceconfigurationprofiles"
+                                msgText    = "mobile device apps"
+                                self.process_TextField.stringValue = "Fetching Mobile Device Apps..."
+                            } else {
+                                xmlTag = "configuration_profiles"
+                                self.process_TextField.stringValue = "Fetching Mobile Device Configuration Profiles..."
+                            }
+                        }
+                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                            (result: [String:AnyObject]) in
+        //                    print("json returned packages: \(result)")
+                            self.masterObjectDict[type] = [String:[String:String]]()
+                            if let _ = result[xmlTag] {
+                                let mobileDeviceObjectArray = result[xmlTag] as! [Dictionary<String, Any>]
+                                let mobileDeviceObjectArrayCount = mobileDeviceObjectArray.count
+                                if mobileDeviceObjectArrayCount > 0 {
+                                    for i in (0..<mobileDeviceObjectArrayCount) {
+                                        
+                                        if let id = mobileDeviceObjectArray[i]["id"], let name = mobileDeviceObjectArray[i]["name"] {
+                                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
                                         }
+                                    }
+
+                                    print("[processItems] call recursiveLookup for \(type)")
+                                    self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
+                                    waitFor.mobiledeviceobject = true
+                                    self.backgroundQ.async {
+                                        while true {
+                                            usleep(10)
+                                            if !waitFor.mobiledeviceobject {
+                                                print("[processItems] \(msgText) complete - next object: \(nextObject)")
+                                                DispatchQueue.main.async {
+                                                    self.processItems(type: nextObject)
+                                                }
+                                                break
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    // no computer configurations exist
+                                    print("[processItems] \(msgText) complete - \(nextObject)")
+                                    DispatchQueue.main.async {
+                                        self.processItems(type: nextObject)
                                     }
                                 }
                             } else {
-                                // no computer configurations exist
-                                print("[processItems] \(msgText) complete - \(nextObject)")
+                                print("[processItems] unable to read \(msgText) - \(nextObject)")
+                                waitFor.mobiledeviceobject = false
                                 DispatchQueue.main.async {
                                     self.processItems(type: nextObject)
                                 }
                             }
-                        } else {
-                            print("[processItems] unable to read \(msgText) - \(nextObject)")
-                            waitFor.mobiledeviceobject = false
-                            DispatchQueue.main.async {
-                                self.processItems(type: nextObject)
-                            }
+                        }
+                    } else {
+                        // skip \(msgText)
+                        print("[processItems] skipping \(msgText) - \(nextObject)")
+                        waitFor.mobiledeviceobject = false
+                        DispatchQueue.main.async {
+                            self.processItems(type: nextObject)
                         }
                     }
-                } else {
-                    // skip \(msgText)
-                    print("[processItems] skipping \(msgText) - \(nextObject)")
-                    waitFor.mobiledeviceobject = false
-                    DispatchQueue.main.async {
-                        self.processItems(type: nextObject)
-                    }
-                }
-                            
-    case "patchpolicies":
-        print("patchpolicies")
-//        let nextObject = "patchsoftwaretitles"
-        let nextObject = "policies"
-        if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
-//           var xmlTag = ""
-            DispatchQueue.main.async {
-                   self.process_TextField.stringValue = "Fetching Patch Policies..."
-            }
+                                
+                case "patchpolicies":
+                    print("patchpolicies")
+            //        let nextObject = "patchsoftwaretitles"
+                    let nextObject = "policies"
+                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
+            //           var xmlTag = ""
+                        DispatchQueue.main.async {
+                               self.process_TextField.stringValue = "Fetching Patch Policies..."
+                        }
 
-            self.masterObjectDict[type] = [String:[String:String]]()
-            var patchPoliciesArray = [[String:Any]]()
-            
-            Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
-                (result: (Int,String)) in
-                let (statusCode,returnedXml) = result
-                print("[patcholicies GET] statusCode: \(statusCode)")
-                print("[patcholicies GET] xml: \(returnedXml)")
-                var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
-                nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
-                let xmlData = nameFixedXml.data(using: .utf8)
-                let parsedXmlData = XML.parse(xmlData!)
+                        self.masterObjectDict[type] = [String:[String:String]]()
+                        var patchPoliciesArray = [[String:Any]]()
+                        
+                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
+                            (result: (Int,String)) in
+                            let (statusCode,returnedXml) = result
+                            print("[patcholicies GET] statusCode: \(statusCode)")
+                            print("[patcholicies GET] xml: \(returnedXml)")
+                            var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
+                            nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
+                            let xmlData = nameFixedXml.data(using: .utf8)
+                            let parsedXmlData = XML.parse(xmlData!)
 
-                for thePolicy in parsedXmlData.patch_software_titles.patch_software_title {
-                    if let id = thePolicy.id.text, let name = thePolicy.Name.text {
+                            for thePolicy in parsedXmlData.patch_software_titles.patch_software_title {
+                                if let id = thePolicy.id.text, let name = thePolicy.Name.text {
 
-                        print("patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
-                        patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
-                        // mark patch policies as unused (reporting only) - start
-                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                        // mark patch policies as unused (reporting only) - end
-                    }
-                }
+                                    print("patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
+                                    patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
+                                    // mark patch policies as unused (reporting only) - start
+                                    self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    // mark patch policies as unused (reporting only) - end
+                                }
+                            }
 
-               /*
-            }
-            Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
-                (result: [String:AnyObject]) in
-                self.masterObjectDict[type] = [String:[String:String]]()
-                //            print("json returned: \(result)")
-                self.completed = 0
-                let patchPoliciesArray = result["patch_policies"] as! [Dictionary<String, Any>]
-                print("patchPoliciesArray: \(patchPoliciesArray)")
-            
-                // mark patch policies as unused - start
-                for thePolicy in patchPoliciesArray {
-                    if let id = thePolicy["id"], let name = thePolicy["name"] {
-                        // mark the policy as unused
-                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                    }
-                }
-                // mark patch policies as unused - end
-*/
-               let patchPoliciesArrayCount = patchPoliciesArray.count
-               if patchPoliciesArrayCount > 0 {
-                   DispatchQueue.main.async {
-                       self.process_TextField.stringValue = "Scanning Patch Policies..."
-                   }
+                           /*
+                        }
+                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                            (result: [String:AnyObject]) in
+                            self.masterObjectDict[type] = [String:[String:String]]()
+                            //            print("json returned: \(result)")
+                            self.completed = 0
+                            let patchPoliciesArray = result["patch_policies"] as! [Dictionary<String, Any>]
+                            print("patchPoliciesArray: \(patchPoliciesArray)")
+                        
+                            // mark patch policies as unused - start
+                            for thePolicy in patchPoliciesArray {
+                                if let id = thePolicy["id"], let name = thePolicy["name"] {
+                                    // mark the policy as unused
+                                    self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                }
+                            }
+                            // mark patch policies as unused - end
+            */
+                           let patchPoliciesArrayCount = patchPoliciesArray.count
+                           if patchPoliciesArrayCount > 0 {
+                               DispatchQueue.main.async {
+                                   self.process_TextField.stringValue = "Scanning Patch Policies..."
+                               }
 
-                   self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
-                   waitFor.policy = true
-                   self.backgroundQ.async {
-                       while true {
-                           usleep(10)
-                           if !waitFor.policy {
-                               print("[processItems] patch policies complete - call patchsoftwaretitles")
+                               self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
+                               waitFor.policy = true
+                               self.backgroundQ.async {
+                                   while true {
+                                       usleep(10)
+                                       if !waitFor.policy {
+                                           print("[processItems] patch policies complete - call patchsoftwaretitles")
+                                           DispatchQueue.main.async {
+                                               self.processItems(type: nextObject)
+                                           }
+                                           break
+                                       }
+                                   }
+                               }
+                               
+                           } else {
+                               // no patch policies exist
+                               print("[processItems] no patch policies - call patchsoftwaretitles")
                                DispatchQueue.main.async {
                                    self.processItems(type: nextObject)
                                }
-                               break
                            }
+                       }   //         Json().getRecord - patchpolicies - end
+                    } else {
+                       print("[processItems] skipping patch policies - call patchsoftwaretitles")
+                       DispatchQueue.main.async {
+                           self.processItems(type: nextObject)
                        }
-                   }
-                   
-               } else {
-                   // no patch policies exist
-                   print("[processItems] no patch policies - call patchsoftwaretitles")
-                   DispatchQueue.main.async {
-                       self.processItems(type: nextObject)
-                   }
-               }
-           }   //         Json().getRecord - patchpolicies - end
-        } else {
-           print("[processItems] skipping patch policies - call patchsoftwaretitles")
-           DispatchQueue.main.async {
-               self.processItems(type: nextObject)
-           }
-        }
-                  
-            
-            case "policies":
-                if self.policiesButtonState == "on" || self.packagesButtonState == "on" || self.scriptsButtonState == "on" || self.computerGroupsButtonState == "on" {
-                    DispatchQueue.main.async {
-                        self.process_TextField.stringValue = "Fetching Policies..."
                     }
-                    var policiesArray = [[String:Any]]()
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "policies") {
-                        (result: [String:AnyObject]) in
-            //            print("json returned: \(result)")
-                        self.completed = 0
-                        let allPoliciesArray = result["policies"] as! [Dictionary<String, Any>]
-                        
-                        // mark policies as unused and filter out policies generated with Jamf/Casper Remote - start
-                        for thePolicy in allPoliciesArray {
-                            if let id = thePolicy["id"], let name = thePolicy["name"] {
-                                let policyName = "\(name)"
-                                if policyName.range(of:"[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] at", options: .regularExpression) == nil && policyName != "Update Inventory" {
-                                    policiesArray.append(thePolicy)
-                                    // mark the policy as unused
-                                    self.policiesDict["\(name) - (\(id))"] = ["id":"\(id)", "used":"false"]
+                          
+                
+                case "policies":
+                    if self.policiesButtonState == "on" || self.packagesButtonState == "on" || self.scriptsButtonState == "on" || self.computerGroupsButtonState == "on" {
+                        DispatchQueue.main.async {
+                            self.process_TextField.stringValue = "Fetching Policies..."
+                        }
+                        var policiesArray = [[String:Any]]()
+                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "policies") {
+                            (result: [String:AnyObject]) in
+                //            print("json returned: \(result)")
+                            self.completed = 0
+                            let allPoliciesArray = result["policies"] as! [Dictionary<String, Any>]
+                            
+                            // mark policies as unused and filter out policies generated with Jamf/Casper Remote - start
+                            for thePolicy in allPoliciesArray {
+                                if let id = thePolicy["id"], let name = thePolicy["name"] {
+                                    let policyName = "\(name)"
+                                    if policyName.range(of:"[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] at", options: .regularExpression) == nil && policyName != "Update Inventory" {
+                                        policiesArray.append(thePolicy)
+                                        // mark the policy as unused
+                                        self.policiesDict["\(name) - (\(id))"] = ["id":"\(id)", "used":"false"]
+                                    }
                                 }
                             }
-                        }
-                        // mark policies as unused and filter out policies generated with Jamf/Casper Remote - end
-                        
-                        let policiesArrayCount = policiesArray.count
-                        if policiesArrayCount > 0 {
-                            // loop through all the policies
-                            DispatchQueue.main.async {
-                                self.process_TextField.stringValue = "Scanning policies for packages, scripts, computer groups..."
-                            }
-    //                        for i in (0..<policiesArrayCount) {
+                            // mark policies as unused and filter out policies generated with Jamf/Casper Remote - end
+                            
+                            let policiesArrayCount = policiesArray.count
+                            if policiesArrayCount > 0 {
+                                // loop through all the policies
+                                DispatchQueue.main.async {
+                                    self.process_TextField.stringValue = "Scanning policies for packages, scripts, computer groups..."
+                                }
+        //                        for i in (0..<policiesArrayCount) {
 
-                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "policies", theData: policiesArray, index: 0)
-                                waitFor.policy = true
+                                    self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "policies", theData: policiesArray, index: 0)
+                                    waitFor.policy = true
+                                    self.backgroundQ.async {
+                                        while true {
+                                            usleep(10)
+                                            if !waitFor.policy && !waitFor.osxconfigurationprofile {
+                                                print("[processItems] policies complete - call unused")
+                                                var reportItems = [[String:[String:[String:String]]]]()
+                                                if self.packagesButtonState == "on" {
+                                                    reportItems.append(["packages":self.packagesDict])
+                                                }
+                                                if self.scriptsButtonState == "on" {
+                                                    reportItems.append(["scripts":self.scriptsDict])
+                                                }
+                                                if self.computerGroupsButtonState == "on" {
+                                                    reportItems.append(["computergroups":self.computerGroupsDict])
+                                                }
+                                                if self.computerProfilesButtonState == "on" {
+                                                    reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
+                                                }
+                                                if self.policiesButtonState == "on" {
+                                                    reportItems.append(["policies":self.policiesDict])
+                                                }
+                                                if self.mobileDeviceGrpsButtonState == "on" {
+                                                    reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
+                                                }
+                                                if self.mobileDeviceAppsButtonState == "on" {
+                                                    reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
+                                                }
+                                                if self.configurationProfilesButtonState == "on" {
+                                                    reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
+                                                }
+                                                DispatchQueue.main.async {
+                                                    self.unused(itemDictionary: reportItems)
+                                                }
+                                                
+                                                break
+                                            }
+                                        }
+                                    }
+                                    
+                            } else {
+                                // no policies found
+                                print("[processItems] no policies found or policies not searched")
+                                waitFor.policy = false
                                 self.backgroundQ.async {
                                     while true {
                                         usleep(10)
@@ -650,10 +694,10 @@ class ViewController: NSViewController {
                                                 reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
                                             }
                                             if self.mobileDeviceAppsButtonState == "on" {
-                                                reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
+                                            reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
                                             }
                                             if self.configurationProfilesButtonState == "on" {
-                                                reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
+                                            reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
                                             }
                                             DispatchQueue.main.async {
                                                 self.unused(itemDictionary: reportItems)
@@ -662,101 +706,59 @@ class ViewController: NSViewController {
                                             break
                                         }
                                     }
-                                }
-                                
-                        } else {
-                            // no policies found
-                            waitFor.policy = false
-                            self.backgroundQ.async {
-                                while true {
-                                    usleep(10)
-                                    if !waitFor.policy && !waitFor.osxconfigurationprofile {
-                                        print("[processItems] policies complete - call unused")
-                                        var reportItems = [[String:[String:[String:String]]]]()
-                                        if self.packagesButtonState == "on" {
-                                            reportItems.append(["packages":self.packagesDict])
-                                        }
-                                        if self.scriptsButtonState == "on" {
-                                            reportItems.append(["scripts":self.scriptsDict])
-                                        }
-                                        if self.computerGroupsButtonState == "on" {
-                                            reportItems.append(["computergroups":self.computerGroupsDict])
-                                        }
-                                        if self.computerProfilesButtonState == "on" {
-                                            reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
-                                        }
-                                        if self.policiesButtonState == "on" {
-                                            reportItems.append(["policies":self.policiesDict])
-                                        }
-                                        if self.mobileDeviceGrpsButtonState == "on" {
-                                            reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
-                                        }
-                                        if self.mobileDeviceAppsButtonState == "on" {
-                                        reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
-                                        }
-                                        if self.configurationProfilesButtonState == "on" {
-                                        reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
-                                        }
-                                        DispatchQueue.main.async {
-                                            self.unused(itemDictionary: reportItems)
-                                        }
-                                        
-                                        break
-                                    }
-                                }
-                            }   // self.backgroundQ.async - end
-                        }
-                    }   //         Json().getRecord - policies - end
-                } else {
-                    // skipped policy check
-                    waitFor.policy = false
-                    self.backgroundQ.async {
-                        while true {
-                            usleep(10)
-                            if !waitFor.policy && !waitFor.osxconfigurationprofile {
-                                print("[processItems] policies complete - call unused")
-                                var reportItems = [[String:[String:[String:String]]]]()
-                                if self.packagesButtonState == "on" {
-                                    reportItems.append(["packages":self.packagesDict])
-                                }
-                                if self.scriptsButtonState == "on" {
-                                    reportItems.append(["scripts":self.scriptsDict])
-                                }
-                                if self.computerGroupsButtonState == "on" {
-                                    reportItems.append(["computergroups":self.computerGroupsDict])
-                                }
-                                if self.computerProfilesButtonState == "on" {
-                                    reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
-                                }
-                                if self.policiesButtonState == "on" {
-                                    reportItems.append(["policies":self.policiesDict])
-                                }
-                                if self.mobileDeviceGrpsButtonState == "on" {
-                                    reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
-                                }
-                                if self.mobileDeviceAppsButtonState == "on" {
-                                    reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
-                                }
-                                if self.configurationProfilesButtonState == "on" {
-                                    reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
-                                }
-                                DispatchQueue.main.async {
-                                    self.unused(itemDictionary: reportItems)
-                                }
-                                
-                                break
+                                }   // self.backgroundQ.async - end
                             }
-                        }
-                    }   // self.backgroundQ.async - end
-                }
-                // object that have a scope - end
-                
-            default:
-                print("[default] unknown item, exiting...")
-                DispatchQueue.main.async {
-                    NSApplication.shared.terminate(self)
-                    self.processItems(type: "initialize")
-                }
+                        }   //         Json().getRecord - policies - end
+                    } else {
+                        // skipped policy check
+                        waitFor.policy = false
+                        self.backgroundQ.async {
+                            while true {
+                                usleep(10)
+                                if !waitFor.policy && !waitFor.osxconfigurationprofile {
+                                    print("[processItems] policies complete - call unused")
+                                    var reportItems = [[String:[String:[String:String]]]]()
+                                    if self.packagesButtonState == "on" {
+                                        reportItems.append(["packages":self.packagesDict])
+                                    }
+                                    if self.scriptsButtonState == "on" {
+                                        reportItems.append(["scripts":self.scriptsDict])
+                                    }
+                                    if self.computerGroupsButtonState == "on" {
+                                        reportItems.append(["computergroups":self.computerGroupsDict])
+                                    }
+                                    if self.computerProfilesButtonState == "on" {
+                                        reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
+                                    }
+                                    if self.policiesButtonState == "on" {
+                                        reportItems.append(["policies":self.policiesDict])
+                                    }
+                                    if self.mobileDeviceGrpsButtonState == "on" {
+                                        reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
+                                    }
+                                    if self.mobileDeviceAppsButtonState == "on" {
+                                        reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
+                                    }
+                                    if self.configurationProfilesButtonState == "on" {
+                                        reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
+                                    }
+                                    DispatchQueue.main.async {
+                                        self.unused(itemDictionary: reportItems)
+                                    }
+                                    
+                                    break
+                                }
+                            }
+                        }   // self.backgroundQ.async - end
+                    }
+                    // object that have a scope - end
+                    
+                default:
+                    print("[default] unknown item, exiting...")
+                    DispatchQueue.main.async {
+                        NSApplication.shared.terminate(self)
+                        self.processItems(type: "initialize")
+                    }
             }
         }
     }
@@ -792,21 +794,6 @@ class ViewController: NSViewController {
         if let id = theObject["id"], let name = theObject["name"] {
             print("lookup id \(id) \t \(index+1) of \(objectArrayCount)")
 
-            //
-            //                Xml().action(action: "DELETE", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
-            //                (xmlResult: (Int,String)) in
-            //                let (statusCode, _) = xmlResult
-            //                if !(statusCode >= 200 && statusCode <= 299) {
-            //                    if "\(statusCode)" == "401" {
-            //                        self.working(isWorking: false)
-            //                        Alert().display(header: "Alert", message: "Verify username and password.")
-            //                        return
-            //                    }
-            //                    print("[remove_Action] failed to removed \(category) with id: \(id)")
-            //                }
-            //                completed = true
-            //                }
-            
             switch theEndpoint {
                 case "patchpolicies":
                     print("hello patchpolicies")
@@ -1002,11 +989,13 @@ class ViewController: NSViewController {
                             // check of used computergroups - end
                             
                         case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
+                            print("[recursiveLookup] check usage for \(theEndpoint)")
                             
                             let theMobileDeviceObjectXml = (theEndpoint == "mobiledeviceapplications") ? result["mobile_device_application"] as! [String:AnyObject]:result["configuration_profile"] as! [String:AnyObject]
                             
                             // check for used mobiledevicegroups - start
                             let mobileDeviceAppScope = theMobileDeviceObjectXml["scope"] as! [String:AnyObject]
+                            print("[recursiveLookup] mobileDeviceAppScope: \(mobileDeviceAppScope)")
         //
                             if self.isScoped(scope: mobileDeviceAppScope) {
         //                        self.mobileDeviceAppsDict["\(name))"]!["used"] = "true"
@@ -1304,7 +1293,8 @@ class ViewController: NSViewController {
                 }
                 
                 if let packageLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for (key, _) in packagesDict {
+                    for key in sortedArrayFromDict(theDict: packagesDict) {
+//                   for (key, _) in packagesDict {
                         if packagesDict[key]?["used"]! == "false" {
                             packageLogFileOp.seekToEndOfFile()
                             let text = "\t{\"id\": \"\(String(describing: packagesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
@@ -1364,7 +1354,8 @@ class ViewController: NSViewController {
                 }
                 
                 if let computerGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for (key, _) in computerGroupsDict {
+                    for key in sortedArrayFromDict(theDict: computerGroupsDict) {
+//                    for (key, _) in computerGroupsDict {
                         if computerGroupsDict[key]?["used"]! == "false" {
                             computerGroupLogFileOp.seekToEndOfFile()
                             let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"},\n"
@@ -1392,7 +1383,8 @@ class ViewController: NSViewController {
                 }
                 
                 if let computerProfileLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
+                    for key in sortedArrayFromDict(theDict: masterObjectDict["osxconfigurationprofiles"]!) {
+//                   for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
                         if masterObjectDict["osxconfigurationprofiles"]![key]?["used"]! == "false" {
                             computerProfileLogFileOp.seekToEndOfFile()
                             let text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
@@ -1420,7 +1412,8 @@ class ViewController: NSViewController {
                 }
                 
                 if let policyLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for (key, _) in policiesDict {
+                    for key in sortedArrayFromDict(theDict: policiesDict) {
+//                   for (key, _) in policiesDict {
                         if policiesDict[key]?["used"]! == "false" {
                             policyLogFileOp.seekToEndOfFile()
                             let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
@@ -1450,7 +1443,8 @@ class ViewController: NSViewController {
                 }
                 
                 if let mobileDeviceGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for (key, _) in mobileDeviceGroupsDict {
+                    for key in sortedArrayFromDict(theDict: mobileDeviceGroupsDict) {
+//                   for (key, _) in mobileDeviceGroupsDict {
                         if mobileDeviceGroupsDict[key]?["used"]! == "false" {
                             mobileDeviceGroupLogFileOp.seekToEndOfFile()
                             let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"},\n"
@@ -1478,7 +1472,8 @@ class ViewController: NSViewController {
                 }
                 
                 if let logFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
+                    for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceapplications"]!) {
+//                   for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
                         if masterObjectDict["mobiledeviceapplications"]![key]?["used"]! == "false" {
                             logFileOp.seekToEndOfFile()
                             let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
@@ -1506,7 +1501,8 @@ class ViewController: NSViewController {
                 }
                 
                 if let logFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
+                    for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceconfigurationprofiles"]!) {
+//                    for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
                         if masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["used"]! == "false" {
                             logFileOp.seekToEndOfFile()
                             let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
@@ -1868,8 +1864,6 @@ class ViewController: NSViewController {
                     if (test as! Bool) {
                         return true
                     }
-                } else {
-                    return false
                 }
             default:
 //                print("[isScoped] scope[theObject]: \(String(describing: scope[theObject]))")
@@ -1878,8 +1872,6 @@ class ViewController: NSViewController {
                     if (test.count > 0) {
                         return true
                     }
-                } else {
-                    return false
                 }
             }
         }
