@@ -28,7 +28,7 @@ class Json: NSURL, URLSessionDelegate {
         let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
         
         let semaphore = DispatchSemaphore(value: 0)
-        getRecordQ.maxConcurrentOperationCount = 3
+        getRecordQ.maxConcurrentOperationCount = 4
         getRecordQ.addOperation {
             
             jsonRequest.httpMethod = "GET"

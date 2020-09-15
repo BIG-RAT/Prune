@@ -148,7 +148,7 @@ class ViewController: NSViewController {
     func processItems(type: String) {
         
 //        let semaphore = DispatchSemaphore(value: 0)
-        theGetQ.maxConcurrentOperationCount = 3
+        theGetQ.maxConcurrentOperationCount = 4
         var groupType = ""
 
         theGetQ.addOperation {
@@ -502,7 +502,7 @@ class ViewController: NSViewController {
                     }
                                 
                 case "patchpolicies":
-                    print("patchpolicies")
+                    print("[processItems] patchpolicies")
             //        let nextObject = "patchsoftwaretitles"
                     let nextObject = "policies"
                     if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
@@ -517,8 +517,8 @@ class ViewController: NSViewController {
                         Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
                             (result: (Int,String)) in
                             let (statusCode,returnedXml) = result
-                            print("[patcholicies GET] statusCode: \(statusCode)")
-                            print("[patcholicies GET] xml: \(returnedXml)")
+                            print("[processItems] patchpolicies GET statusCode: \(statusCode)")
+                            print("[processItems] patchpolicies GET xml: \(returnedXml)")
                             var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
                             nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
                             let xmlData = nameFixedXml.data(using: .utf8)
@@ -801,9 +801,12 @@ class ViewController: NSViewController {
                     
                         // lookup complete record, XML format
 //                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
-                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
+//                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
+                    // search for used packages using patchsoftwaretitles endpoint
+                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles/id/\(id)") {
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
+//                            print("[returnedXml] full XML: \(returnedXml)")
                             print("statusCode: \(statusCode)")
                             let patchPolicyXml = self.nameFixedXml(originalXml: returnedXml)
 //                            print("[patchpolicy] returnedXml: \(patchPolicyXml)")
@@ -812,9 +815,20 @@ class ViewController: NSViewController {
                             let xmlData = patchPolicyXml.data(using: .utf8)
                             let parsedXmlData = XML.parse(xmlData!)
                             
+                            
+                            print("[parsedXmlData.patch_policy.scope.computer_groups] full XML: \(parsedXmlData.patch_policy.scope.computer_groups)")
+                            let ppComputerGroups = parsedXmlData.patch_policy.scope.computer_groups
+                            for theGroup in ppComputerGroups {
+                                if theGroup.computer_group.Name.text != nil {
+                                    print("theGroup: \(theGroup.computer_group.Name.text!)")
+                                }
+                            }
+                            
                             // check of used packages - start
                             let packageVersionArray = parsedXmlData.patch_software_title.versions.version
 //                            print("[patchPolicy] package name: \(packageVersionArray)")
+                            
+//                            let patchPolicyScope = parsedXmlData.scope
                             
                             for thePackageInfo in packageVersionArray {
                                 if thePackageInfo.package.Name.text != nil {
@@ -1630,7 +1644,7 @@ class ViewController: NSViewController {
         let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
         jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
         
-        theDeleteQ.maxConcurrentOperationCount = 3
+        theDeleteQ.maxConcurrentOperationCount = 4
         
         let viewing = view_PopUpButton.title
         print("[remove] viewing: \(viewing)")
@@ -1846,7 +1860,6 @@ class ViewController: NSViewController {
         }
     }
         
-    
     
     func getDownloadDirectory() -> URL {
         let downloadsDirectory = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]

@@ -25,7 +25,7 @@ class Xml: NSURL, URLSessionDelegate {
         let xmlRequest     = NSMutableURLRequest(url: destEncodedURL! as URL)
         
         let semaphore = DispatchSemaphore(value: 1)
-        getRecordQ.maxConcurrentOperationCount = 3
+        getRecordQ.maxConcurrentOperationCount = 4
         getRecordQ.addOperation {
             
             xmlRequest.httpMethod = "\(action.uppercased())"

@@ -5,7 +5,7 @@ As your Jamf server ages it often accumulates more and more unused items, such a
 
 ![alt text](./images/pruneApp.png "Prune")
 
-Once the list of unused items is generated you can edit it within the app.  If you see an object you wish to keep, say some policy, simply click the item in the list.  The item will be removed from the list, and hence not removed from the server.  Perhaps you'd like to review the item on the server before deleting, not a problem, just option-click the item and you'll be taken to it on the Jamf server (may need to authenticate first).
+Once the list of unused items is generated you can edit it within the app.  If you see an object you wish to keep, say some policy, simply option+click the item in the list.  The item will be removed from the list, and hence not removed from the server.  Perhaps you'd like to review the item on the server before deleting, not a problem, just double click the item and you'll be taken to it on the Jamf server (may need to authenticate first).
 
 ![alt text](./images/edit.png "modify/review")
 
