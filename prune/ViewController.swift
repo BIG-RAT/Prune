@@ -433,7 +433,7 @@ class ViewController: NSViewController {
                 case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                     var msgText    = "mobile device profiles"
     //                var nextObject = "policies"
-                    var nextObject = "patchpolicies"
+                    var nextObject = "patchsoftwaretitles"
                     if (type == "mobiledeviceapplications" && self.mobileDeviceAppsButtonState == "on") || self.mobileDeviceGrpsButtonState == "on" || (type == "mobiledeviceconfigurationprofiles" && self.configurationProfilesButtonState == "on") {
                         var xmlTag = ""
                         DispatchQueue.main.async {
@@ -501,14 +501,16 @@ class ViewController: NSViewController {
                         }
                     }
                                 
-                case "patchpolicies":
-                    print("[processItems] patchpolicies")
+                case "patchsoftwaretitles":
+                    // look for packages used in patch policies
+                    print("[processItems] patchpolicies_packages")
             //        let nextObject = "patchsoftwaretitles"
-                    let nextObject = "policies"
-                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
+                    let nextObject = "patchpolicies"
+//                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
+                    if self.packagesButtonState == "on" {
             //           var xmlTag = ""
                         DispatchQueue.main.async {
-                               self.process_TextField.stringValue = "Fetching Patch Policies..."
+                               self.process_TextField.stringValue = "Fetching Patch Software Titles..."
                         }
 
                         self.masterObjectDict[type] = [String:[String:String]]()
@@ -517,8 +519,8 @@ class ViewController: NSViewController {
                         Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
                             (result: (Int,String)) in
                             let (statusCode,returnedXml) = result
-                            print("[processItems] patchpolicies GET statusCode: \(statusCode)")
-                            print("[processItems] patchpolicies GET xml: \(returnedXml)")
+                            print("[patchsoftwaretitles] patchpolicies GET statusCode: \(statusCode)")
+                            print("[patchsoftwaretitles] patchpolicies GET xml: \(returnedXml)")
                             var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
                             nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
                             let xmlData = nameFixedXml.data(using: .utf8)
@@ -557,7 +559,7 @@ class ViewController: NSViewController {
                            let patchPoliciesArrayCount = patchPoliciesArray.count
                            if patchPoliciesArrayCount > 0 {
                                DispatchQueue.main.async {
-                                   self.process_TextField.stringValue = "Scanning Patch Policies..."
+                                   self.process_TextField.stringValue = "Scanning Patch Policies for packages..."
                                }
 
                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
@@ -589,6 +591,79 @@ class ViewController: NSViewController {
                            self.processItems(type: nextObject)
                        }
                     }
+                        
+                    case "patchpolicies":
+                            // look for groups used in patch policies
+                            print("[processItems] patchpolicies")
+                    //        let nextObject = "patchsoftwaretitles"
+                            let nextObject = "policies"
+                            if self.computerGroupsButtonState == "on" {
+                    //           var xmlTag = ""
+                                DispatchQueue.main.async {
+                                       self.process_TextField.stringValue = "Fetching Patch Policies..."
+                                }
+
+                                self.masterObjectDict[type] = [String:[String:String]]()
+                                var patchPoliciesArray = [[String:Any]]()
+                                
+                                Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") {
+                                    (result: (Int,String)) in
+                                    let (statusCode,returnedXml) = result
+                                    print("[processItems] patchpolicies GET statusCode: \(statusCode)")
+                                    print("[processItems] patchpolicies GET xml: \(returnedXml)")
+                                    var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
+                                    nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
+                                    let xmlData = nameFixedXml.data(using: .utf8)
+                                    let parsedXmlData = XML.parse(xmlData!)
+
+                                    for thePolicy in parsedXmlData.patch_policies.patch_policy {
+                                        if let id = thePolicy.id.text, let name = thePolicy.Name.text {
+
+                                            print("patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
+                                            patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
+                                            // mark patch policies as unused (reporting only) - start
+                                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                            // mark patch policies as unused (reporting only) - end
+                                        }
+                                    }
+
+                                   let patchPoliciesArrayCount = patchPoliciesArray.count
+                                   if patchPoliciesArrayCount > 0 {
+                                       DispatchQueue.main.async {
+                                           self.process_TextField.stringValue = "Scanning Patch Policies for groups..."
+                                       }
+
+                                       self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
+                                       waitFor.policy = true
+                                       self.backgroundQ.async {
+                                           while true {
+                                               usleep(10)
+                                               if !waitFor.policy {
+                                                   print("[processItems] patch policies complete - call patchsoftwaretitles")
+                                                   DispatchQueue.main.async {
+                                                       self.processItems(type: nextObject)
+                                                   }
+                                                   break
+                                               }
+                                           }
+                                       }
+                                       
+                                   } else {
+                                       // no patch policies exist
+                                       print("[processItems] no patch policies - call patchsoftwaretitles")
+                                       DispatchQueue.main.async {
+                                           self.processItems(type: nextObject)
+                                       }
+                                   }
+                               }   //         Json().getRecord - patchpolicies - end
+                            } else {
+                               print("[processItems] skipping patch policies - call patchsoftwaretitles")
+                               DispatchQueue.main.async {
+                                   self.processItems(type: nextObject)
+                               }
+                            }
+                                  
+                        
                           
                 
                 case "policies":
@@ -779,6 +854,8 @@ class ViewController: NSViewController {
             objectEndpoint = "policies/id"
         case "patchpolicies":
             objectEndpoint = "patchpolicies/id"
+        case "patchsoftwaretitles":
+            objectEndpoint = "patchsoftwaretitles/id"
         case "mobiledevicegroups":
             objectEndpoint = "mobiledevicegroups/id"
         case "mobiledeviceapplications":
@@ -795,15 +872,14 @@ class ViewController: NSViewController {
             print("lookup id \(id) \t \(index+1) of \(objectArrayCount)")
 
             switch theEndpoint {
-                case "patchpolicies":
-                    print("hello patchpolicies")
+                case "patchpolicies", "patchsoftwaretitles":
+                    print("hello \(theEndpoint)")
                     // lookup patch software titles, loop through each by id
                     
                         // lookup complete record, XML format
-//                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
 //                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
                     // search for used packages using patchsoftwaretitles endpoint
-                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles/id/\(id)") {
+                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
 //                            print("[returnedXml] full XML: \(returnedXml)")
@@ -815,32 +891,41 @@ class ViewController: NSViewController {
                             let xmlData = patchPolicyXml.data(using: .utf8)
                             let parsedXmlData = XML.parse(xmlData!)
                             
-                            
-                            print("[parsedXmlData.patch_policy.scope.computer_groups] full XML: \(parsedXmlData.patch_policy.scope.computer_groups)")
-                            let ppComputerGroups = parsedXmlData.patch_policy.scope.computer_groups
-                            for theGroup in ppComputerGroups {
-                                if theGroup.computer_group.Name.text != nil {
-                                    print("theGroup: \(theGroup.computer_group.Name.text!)")
+                            if "\(theEndpoint)" == "patchsoftwaretitles" {
+                                // check of used packages - start
+                                let packageVersionArray = parsedXmlData.patch_software_title.versions.version
+    //                            print("[patchPolicy] package name: \(packageVersionArray)")
+                                
+                                
+                                for thePackageInfo in packageVersionArray {
+                                    if thePackageInfo.package.Name.text != nil {
+                                        print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
+                                        self.packagesDict["\(thePackageInfo.package.Name.text!)"]?["used"] = "true"
+                                    }
+
+                                }
+                                // check of used packages - end
+                            } else {
+                                // check scoped groups
+                                let patchPolicyScopeArray = parsedXmlData.patch_policy.scope.computer_groups.computer_group
+                                for scopedGroup in patchPolicyScopeArray {
+                                    if scopedGroup.Name.text != nil {
+                                        print("theGroup: \(scopedGroup.Name.text!)")
+//                                        self.computerGroupsDict["\(scopedGroup.Name.text!)"]?["used"] = "true"
+                                        self.computerGroupsDict["\(scopedGroup.Name.text!)"] = ["used":"true"]
+                                    }
+                                }
+                                // check excluded groups
+                                let patchPolicyExcludeArray = parsedXmlData.patch_policy.scope.exclusions.computer_groups.computer_group
+                                for excludedGroup in patchPolicyExcludeArray {
+                                    if excludedGroup.Name.text != nil {
+                                        print("theExcludedGroup: \(excludedGroup.Name.text!)")
+//                                        self.computerGroupsDict["\(excludedGroup.Name.text!)"]?["used"] = "true"
+                                        self.computerGroupsDict["\(excludedGroup.Name.text!)"] = ["used":"true"]
+                                    }
                                 }
                             }
-                            
-                            // check of used packages - start
-                            let packageVersionArray = parsedXmlData.patch_software_title.versions.version
-//                            print("[patchPolicy] package name: \(packageVersionArray)")
-                            
-//                            let patchPolicyScope = parsedXmlData.scope
-                            
-                            for thePackageInfo in packageVersionArray {
-                                if thePackageInfo.package.Name.text != nil {
-                                    print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
-                                    self.packagesDict["\(thePackageInfo.package.Name.text!)"]?["used"] = "true"
-                                }
 
-                            }
-
-//                            self.packagesDict["\(thePackageName)"]?["used"] = "true"
-                            // check of used packages - end
-                            
                             
                             if index == objectArrayCount-1 {
                                 waitFor.policy = false
@@ -1051,7 +1136,7 @@ class ViewController: NSViewController {
                                 waitFor.computerConfiguration = false
                             case "osxconfigurationprofiles":
                                 waitFor.osxconfigurationprofile = false
-                            case "policies","patchpolicies":
+                            case "policies","patchpolicies","patchsoftwaretitles":
                                 waitFor.policy = false
                             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                                 waitFor.mobiledeviceobject = false
