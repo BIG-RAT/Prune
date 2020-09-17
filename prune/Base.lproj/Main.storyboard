@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097.3"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -706,7 +706,7 @@
         <scene sceneID="hIz-AP-VOD">
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="Prune" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" misplaced="YES" id="m2S-Jp-Qdl">
+                    <view key="view" id="m2S-Jp-Qdl">
                         <rect key="frame" x="0.0" y="0.0" width="725" height="309"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <userGuides>
@@ -892,7 +892,7 @@
                                     <constraint firstAttribute="width" constant="118" id="V7o-xb-MXx"/>
                                 </constraints>
                                 <pathCell key="cell" controlSize="small" selectable="YES" editable="YES" alignment="left" placeholderString="Import" pathStyle="popUp" id="ABP-ij-TMx">
-                                    <font key="font" metaFont="menu" size="11"/>
+                                    <font key="font" metaFont="message" size="11"/>
                                     <url key="url" string="file:///Applications/"/>
                                     <connections>
                                         <action selector="import_Action:" target="XfG-lQ-9wD" id="exr-Lo-Om6"/>
@@ -906,7 +906,7 @@
                                     <constraint firstAttribute="width" constant="50" id="kHK-WA-RYk"/>
                                 </constraints>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Import:" id="HX8-Lx-nVA">
-                                    <font key="font" metaFont="system" size="14"/>
+                                    <font key="font" metaFont="menu" size="14"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -926,7 +926,6 @@
                                             <tableColumns>
                                                 <tableColumn width="668" minWidth="40" maxWidth="1000" id="qyG-E8-ZZ5">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Name">
-                                                        <font key="font" metaFont="menu" size="11"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
@@ -985,7 +984,7 @@
                                 </scroller>
                             </scrollView>
                             <progressIndicator wantsLayer="YES" maxValue="100" displayedWhenStopped="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="cnQ-TA-ZNH">
-                                <rect key="frame" x="347" y="106" width="32" height="32"/>
+                                <rect key="frame" x="341" y="104" width="32" height="32"/>
                             </progressIndicator>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iIu-PQ-eWL">
                                 <rect key="frame" x="346" y="184" width="132" height="18"/>
@@ -1028,7 +1027,7 @@
                                 </connections>
                             </button>
                             <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wAV-VD-ITG">
-                                <rect key="frame" x="21" y="162" width="673" height="18"/>
+                                <rect key="frame" x="21" y="142" width="673" height="36"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" id="E4h-as-mAM">
                                     <font key="font" usesAppearanceFont="YES"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1066,7 +1065,7 @@
                             <constraint firstItem="gaw-sp-OyP" firstAttribute="leading" secondItem="nEi-ky-DQi" secondAttribute="trailing" constant="5" id="5Fs-3T-N8J"/>
                             <constraint firstItem="ocR-3i-qMJ" firstAttribute="top" secondItem="DLw-Z1-gVI" secondAttribute="bottom" constant="12" id="5Sp-7S-oIy"/>
                             <constraint firstItem="CHT-iK-owq" firstAttribute="top" secondItem="DX4-YY-TMA" secondAttribute="bottom" constant="9" id="8Ib-wB-2yO"/>
-                            <constraint firstItem="cnQ-TA-ZNH" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="8iF-MY-jdt"/>
+                            <constraint firstItem="cnQ-TA-ZNH" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" constant="-5.5" id="8iF-MY-jdt"/>
                             <constraint firstItem="iIu-PQ-eWL" firstAttribute="top" secondItem="JcO-81-SqS" secondAttribute="bottom" constant="77" id="9ZW-V4-xy0"/>
                             <constraint firstItem="IPy-ls-na8" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="21" id="9fp-a7-tXd"/>
                             <constraint firstItem="U1z-r5-Qn3" firstAttribute="top" secondItem="dlw-9C-Dvf" secondAttribute="bottom" constant="32" id="AuP-XU-vUn"/>
@@ -1078,7 +1077,7 @@
                             <constraint firstItem="IPy-ls-na8" firstAttribute="top" secondItem="BTF-MF-pnr" secondAttribute="bottom" constant="46" id="Fkj-Ib-m9y"/>
                             <constraint firstItem="1KQ-oR-uJ5" firstAttribute="leading" secondItem="CHT-iK-owq" secondAttribute="trailing" constant="85" id="Hj1-jW-pa2"/>
                             <constraint firstAttribute="bottom" secondItem="gaw-sp-OyP" secondAttribute="bottom" constant="8" id="ILD-1n-Pcf"/>
-                            <constraint firstItem="cnQ-TA-ZNH" firstAttribute="top" secondItem="3Ur-1I-4K7" secondAttribute="bottom" constant="71" id="IUb-Pt-bd0"/>
+                            <constraint firstItem="cnQ-TA-ZNH" firstAttribute="top" secondItem="3Ur-1I-4K7" secondAttribute="bottom" constant="73" id="IUb-Pt-bd0"/>
                             <constraint firstItem="LaG-E8-vJA" firstAttribute="leading" secondItem="9cz-XW-pvG" secondAttribute="trailing" constant="8" id="IvO-Oo-weK"/>
                             <constraint firstItem="JcO-81-SqS" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="11" id="LJ9-lN-aNn"/>
                             <constraint firstItem="Qaq-HO-yMo" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="12" id="LUr-pC-gBi"/>
@@ -1095,13 +1094,13 @@
                             <constraint firstItem="GuW-11-YAB" firstAttribute="top" secondItem="cOM-vc-k2S" secondAttribute="bottom" constant="7" id="b3p-64-Gpl"/>
                             <constraint firstItem="JcO-81-SqS" firstAttribute="leading" secondItem="DLw-Z1-gVI" secondAttribute="trailing" constant="5" id="cnP-We-XXk"/>
                             <constraint firstItem="DX4-YY-TMA" firstAttribute="top" secondItem="JcO-81-SqS" secondAttribute="bottom" constant="8" id="dXt-V2-v7P"/>
-                            <constraint firstItem="wAV-VD-ITG" firstAttribute="top" secondItem="3Ur-1I-4K7" secondAttribute="bottom" constant="29" id="fCf-UV-bQU"/>
+                            <constraint firstItem="wAV-VD-ITG" firstAttribute="top" secondItem="3Ur-1I-4K7" secondAttribute="bottom" constant="31" id="fCf-UV-bQU"/>
                             <constraint firstItem="ocR-3i-qMJ" firstAttribute="top" secondItem="DLw-Z1-gVI" secondAttribute="bottom" constant="12" id="ffY-yB-XsQ"/>
                             <constraint firstItem="dlw-9C-Dvf" firstAttribute="leading" secondItem="iIu-PQ-eWL" secondAttribute="leading" constant="146" id="gXO-6W-cFv"/>
                             <constraint firstItem="ocR-3i-qMJ" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="61" id="gtX-9Q-hIL"/>
                             <constraint firstItem="AJ3-ix-IV2" firstAttribute="leading" secondItem="iIu-PQ-eWL" secondAttribute="trailing" constant="18" id="gyg-Za-dGT"/>
                             <constraint firstItem="9cz-XW-pvG" firstAttribute="leading" secondItem="6dX-JG-2TQ" secondAttribute="trailing" constant="4" id="hIn-NJ-Id8"/>
-                            <constraint firstItem="wAV-VD-ITG" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="j6N-mN-8C4"/>
+                            <constraint firstItem="wAV-VD-ITG" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" constant="-5" id="j6N-mN-8C4"/>
                             <constraint firstItem="DX4-YY-TMA" firstAttribute="leading" secondItem="n9P-7I-G9h" secondAttribute="trailing" constant="30" id="jl3-vN-A5A"/>
                             <constraint firstAttribute="bottom" secondItem="2Gz-TZ-Nnb" secondAttribute="bottom" constant="12" id="k41-IU-wTK"/>
                             <constraint firstItem="cOM-vc-k2S" firstAttribute="top" secondItem="ocR-3i-qMJ" secondAttribute="bottom" constant="7" id="kpW-e4-FA5"/>
