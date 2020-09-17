@@ -1626,98 +1626,97 @@ class ViewController: NSViewController {
         DispatchQueue.main.async {
             var withOptionKey = false
             let theRow = self.object_TableView.selectedRow
-            print("theRow: \(theRow)")
 
             if self.unusedItems_TableArray?.count != nil {
-                            if let itemName = self.unusedItems_TableArray?[theRow] {
-                    //                print("[removeObject_Action] itemName: \(itemName)")
-                    //                print("[removeObject_Action] unusedItems_TableDict: \(String(describing: unusedItems_TableDict))")
-                                if let itemDict = self.unusedItems_TableDict?[theRow] {
-                                    if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
-                                        for (_, objectType) in itemDict as [String:String] {
-                                            if NSEvent.modifierFlags.contains(.option) {
-                //                               print("check for option key - success")
-                                                withOptionKey = true
-                                            }
-                                            print("[removeObject_Action]      itemDict: \(itemName) and type \(objectType)")
-                                            print("[removeObject_Action] withOptionKey: \(withOptionKey)")
-                                            
-                                            switch objectType {
-                                                case "packages":
-                                                    if withOptionKey {
-                                                        self.packagesDict.removeValue(forKey: itemName)
-                                                    } else {
-                                                        print("[removeObject_Action] single click \(objectType) - without option key")
-                                                        return
-                                                    }
-                                                
-                                                case "scripts":
-                                                    if withOptionKey {
-                                                        self.scriptsDict.removeValue(forKey: itemName)
-                                                    } else {
-                                                        print("[removeObject_Action] single click \(objectType) - without option key")
-                                                        return
-                                                    }
-                                                
-                                                case "computergroups":
-                                                    if withOptionKey {
-                                                      self.computerGroupsDict.removeValue(forKey: itemName)
-                                                    } else {
-                                                      print("[removeObject_Action] single click \(objectType) - without option key")
-                                                      return
-                                                    }
-                                                
-                                                case "osxconfigurationprofiles":
-                                                    if withOptionKey {
-                                                      self.masterObjectDict["osxconfigurationprofiles"]?.removeValue(forKey: itemName)
-                                                    } else {
-                                                      print("[removeObject_Action] single click \(objectType) - without option key")
-                                                      return
-                                                    }
-                                                
-                                                case "policies":
-                                                    if withOptionKey {
-                                                        self.policiesDict.removeValue(forKey: itemName)
-                                                    } else {
-                                                        print("[removeObject_Action] single click \(objectType) - without option key")
-                                                        return
-                                                    }
-
-                                                case "mobiledevicegroups":
-                                                    if withOptionKey {
-                                                        self.mobileDeviceGroupsDict.removeValue(forKey: itemName)
-                                                    } else {
-                                                        print("[removeObject_Action] single click \(objectType) - without option key")
-                                                        return
-                                                    }
-
-                                                case "mobiledeviceapplications":
-                                                    if withOptionKey {
-                                                        self.masterObjectDict["mobiledeviceapplications"]?.removeValue(forKey: itemName)
-                                                    } else {
-                                                        print("[removeObject_Action] single click \(objectType) - without option key")
-                                                        return
-                                                    }
-                                                
-                                                case "mobiledeviceconfigurationprofiles":
-                                                    if withOptionKey {
-                                                        self.masterObjectDict[objectType]?.removeValue(forKey: itemName)
-                                                    } else {
-                                                        print("[removeObject_Action] single click \(objectType) - without option key")
-                                                        return
-                                                    }
-
-                                                default:
-                                                    print("[removeObject_Action] unknown objectType: \(String(describing: self.removeObject_Action))")
-                                                    return
-                                            }
-                                        self.unusedItems_TableDict?.remove(at: theRow)
-                                        self.unusedItems_TableArray?.remove(at: theRow)
-                                        }
-                                        self.object_TableView.reloadData()
-                                    }
+                if let itemName = self.unusedItems_TableArray?[theRow] {
+        //                print("[removeObject_Action] itemName: \(itemName)")
+        //                print("[removeObject_Action] unusedItems_TableDict: \(String(describing: unusedItems_TableDict))")
+                    if let itemDict = self.unusedItems_TableDict?[theRow] {
+                        if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
+                            for (_, objectType) in itemDict as [String:String] {
+                                if NSEvent.modifierFlags.contains(.option) {
+    //                               print("check for option key - success")
+                                    withOptionKey = true
                                 }
+                                print("[removeObject_Action]      itemDict: \(itemName) and type \(objectType)")
+                                print("[removeObject_Action] withOptionKey: \(withOptionKey)")
+                                
+                                switch objectType {
+                                    case "packages":
+                                        if withOptionKey {
+                                            self.packagesDict.removeValue(forKey: itemName)
+                                        } else {
+                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
+                                    
+                                    case "scripts":
+                                        if withOptionKey {
+                                            self.scriptsDict.removeValue(forKey: itemName)
+                                        } else {
+                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
+                                    
+                                    case "computergroups":
+                                        if withOptionKey {
+                                          self.computerGroupsDict.removeValue(forKey: itemName)
+                                        } else {
+                                          print("[removeObject_Action] single click \(objectType) - without option key")
+                                          return
+                                        }
+                                    
+                                    case "osxconfigurationprofiles":
+                                        if withOptionKey {
+                                          self.masterObjectDict["osxconfigurationprofiles"]?.removeValue(forKey: itemName)
+                                        } else {
+                                          print("[removeObject_Action] single click \(objectType) - without option key")
+                                          return
+                                        }
+                                    
+                                    case "policies":
+                                        if withOptionKey {
+                                            self.policiesDict.removeValue(forKey: itemName)
+                                        } else {
+                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
+
+                                    case "mobiledevicegroups":
+                                        if withOptionKey {
+                                            self.mobileDeviceGroupsDict.removeValue(forKey: itemName)
+                                        } else {
+                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
+
+                                    case "mobiledeviceapplications":
+                                        if withOptionKey {
+                                            self.masterObjectDict["mobiledeviceapplications"]?.removeValue(forKey: itemName)
+                                        } else {
+                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
+                                    
+                                    case "mobiledeviceconfigurationprofiles":
+                                        if withOptionKey {
+                                            self.masterObjectDict[objectType]?.removeValue(forKey: itemName)
+                                        } else {
+                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
+
+                                    default:
+                                        print("[removeObject_Action] unknown objectType: \(String(describing: self.removeObject_Action))")
+                                        return
+                                }
+                            self.unusedItems_TableDict?.remove(at: theRow)
+                            self.unusedItems_TableArray?.remove(at: theRow)
                             }
+                            self.object_TableView.reloadData()
+                        }
+                    }
+                }
             }   // if theRow < self.unusedItems_TableArray!.count - end
         }   // dispatchQueue.main.async - end
     }
