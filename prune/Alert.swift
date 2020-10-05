@@ -17,5 +17,22 @@ class Alert: NSObject {
         dialog.addButton(withTitle: "OK")
         dialog.runModal()
         //return true
-    }   // func alert_dialog - end
+    }   // func display - end
+
+    func warning(header: String, message: String) -> String {
+        let dialog: NSAlert = NSAlert()
+        dialog.messageText = header
+        dialog.informativeText = message
+        dialog.alertStyle = NSAlert.Style.warning
+        dialog.addButton(withTitle: "Cancel")
+        dialog.addButton(withTitle: "OK")
+        let userSelection = dialog.runModal()
+
+        switch userSelection {
+        case .alertFirstButtonReturn:
+            return "Cancel"
+        default:
+            return "OK"
+        }
+    }   // func warning - end
 }

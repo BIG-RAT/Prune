@@ -1823,44 +1823,51 @@ class ViewController: NSViewController {
         
         print("masterItemsToDeleteArray: \(masterItemsToDeleteArray)")
 
-        theDeleteQ.addOperation {
-            var counter = 0
-            var completed = false
-            // loop through master list and delete items - start
-            for item in masterItemsToDeleteArray {
-                // pause on the first record in a category to make sure we have the permissions to delete
-                completed = false
-                for (category, id) in item {
-                    Xml().action(action: "DELETE", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
-                        (xmlResult: (Int,String)) in
-                        let (statusCode, _) = xmlResult
-                        if !(statusCode >= 200 && statusCode <= 299) {
-                            if "\(statusCode)" == "401" {
-                                self.working(isWorking: false)
-                                Alert().display(header: "Alert", message: "Verify username and password.")
-                                return
+        // alert the user before deleting
+        let continueDelete = Alert().warning(header: "Caution:", message: "You are about to remove \(masterItemsToDeleteArray.count) objects, are you sure you want to continue?")
+
+        if continueDelete == "OK" {
+            theDeleteQ.addOperation {
+                var counter = 0
+                var completed = false
+                // loop through master list and delete items - start
+                for item in masterItemsToDeleteArray {
+                    // pause on the first record in a category to make sure we have the permissions to delete
+                    completed = false
+                    for (category, id) in item {
+                        Xml().action(action: "DELETE", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
+                            (xmlResult: (Int,String)) in
+                            let (statusCode, _) = xmlResult
+                            if !(statusCode >= 200 && statusCode <= 299) {
+                                if "\(statusCode)" == "401" {
+                                    self.working(isWorking: false)
+                                    Alert().display(header: "Alert", message: "Verify username and password.")
+                                    return
+                                }
+                                print("[remove_Action] failed to removed \(category) with id: \(id)")
                             }
-                            print("[remove_Action] failed to removed \(category) with id: \(id)")
+                            completed = true
+
+                            print("[remove_Action] removed \(category) with id: \(id)")
+    //                        print("json returned packages: \(result)")
+                            counter += 1
+                            if counter == masterItemsToDeleteArray.count {
+                                self.working(isWorking: false)
+                                Alert().display(header: "Congratulations", message: "Removal process complete.")
+    //                            self.process_TextField.stringValue = "All removals have been processed."
+    //                            sleep(3)
+                            }
+
+                        }   // Xml().action - end
+                        while !completed {
+                            usleep(50000)
                         }
-                        completed = true
-                        
-                        print("[remove_Action] removed \(category) with id: \(id)")
-//                        print("json returned packages: \(result)")
-                        counter += 1
-                        if counter == masterItemsToDeleteArray.count {
-                            self.working(isWorking: false)
-                            Alert().display(header: "Congratulations", message: "Removal process complete.")
-//                            self.process_TextField.stringValue = "All removals have been processed."
-//                            sleep(3)
-                        }
-                                        
-                    }   // Xml().action - end
-                    while !completed {
-                        usleep(50000)
                     }
                 }
+                // loop through master list and delete items - end
             }
-            // loop through master list and delete items - end
+        } else {
+            self.working(isWorking: false)
         }
     }
     // remove objects from the server - end
