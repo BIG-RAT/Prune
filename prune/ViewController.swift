@@ -682,7 +682,7 @@ class ViewController: NSViewController {
                             for thePolicy in allPoliciesArray {
                                 if let id = thePolicy["id"], let name = thePolicy["name"] {
                                     let policyName = "\(name)"
-                                    if policyName.range(of:"[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] at", options: .regularExpression) == nil && policyName != "Update Inventory" {
+                                    if policyName.range(of:"[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] at", options: .regularExpression) == nil && policyName != "Update Inventory" && policyName != "" {
                                         policiesArray.append(thePolicy)
                                         // mark the policy as unused
                                         self.policiesDict["\(name) - (\(id))"] = ["id":"\(id)", "used":"false"]
@@ -2170,7 +2170,4 @@ extension ViewController: NSTableViewDelegate {
         }
         return nil
     }
-    
-    
-    
 }
