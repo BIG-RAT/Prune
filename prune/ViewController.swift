@@ -279,7 +279,9 @@ class ViewController: NSViewController {
                             if scriptsArrayCount > 0 {
                                 for i in (0..<scriptsArrayCount) {
                                     if let id = scriptsArray[i]["id"], let name = scriptsArray[i]["name"] {
-                                        self.scriptsDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        if "\(name)" != "" {
+                                            self.scriptsDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        }
                                     }
                                 }
                             }
