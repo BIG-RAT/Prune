@@ -130,6 +130,7 @@ class ViewController: NSViewController {
                     self.process_TextField.stringValue = "Starting lookups..."
                 }
                 print("[go_action caller] start lookups...")
+                WriteToLog().message(theString: "[Scan] start scanning...")
                 if self.computerGroupsButtonState == "on" {
                     self.processItems(type: "computerGroups")
                 } else {
@@ -200,12 +201,14 @@ class ViewController: NSViewController {
                                         if !waitFor.deviceGroup {
                                             if type == "computerGroups" {
                                                 print("[processItems] skipping \(type) - call mobileDeviceGroups")
+                                                WriteToLog().message(theString: "[processItems] skipping \(type) - call mobileDeviceGroups")
                                                 DispatchQueue.main.async {
                                                     self.processItems(type: "mobileDeviceGroups")
                                                 }
                                                 
                                             } else {
                                                 print("[processItems] skipping \(type) - call packages")
+                                                WriteToLog().message(theString: "[processItems] skipping \(type) - call packages")
                                                 DispatchQueue.main.async {
                                                     self.processItems(type: "packages")
                                                 }
@@ -220,13 +223,13 @@ class ViewController: NSViewController {
                         }
                     } else {
                         if type == "computerGroups" {
-                            print("[processItems] skipping \(type) - call mobileDeviceGroups")
+                            WriteToLog().message(theString: "[processItems] skipping \(type) - call mobileDeviceGroups")
                             DispatchQueue.main.async {
                                 self.processItems(type: "mobileDeviceGroups")
                             }
                             
                         } else {
-                            print("[processItems] skipping \(type) - call packages")
+                            WriteToLog().message(theString: "[processItems] skipping \(type) - call packages")
                             DispatchQueue.main.async {
                                 self.processItems(type: "packages")
                             }
@@ -253,14 +256,14 @@ class ViewController: NSViewController {
                                     }
                                 }
             //                    print("packagesDict (\(self.packagesDict.count)): \(self.packagesDict)")
-                                print("call scripts")
+                                WriteToLog().message(theString: "[processItems] call scripts")
                                 DispatchQueue.main.async {
                                     self.processItems(type: "scripts")
                                 }
                             }
                         }
                     } else {
-                        print("[processItems] skipping packages - call scripts")
+                        WriteToLog().message(theString: "[processItems] skipping packages - call scripts")
                         DispatchQueue.main.async {
                             self.processItems(type: "scripts")
                         }
@@ -286,13 +289,13 @@ class ViewController: NSViewController {
                                 }
                             }
     //                        print("scriptsDict (\(self.scriptsDict.count)): \(self.scriptsDict)")
-                            print("[processItems] scripts complete - call computerConfigurations")
+                            WriteToLog().message(theString: "[processItems] scripts complete - call computerConfigurations")
                             DispatchQueue.main.async {
                                 self.processItems(type: "computerConfigurations")
                             }
                         }
                     } else {
-                        print("[processItems] skipping scripts - call computerConfigurations")
+                        WriteToLog().message(theString: "[processItems] skipping scripts - call computerConfigurations")
                         DispatchQueue.main.async {
                             self.processItems(type: "computerConfigurations")
                         }
@@ -321,7 +324,7 @@ class ViewController: NSViewController {
                                     while true {
                                         usleep(10)
                                         if !waitFor.computerConfiguration {
-                                            print("[processItems] computerConfigurations complete - call osxconfigurationprofiles")
+                                            WriteToLog().message(theString: "[processItems] computerConfigurations complete - call osxconfigurationprofiles")
                                             DispatchQueue.main.async {
                                                 self.processItems(type: "osxconfigurationprofiles")
                                             }
@@ -332,14 +335,14 @@ class ViewController: NSViewController {
                                 
                             } else {
                                 // no computer configurations exist
-                                print("[processItems] no computerConfigurations - call osxconfigurationprofiles")
+                                WriteToLog().message(theString: "[processItems] no computerConfigurations - call osxconfigurationprofiles")
                                 DispatchQueue.main.async {
                                     self.processItems(type: "osxconfigurationprofiles")
                                 }
                             }
                         }   //         Json().getRecord - computerConfigurations - end
                     } else {
-                        print("[processItems] skipping computerConfigurations - call osxconfigurationprofiles")
+                        WriteToLog().message(theString: "[processItems] skipping computerConfigurations - call osxconfigurationprofiles")
                         DispatchQueue.main.async {
                             self.processItems(type: "osxconfigurationprofiles")
                         }
@@ -371,7 +374,7 @@ class ViewController: NSViewController {
                                         while true {
                                             usleep(10)
                                             if !waitFor.osxconfigurationprofile {
-                                                print("[processItems] osxconfigurationprofiles complete - call mobiledeviceapplications")
+                                                WriteToLog().message(theString: "[processItems] osxconfigurationprofiles complete - call mobiledeviceapplications")
                                                 if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
                                                     DispatchQueue.main.async {
                                                         self.processItems(type: "mobiledeviceapplications")
@@ -387,7 +390,7 @@ class ViewController: NSViewController {
                                     }
                                 } else {
                                     // no computer profiles exist
-                                    print("[processItems] computer configuration profiles complete - call mobiledeviceapplications")
+                                    WriteToLog().message(theString: "[processItems] computer configuration profiles complete - call mobiledeviceapplications")
                                     if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
                                         DispatchQueue.main.async {
                                             self.processItems(type: "mobiledeviceapplications")
@@ -404,7 +407,7 @@ class ViewController: NSViewController {
     //                                self.processItems(type: "policies")
     //                            }
                             } else {
-                                print("[processItems] unable to read computer configuration profiles - call mobiledeviceapplications")
+                                WriteToLog().message(theString: "[processItems] unable to read computer configuration profiles - call mobiledeviceapplications")
                                 waitFor.osxconfigurationprofile = false
                                 if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
                                     DispatchQueue.main.async {
@@ -419,7 +422,7 @@ class ViewController: NSViewController {
                         }
                     } else {
                         // skip computer configuration profiles
-                        print("[processItems] skipping computer configuration profiles - call mobiledeviceapplications")
+                        WriteToLog().message(theString: "[processItems] skipping computer configuration profiles - call mobiledeviceapplications")
                         waitFor.osxconfigurationprofile = false
                         if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
                             DispatchQueue.main.async {
@@ -464,14 +467,14 @@ class ViewController: NSViewController {
                                         }
                                     }
 
-                                    print("[processItems] call recursiveLookup for \(type)")
+                                    WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
                                     self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
                                     waitFor.mobiledeviceobject = true
                                     self.backgroundQ.async {
                                         while true {
                                             usleep(10)
                                             if !waitFor.mobiledeviceobject {
-                                                print("[processItems] \(msgText) complete - next object: \(nextObject)")
+                                                WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
                                                 DispatchQueue.main.async {
                                                     self.processItems(type: nextObject)
                                                 }
@@ -481,13 +484,13 @@ class ViewController: NSViewController {
                                     }
                                 } else {
                                     // no computer configurations exist
-                                    print("[processItems] \(msgText) complete - \(nextObject)")
+                                    WriteToLog().message(theString: "[processItems] \(msgText) complete - \(nextObject)")
                                     DispatchQueue.main.async {
                                         self.processItems(type: nextObject)
                                     }
                                 }
                             } else {
-                                print("[processItems] unable to read \(msgText) - \(nextObject)")
+                                WriteToLog().message(theString: "[processItems] unable to read \(msgText) - \(nextObject)")
                                 waitFor.mobiledeviceobject = false
                                 DispatchQueue.main.async {
                                     self.processItems(type: nextObject)
@@ -496,7 +499,7 @@ class ViewController: NSViewController {
                         }
                     } else {
                         // skip \(msgText)
-                        print("[processItems] skipping \(msgText) - \(nextObject)")
+                        WriteToLog().message(theString: "[processItems] skipping \(msgText) - \(nextObject)")
                         waitFor.mobiledeviceobject = false
                         DispatchQueue.main.async {
                             self.processItems(type: nextObject)
@@ -505,7 +508,7 @@ class ViewController: NSViewController {
                                 
                 case "patchsoftwaretitles":
                     // look for packages used in patch policies
-                    print("[processItems] patchpolicies_packages")
+                    WriteToLog().message(theString: "[processItems] patchpolicies_packages")
             //        let nextObject = "patchsoftwaretitles"
                     let nextObject = "patchpolicies"
 //                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
@@ -531,7 +534,7 @@ class ViewController: NSViewController {
                             for thePolicy in parsedXmlData.patch_software_titles.patch_software_title {
                                 if let id = thePolicy.id.text, let name = thePolicy.Name.text {
 
-                                    print("patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
+                                    WriteToLog().message(theString: "patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
                                     patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
                                     // mark patch policies as unused (reporting only) - start
                                     self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -570,7 +573,7 @@ class ViewController: NSViewController {
                                    while true {
                                        usleep(10)
                                        if !waitFor.policy {
-                                           print("[processItems] patch policies complete - call patchsoftwaretitles")
+                                           WriteToLog().message(theString: "[processItems] patch policies complete - call \(nextObject)")
                                            DispatchQueue.main.async {
                                                self.processItems(type: nextObject)
                                            }
@@ -581,14 +584,14 @@ class ViewController: NSViewController {
                                
                            } else {
                                // no patch policies exist
-                               print("[processItems] no patch policies - call patchsoftwaretitles")
+                               WriteToLog().message(theString: "[processItems] no patch policies - call \(nextObject)")
                                DispatchQueue.main.async {
                                    self.processItems(type: nextObject)
                                }
                            }
                        }   //         Json().getRecord - patchpolicies - end
                     } else {
-                       print("[processItems] skipping patch policies - call patchsoftwaretitles")
+                       WriteToLog().message(theString: "[processItems] skipping patch policies - call patchsoftwaretitles")
                        DispatchQueue.main.async {
                            self.processItems(type: nextObject)
                        }
@@ -596,7 +599,7 @@ class ViewController: NSViewController {
                         
                     case "patchpolicies":
                             // look for groups used in patch policies
-                            print("[processItems] patchpolicies")
+                            WriteToLog().message(theString: "[processItems] patchpolicies")
                     //        let nextObject = "patchsoftwaretitles"
                             let nextObject = "policies"
                             if self.computerGroupsButtonState == "on" {
@@ -621,7 +624,7 @@ class ViewController: NSViewController {
                                     for thePolicy in parsedXmlData.patch_policies.patch_policy {
                                         if let id = thePolicy.id.text, let name = thePolicy.Name.text {
 
-                                            print("patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
+                                            WriteToLog().message(theString: "patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
                                             patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
                                             // mark patch policies as unused (reporting only) - start
                                             self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -641,7 +644,7 @@ class ViewController: NSViewController {
                                            while true {
                                                usleep(10)
                                                if !waitFor.policy {
-                                                   print("[processItems] patch policies complete - call patchsoftwaretitles")
+                                                   WriteToLog().message(theString: "[processItems] patch policies complete - call \(nextObject)")
                                                    DispatchQueue.main.async {
                                                        self.processItems(type: nextObject)
                                                    }
@@ -652,14 +655,14 @@ class ViewController: NSViewController {
                                        
                                    } else {
                                        // no patch policies exist
-                                       print("[processItems] no patch policies - call patchsoftwaretitles")
+                                       WriteToLog().message(theString: "[processItems] no patch policies - call \(nextObject)")
                                        DispatchQueue.main.async {
                                            self.processItems(type: nextObject)
                                        }
                                    }
                                }   //         Json().getRecord - patchpolicies - end
                             } else {
-                               print("[processItems] skipping patch policies - call patchsoftwaretitles")
+                               WriteToLog().message(theString: "[processItems] skipping patch policies - call \(nextObject)")
                                DispatchQueue.main.async {
                                    self.processItems(type: nextObject)
                                }
@@ -707,7 +710,7 @@ class ViewController: NSViewController {
                                         while true {
                                             usleep(10)
                                             if !waitFor.policy && !waitFor.osxconfigurationprofile {
-                                                print("[processItems] policies complete - call unused")
+                                                WriteToLog().message(theString: "[processItems] policies complete - call unused")
                                                 var reportItems = [[String:[String:[String:String]]]]()
                                                 if self.packagesButtonState == "on" {
                                                     reportItems.append(["packages":self.packagesDict])
@@ -744,13 +747,13 @@ class ViewController: NSViewController {
                                     
                             } else {
                                 // no policies found
-                                print("[processItems] no policies found or policies not searched")
+                                WriteToLog().message(theString: "[processItems] no policies found or policies not searched")
                                 waitFor.policy = false
                                 self.backgroundQ.async {
                                     while true {
                                         usleep(10)
                                         if !waitFor.policy && !waitFor.osxconfigurationprofile {
-                                            print("[processItems] policies complete - call unused")
+                                            WriteToLog().message(theString: "[processItems] policies complete - call unused")
                                             var reportItems = [[String:[String:[String:String]]]]()
                                             if self.packagesButtonState == "on" {
                                                 reportItems.append(["packages":self.packagesDict])
@@ -793,7 +796,7 @@ class ViewController: NSViewController {
                             while true {
                                 usleep(10)
                                 if !waitFor.policy && !waitFor.osxconfigurationprofile {
-                                    print("[processItems] policies complete - call unused")
+                                    WriteToLog().message(theString: "[processItems] policies complete - call unused")
                                     var reportItems = [[String:[String:[String:String]]]]()
                                     if self.packagesButtonState == "on" {
                                         reportItems.append(["packages":self.packagesDict])
@@ -831,7 +834,7 @@ class ViewController: NSViewController {
                     // object that have a scope - end
                     
                 default:
-                    print("[default] unknown item, exiting...")
+                    WriteToLog().message(theString: "[default] unknown item, exiting...")
                     DispatchQueue.main.async {
                         NSApplication.shared.terminate(self)
                         self.processItems(type: "initialize")
@@ -865,13 +868,13 @@ class ViewController: NSViewController {
         case "mobiledeviceconfigurationprofiles":
             objectEndpoint = "mobiledeviceconfigurationprofiles/id"
         default:
-            print("unknown: [\(theEndpoint)]")
+            WriteToLog().message(theString: "[recursiveLookup] unknown endpoint: [\(theEndpoint)]")
             return
         }
                     
         let theObject = objectArray[index]
         if let id = theObject["id"], let name = theObject["name"] {
-            print("lookup id \(id) \t \(index+1) of \(objectArrayCount)")
+            WriteToLog().message(theString: "[recursiveLookup] lookup id \(id)      (\(index+1) of \(objectArrayCount))")
             updateProcessTextfield(currentCount: "\n(\(index+1)/\(objectArrayCount))")
 
             switch theEndpoint {
@@ -1082,16 +1085,14 @@ class ViewController: NSViewController {
                             let computer_groupExcl = policyScope["exclusions"] as! [String:AnyObject]
                             let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
                             for theComputerGroupExcl in computer_groupListExcl {
-        //                                        print("thePackage: \(thePackage)")
                                 let theComputerGroupName = theComputerGroupExcl["name"]
-        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
                                 self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
                             }
                             // check exclusions - end
                             // check of used computergroups - end
                             
                         case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
-                            print("[recursiveLookup] check usage for \(theEndpoint)")
+                            WriteToLog().message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
                             
                             let theMobileDeviceObjectXml = (theEndpoint == "mobiledeviceapplications") ? result["mobile_device_application"] as! [String:AnyObject]:result["configuration_profile"] as! [String:AnyObject]
                             
@@ -1109,26 +1110,22 @@ class ViewController: NSViewController {
         //                                    print("mdaGroupList: \(mdaGroupList)")
                             let mda_groupList = mdaGroupList["mobile_device_groups"] as! [Dictionary<String, Any>]
                             for theMdaGroup in mda_groupList {
-        //                                        print("thePackage: \(thePackage)")
                                 let theMobileDeviceGroupName = theMdaGroup["name"]
         //                                        let theMdaGroupID = theMdaGroup["id"]
-        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
                                 self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
                             }
                             // check exclusions - start
                             let mobileDevice_groupExcl = mdaGroupList["exclusions"] as! [String:AnyObject]
                             let mobileDevice_groupListExcl = mobileDevice_groupExcl["mobile_device_groups"] as! [Dictionary<String, Any>]
                             for theMdaGroupExcl in mobileDevice_groupListExcl {
-        //                                        print("thePackage: \(thePackage)")
                                 let theMobileDeviceGroupName = theMdaGroupExcl["name"]
-        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
                                 self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
                             }
                             // check exclusions - end
                             // check of used mobiledevicegroups - end
                             
                         default:
-                            print("[switch theEndpoint] unknown: \(theEndpoint)")
+                            WriteToLog().message(theString: "[switch theEndpoint] unknown endpoint: \(theEndpoint)")
                         }
                         
                         if index == objectArrayCount-1 {
@@ -1144,7 +1141,7 @@ class ViewController: NSViewController {
                             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                                 waitFor.mobiledeviceobject = false
                             default:
-                                print("[index == objectArrayCount-1] unknown: \(theEndpoint)")
+                                WriteToLog().message(theString: "[index == objectArrayCount-1] unknown endpoint: \(theEndpoint)")
                             }
                         } else {
                             // check the next item
@@ -1358,7 +1355,7 @@ class ViewController: NSViewController {
                     }
 
                 } catch {
-                    print("file read error")
+                    WriteToLog().message(theString: "file read error")
                     return
                 }
             }
@@ -1391,7 +1388,7 @@ class ViewController: NSViewController {
                     try "{\(header),\n \"unusedPackages\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                 } catch {
-                    print("failed to write the following: <unusedPackages>")
+                    WriteToLog().message(theString: "failed to write the following: <unusedPackages>")
                 }
                 
                 if let packageLogFileOp = try? FileHandle(forUpdating: exportURL) {
@@ -1422,7 +1419,7 @@ class ViewController: NSViewController {
                     try "{\(header),\n \"unusedScripts\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedScripts>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                 } catch {
-                    print("failed to write the following: <unusedScripts>")
+                    WriteToLog().message(theString: "failed to write the following: <unusedScripts>")
                 }
                 
                 if let scriptLogFileOp = try? FileHandle(forUpdating: exportURL) {
@@ -1452,7 +1449,7 @@ class ViewController: NSViewController {
                     try "{\(header),\n \"unusedComputerGroups\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedComputerGroups>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                 } catch {
-                    print("failed to write the following: <unusedComputerGroups>")
+                    WriteToLog().message(theString: "failed to write the following: <unusedComputerGroups>")
                 }
                 
                 if let computerGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
@@ -1481,7 +1478,7 @@ class ViewController: NSViewController {
                     try "{\(header),\n \"unusedComputerProfiles\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedComputerProfiles>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                 } catch {
-                    print("failed to write the following: <unusedComputerProfiles>")
+                    WriteToLog().message(theString: "failed to write the following: <unusedComputerProfiles>")
                 }
                 
                 if let computerProfileLogFileOp = try? FileHandle(forUpdating: exportURL) {
@@ -1510,7 +1507,7 @@ class ViewController: NSViewController {
                     try "{\(header),\n \"unusedPolicies\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                 } catch {
-                    print("failed to write the following: <unusedPolicies>")
+                    WriteToLog().message(theString: "failed to write the following: <unusedPolicies>")
                 }
                 
                 if let policyLogFileOp = try? FileHandle(forUpdating: exportURL) {
@@ -1541,7 +1538,7 @@ class ViewController: NSViewController {
                     try "{\(header),\n \"unusedMobileDeviceGroups\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedMobileDeviceGroups>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                 } catch {
-                    print("failed to write the following: <unusedMobileDeviceGroups>")
+                    WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceGroups>")
                 }
                 
                 if let mobileDeviceGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
@@ -1570,7 +1567,7 @@ class ViewController: NSViewController {
                     try "{\(header),\n \"unusedMobileDeviceApps\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedMobileDeviceApps>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                 } catch {
-                    print("failed to write the following: <unusedMobileDeviceApps>")
+                    WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceApps>")
                 }
                 
                 if let logFileOp = try? FileHandle(forUpdating: exportURL) {
@@ -1599,7 +1596,7 @@ class ViewController: NSViewController {
                     try "{\(header),\n \"unusedMobileDeviceConfigurationProfiles\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedMobileDeviceConfigurationProfiles>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                 } catch {
-                    print("failed to write the following: <unusedMobileDeviceConfigurationProfiles>")
+                    WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceConfigurationProfiles>")
                 }
                 
                 if let logFileOp = try? FileHandle(forUpdating: exportURL) {
@@ -1640,15 +1637,15 @@ class ViewController: NSViewController {
     //                               print("check for option key - success")
                                     withOptionKey = true
                                 }
-                                print("[removeObject_Action]      itemDict: \(itemName) and type \(objectType)")
-                                print("[removeObject_Action] withOptionKey: \(withOptionKey)")
+                                WriteToLog().message(theString: "[removeObject_Action]      itemDict: \(itemName) and type \(objectType)")
+                                WriteToLog().message(theString: "[removeObject_Action] withOptionKey: \(withOptionKey)")
                                 
                                 switch objectType {
                                     case "packages":
                                         if withOptionKey {
                                             self.packagesDict.removeValue(forKey: itemName)
                                         } else {
-                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                     
@@ -1656,7 +1653,7 @@ class ViewController: NSViewController {
                                         if withOptionKey {
                                             self.scriptsDict.removeValue(forKey: itemName)
                                         } else {
-                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                     
@@ -1664,7 +1661,7 @@ class ViewController: NSViewController {
                                         if withOptionKey {
                                           self.computerGroupsDict.removeValue(forKey: itemName)
                                         } else {
-                                          print("[removeObject_Action] single click \(objectType) - without option key")
+                                          WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                           return
                                         }
                                     
@@ -1672,7 +1669,7 @@ class ViewController: NSViewController {
                                         if withOptionKey {
                                           self.masterObjectDict["osxconfigurationprofiles"]?.removeValue(forKey: itemName)
                                         } else {
-                                          print("[removeObject_Action] single click \(objectType) - without option key")
+                                          WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                           return
                                         }
                                     
@@ -1680,7 +1677,7 @@ class ViewController: NSViewController {
                                         if withOptionKey {
                                             self.policiesDict.removeValue(forKey: itemName)
                                         } else {
-                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
 
@@ -1688,7 +1685,7 @@ class ViewController: NSViewController {
                                         if withOptionKey {
                                             self.mobileDeviceGroupsDict.removeValue(forKey: itemName)
                                         } else {
-                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
 
@@ -1696,7 +1693,7 @@ class ViewController: NSViewController {
                                         if withOptionKey {
                                             self.masterObjectDict["mobiledeviceapplications"]?.removeValue(forKey: itemName)
                                         } else {
-                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                     
@@ -1704,12 +1701,12 @@ class ViewController: NSViewController {
                                         if withOptionKey {
                                             self.masterObjectDict[objectType]?.removeValue(forKey: itemName)
                                         } else {
-                                            print("[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
 
                                     default:
-                                        print("[removeObject_Action] unknown objectType: \(String(describing: self.removeObject_Action))")
+                                        WriteToLog().message(theString: "[removeObject_Action] unknown objectType: \(String(describing: self.removeObject_Action))")
                                         return
                                 }
                             self.unusedItems_TableDict?.remove(at: theRow)
@@ -1745,7 +1742,7 @@ class ViewController: NSViewController {
             for (key, _) in packagesDict {
                 if packagesDict[key]?["used"] == "false" {
                     let id = "\(String(describing: packagesDict[key]!["id"]!))"
-//                    print("[remove_Action] remove package with id: \(key)")
+                    WriteToLog().message(theString: "[remove_Action] remove package with id: \(key)")
                     masterItemsToDeleteArray.append(["packages":id])
                 }
             }
@@ -1755,7 +1752,7 @@ class ViewController: NSViewController {
             for (key, _) in scriptsDict {
                 if scriptsDict[key]?["used"] == "false" {
                     let id = "\(String(describing: scriptsDict[key]!["id"]!))"
-//                    print("[remove_Action] remove script with id: \(id)")
+                    WriteToLog().message(theString: "[remove_Action] remove script with id: \(id)")
                     masterItemsToDeleteArray.append(["scripts":id])
                 }
             }
@@ -1765,7 +1762,7 @@ class ViewController: NSViewController {
             for (key, _) in computerGroupsDict {
                 if computerGroupsDict[key]?["used"] == "false" {
                     let id = "\(String(describing: computerGroupsDict[key]!["id"]!))"
-//                    print("[remove_Action] remove computer group with id: \(id)")
+                    WriteToLog().message(theString: "[remove_Action] remove computer group with id: \(id)")
                     masterItemsToDeleteArray.append(["computergroups":id])
                 }
             }
@@ -1775,7 +1772,7 @@ class ViewController: NSViewController {
             for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
                 if masterObjectDict["osxconfigurationprofiles"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))"
-//                    print("[remove_Action] remove computer group with id: \(id)")
+                    WriteToLog().message(theString: "[remove_Action] remove computer configuration profile with id: \(id)")
                     masterItemsToDeleteArray.append(["osxconfigurationprofiles":id])
                 }
             }
@@ -1785,7 +1782,7 @@ class ViewController: NSViewController {
             for (key, _) in policiesDict {
                 if policiesDict[key]?["used"] == "false" {
                     let id = "\(String(describing: policiesDict[key]!["id"]!))"
-//                    print("[remove_Action] remove computer group with id: \(id)")
+                    WriteToLog().message(theString: "[remove_Action] remove policy with id: \(id)")
                     masterItemsToDeleteArray.append(["policies":id])
                 }
             }
@@ -1795,7 +1792,7 @@ class ViewController: NSViewController {
             for (key, _) in mobileDeviceGroupsDict {
                 if mobileDeviceGroupsDict[key]?["used"] == "false" {
                     let id = "\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))"
-//                    print("[remove_Action] remove mobile device group with id: \(id)")
+                    WriteToLog().message(theString: "[remove_Action] remove mobile device group with id: \(id)")
                     masterItemsToDeleteArray.append(["mobiledevicegroups":id])
                 }
             }
@@ -1805,7 +1802,7 @@ class ViewController: NSViewController {
             for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
                 if masterObjectDict["mobiledeviceapplications"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))"
-//                    print("[remove_Action] remove mobiledeviceapplication with id: \(id)")
+                    WriteToLog().message(theString: "[remove_Action] remove mobile device application with id: \(id)")
                     masterItemsToDeleteArray.append(["mobiledeviceapplications":id])
                 }
             }
@@ -1815,7 +1812,7 @@ class ViewController: NSViewController {
             for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
                 if masterObjectDict["mobiledeviceconfigurationprofiles"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))"
-//                    print("[remove_Action] remove mobiledeviceconfigurationprofile with id: \(id)")
+                    WriteToLog().message(theString: "[remove_Action] remove mobile device configuration profile with id: \(id)")
                     masterItemsToDeleteArray.append(["mobiledeviceconfigurationprofiles":id])
                 }
             }
@@ -1844,11 +1841,11 @@ class ViewController: NSViewController {
                                     Alert().display(header: "Alert", message: "Verify username and password.")
                                     return
                                 }
-                                print("[remove_Action] failed to removed \(category) with id: \(id)")
+                                WriteToLog().message(theString: "[remove_Action] failed to removed category \(category) with id: \(id)")
                             }
                             completed = true
 
-                            print("[remove_Action] removed \(category) with id: \(id)")
+                            WriteToLog().message(theString: "[remove_Action] removed category \(category) with id: \(id)")
     //                        print("json returned packages: \(result)")
                             counter += 1
                             if counter == masterItemsToDeleteArray.count {
@@ -2032,7 +2029,7 @@ class ViewController: NSViewController {
                     if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
                         for (_, objectType) in itemDict as [String:String] {
                             
-                            print("[viewSelectObject] open itemDict: \(itemName) of type \(objectType) in browser")
+                            WriteToLog().message(theString: "[viewSelectObject] open itemDict: \(itemName) of type \(objectType) in browser")
                             
                             switch objectType {
                                 case "packages":
@@ -2084,7 +2081,7 @@ class ViewController: NSViewController {
                                     }
 
                                 default:
-                                    print("[viewSelectObject] unknown objectType: \(String(describing: self.removeObject_Action))")
+                                    WriteToLog().message(theString: "[viewSelectObject] unknown objectType: \(String(describing: self.removeObject_Action))")
                                     return
                             }
                         }
@@ -2165,7 +2162,7 @@ extension ViewController: NSTableViewDelegate {
             text = "\(item)"
             cellIdentifier = CellIdentifiers.NameCell
         } else if tableColumn == object_TableView.tableColumns[1] {
-            print("hidden column 1")
+//            print("hidden column 1")
             object_TableView.tableColumns[1].isHidden = true
         }
 //        } else if tableColumn == object_TableView.tableColumns[1] {

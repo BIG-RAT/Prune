@@ -7,6 +7,14 @@
 //
 
 import Foundation
+
+struct Log {
+    static var path: String? = (NSHomeDirectory() + "/Library/Logs/")
+    static var file  = "Prune.log"
+    static var maxFiles = 10
+    static var maxSize  = 500000 // 5MB
+}
+
 struct waitFor {
     static var deviceGroup = true   // used for both computer and mobile device groups
     static var computerConfiguration = true

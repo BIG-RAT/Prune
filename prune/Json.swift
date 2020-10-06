@@ -23,7 +23,7 @@ class Json: NSURL, URLSessionDelegate {
         existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
         
 //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
-        print("[Json.getRecord] existing endpoints URL: \(existingDestUrl)")
+        WriteToLog().message(theString: "[Json.getRecord] existing endpoints URL: \(existingDestUrl)")
         let destEncodedURL = NSURL(string: existingDestUrl)
         let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
         
@@ -51,7 +51,7 @@ class Json: NSURL, URLSessionDelegate {
                             }
                         }
                     } else {
-                        print("[Json.getRecord] error HTTP Status Code: \(httpResponse.statusCode)\n")
+                        WriteToLog().message(theString: "[Json.getRecord] error HTTP Status Code: \(httpResponse.statusCode)\n")
                         if "\(httpResponse.statusCode)" == "401" {
                             Alert().display(header: "Alert", message: "Verify username and password.")
                         }
@@ -95,15 +95,18 @@ class Json: NSURL, URLSessionDelegate {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                     if let endpointJSON = json! as? Dictionary<String, Any>, let _ = endpointJSON["token"] {
                         token = endpointJSON["token"] as! String
+                        WriteToLog().message(theString: "[getToken] retrieved token from \(serverUrl)")
                         completion(token)
                         return
                     } else {    // if let endpointJSON error
                         print("JSON error")
+                        WriteToLog().message(theString: "[getToken] error with returned JSON: \(String(describing: json))")
                         completion("")
                         return
                     }
                 } else {    // if httpResponse.statusCode <200 or >299
                     print("response error: \(httpResponse.statusCode)")
+                    WriteToLog().message(theString: "[getToken] failed to retrieved token from \(serverUrl): Status code: \(httpResponse.statusCode)")
 
                     if "\(httpResponse.statusCode)" == "401" {
                         Alert().display(header: "Alert", message: "Failed to authenticate.  Verify username and password.")
@@ -113,6 +116,7 @@ class Json: NSURL, URLSessionDelegate {
                 }
             } else {
                 print("token response error.  Verify url and port.")
+                WriteToLog().message(theString: "[getToken] No response from the server.  Verify URL and port")
                 Alert().display(header: "Alert", message: "No response from the server.  Verify URL and port.")
                 completion("")
                 return

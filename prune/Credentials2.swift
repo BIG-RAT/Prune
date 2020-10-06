@@ -31,7 +31,8 @@ class Credentials2 {
 //                let deleteStatus = SecItemDelete(keychainQuery as CFDictionary,nil)
                 if (addStatus != errSecSuccess) {
                     if let addErr = SecCopyErrorMessageString(addStatus, nil) {
-                        print("[addStatus] Write failed for new credentials: \(addErr)")
+                        print("[Credentials2.save] Write failed for new credentials: \(addErr)")
+                        WriteToLog().message(theString: "[Credentials2.save] Write failed for new credentials: \(addErr)")
                     }
                 }
             } else {
@@ -43,7 +44,8 @@ class Credentials2 {
                 let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecAttrAccountString:account,kSecValueDataString:password] as CFDictionary)
                 if (updateStatus != errSecSuccess) {
                     if let updateErr = SecCopyErrorMessageString(updateStatus, nil) {
-                        print("[updateStatus] Update failed for existing credentials: \(updateErr)")
+                        print("[Credentials2.update] Update failed for existing credentials: \(updateErr)")
+                        WriteToLog().message(theString: "[Credentials2.update] Update failed for existing credentials: \(updateErr)")
                     }
                 }
             }

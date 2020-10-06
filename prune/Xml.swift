@@ -20,7 +20,7 @@ class Xml: NSURL, URLSessionDelegate {
         existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
         
 //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
-        print("[Xml.action] existing endpoints URL: \(existingDestUrl)")
+        WriteToLog().message(theString: "[Xml.\(action.uppercased())] existing endpoints URL: \(existingDestUrl)")
         let destEncodedURL = NSURL(string: existingDestUrl)
         let xmlRequest     = NSMutableURLRequest(url: destEncodedURL! as URL)
         
@@ -43,8 +43,7 @@ class Xml: NSURL, URLSessionDelegate {
                             completion((httpResponse.statusCode,returnedXML))
                         }
                     } else {
-//                        WriteToLog().message(stringOfText: "[Xml.action] error HTTP Status Code: \(httpResponse.statusCode)\n")
-                        print("[Xml.action] error HTTP Status Code: \(httpResponse.statusCode)\n")
+                        WriteToLog().message(theString: "[Xml.\(action.uppercased())] error HTTP Status Code: \(httpResponse.statusCode)\n")
                         if action != "DELETE" {
                             completion((httpResponse.statusCode,""))
                         } else {
