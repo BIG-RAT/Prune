@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class Xml: NSURL, URLSessionDelegate {
+class Xml: NSObject, URLSessionDelegate {
     func action(action: String, theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: (Int,String)) -> Void) {
 
         let getRecordQ = OperationQueue()   //DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
@@ -21,7 +21,7 @@ class Xml: NSURL, URLSessionDelegate {
         
 //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
         WriteToLog().message(theString: "[Xml.\(action.uppercased())] existing endpoints URL: \(existingDestUrl)")
-        let destEncodedURL = NSURL(string: existingDestUrl)
+        let destEncodedURL = URL(string: existingDestUrl)
         let xmlRequest     = NSMutableURLRequest(url: destEncodedURL! as URL)
         
         let semaphore = DispatchSemaphore(value: 1)

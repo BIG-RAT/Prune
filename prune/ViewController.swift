@@ -63,13 +63,13 @@ class ViewController: NSViewController {
     
     var itemSeperators              = [String]()
     
-    var packagesButtonState         = "off"
-    var scriptsButtonState          = "off"
-    var computerGroupsButtonState   = "off"
-    var computerProfilesButtonState = "off"
-    var policiesButtonState         = "off"
-    var mobileDeviceGrpsButtonState = "off"
-    var mobileDeviceAppsButtonState = "off"
+    var packagesButtonState              = "off"
+    var scriptsButtonState               = "off"
+    var computerGroupsButtonState        = "off"
+    var computerProfilesButtonState      = "off"
+    var policiesButtonState              = "off"
+    var mobileDeviceGrpsButtonState      = "off"
+    var mobileDeviceAppsButtonState      = "off"
     var configurationProfilesButtonState = "off"
     
     let backgroundQ = DispatchQueue(label: "com.jamf.prune.backgroundQ", qos: DispatchQoS.background)

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class Json: NSURL, URLSessionDelegate {
+class Json: NSObject, URLSessionDelegate {
     
     let defaults = UserDefaults.standard
     
@@ -24,7 +24,7 @@ class Json: NSURL, URLSessionDelegate {
         
 //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
         WriteToLog().message(theString: "[Json.getRecord] existing endpoints URL: \(existingDestUrl)")
-        let destEncodedURL = NSURL(string: existingDestUrl)
+        let destEncodedURL = URL(string: existingDestUrl)
         let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
         
         let semaphore = DispatchSemaphore(value: 0)
