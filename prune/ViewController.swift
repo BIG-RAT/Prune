@@ -25,6 +25,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var view_PopUpButton: NSPopUpButton!
     @IBOutlet weak var packages_Button: NSButton!
     @IBOutlet weak var scripts_Button: NSButton!
+    @IBOutlet weak var ebooks_Button: NSButton!
     @IBOutlet weak var computerGroups_Button: NSButton!
     @IBOutlet weak var computerProfiles_Button: NSButton!
     @IBOutlet weak var policies_Button: NSButton!
@@ -50,8 +51,9 @@ class ViewController: NSViewController {
     // ex. masterObjectDict["packages"] = [[package1Name:["id":id1,"name":name1]],[package2Name:["id":id2,"name":name2]]]
     var masterObjectDict             = [String:[String:[String:String]]]()
     var packagesDict                 = Dictionary<String,Dictionary<String,String>>()    // id, name, used
-    var scriptsDict                  = Dictionary<String,Dictionary<String,String>>()    // id, name, used
-    var policiesDict                 = [String:[String:String]]()    //:Dictionary<String,String> = [:]
+    var scriptsDict                  = Dictionary<String,Dictionary<String,String>>()
+    var ebooksDict                   = [String:[String:String]]()
+    var policiesDict                 = [String:[String:String]]()
     var computerConfigurationDict    = [String:String]()
     var computerGroupsDict           = Dictionary<String,Dictionary<String,String>>()
     var osxconfigurationprofilesDict = [String:[String:String]]()
@@ -65,6 +67,7 @@ class ViewController: NSViewController {
     
     var packagesButtonState              = "off"
     var scriptsButtonState               = "off"
+    var ebooksButtonState                = "off"
     var computerGroupsButtonState        = "off"
     var computerProfilesButtonState      = "off"
     var policiesButtonState              = "off"
@@ -82,6 +85,7 @@ class ViewController: NSViewController {
         view_PopUpButton.selectItem(at: 0)
         packagesDict.removeAll()
         scriptsDict.removeAll()
+        ebooksDict.removeAll()
         policiesDict.removeAll()
         osxconfigurationprofilesDict.removeAll()
         computerConfigurationDict.removeAll()
@@ -289,17 +293,69 @@ class ViewController: NSViewController {
                                 }
                             }
     //                        print("scriptsDict (\(self.scriptsDict.count)): \(self.scriptsDict)")
-                            WriteToLog().message(theString: "[processItems] scripts complete - call computerConfigurations")
+                            WriteToLog().message(theString: "[processItems] scripts complete - call eBooks")
                             DispatchQueue.main.async {
-                                self.processItems(type: "computerConfigurations")
+                                self.processItems(type: "ebooks")
                             }
                         }
                     } else {
-                        WriteToLog().message(theString: "[processItems] skipping scripts - call computerConfigurations")
+                        WriteToLog().message(theString: "[processItems] skipping scripts - call eBooks")
                         DispatchQueue.main.async {
-                            self.processItems(type: "computerConfigurations")
+                            self.processItems(type: "ebooks")
                         }
                    }
+                    
+            case "ebooks":
+                var msgText    = "eBooks"
+                var nextObject = "computerConfigurations"
+                
+                if self.ebooksButtonState == "on" {
+                    DispatchQueue.main.async {
+                        self.process_TextField.stringValue = "Fetching eBooks..."
+                    }
+                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") {
+                        (result: [String:AnyObject]) in
+    //                    print("json returned eBooks: \(result)")
+                        let ebooksArray = result["ebooks"] as! [Dictionary<String, Any>]
+                        let ebooksArrayCount = ebooksArray.count
+                        if ebooksArrayCount > 0 {
+                            for i in (0..<ebooksArrayCount) {
+                                if let id = ebooksArray[i]["id"], let name = ebooksArray[i]["name"] {
+                                    if "\(name)" != "" {
+                                        self.ebooksDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    }
+                                }
+                            }
+                            
+                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: ebooksArray, index: 0)
+                            waitFor.ebook = true
+                            self.backgroundQ.async {
+                                while true {
+                                    usleep(10)
+                                    if !waitFor.ebook {
+                                        WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                        DispatchQueue.main.async {
+                                            self.processItems(type: nextObject)
+                                        }
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                        
+//                        print("ebooksDict (\(self.ebooksDict.count)): \(self.ebooksDict)")
+                        WriteToLog().message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
+                        DispatchQueue.main.async {
+                            self.processItems(type: "\(nextObject)")
+                        }
+                    }
+                } else {
+                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
+                    DispatchQueue.main.async {
+                        self.processItems(type: "\(nextObject)")
+                    }
+               }
                                
                 // object that have a scope - start
                 case "computerConfigurations":
@@ -437,8 +493,8 @@ class ViewController: NSViewController {
                                                                 
                 case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                     var msgText    = "mobile device profiles"
-    //                var nextObject = "policies"
                     var nextObject = "patchsoftwaretitles"
+                    
                     if (type == "mobiledeviceapplications" && self.mobileDeviceAppsButtonState == "on") || self.mobileDeviceGrpsButtonState == "on" || (type == "mobiledeviceconfigurationprofiles" && self.configurationProfilesButtonState == "on") {
                         var xmlTag = ""
                         DispatchQueue.main.async {
@@ -718,6 +774,9 @@ class ViewController: NSViewController {
                                                 if self.scriptsButtonState == "on" {
                                                     reportItems.append(["scripts":self.scriptsDict])
                                                 }
+                                                if self.ebooksButtonState == "on" {
+                                                    reportItems.append(["ebooks":self.ebooksDict])
+                                                }
                                                 if self.computerGroupsButtonState == "on" {
                                                     reportItems.append(["computergroups":self.computerGroupsDict])
                                                 }
@@ -761,6 +820,9 @@ class ViewController: NSViewController {
                                             if self.scriptsButtonState == "on" {
                                                 reportItems.append(["scripts":self.scriptsDict])
                                             }
+                                            if self.ebooksButtonState == "on" {
+                                                reportItems.append(["ebooks":self.ebooksDict])
+                                            }
                                             if self.computerGroupsButtonState == "on" {
                                                 reportItems.append(["computergroups":self.computerGroupsDict])
                                             }
@@ -803,6 +865,9 @@ class ViewController: NSViewController {
                                     }
                                     if self.scriptsButtonState == "on" {
                                         reportItems.append(["scripts":self.scriptsDict])
+                                    }
+                                    if self.ebooksButtonState == "on" {
+                                        reportItems.append(["ebooks":self.ebooksDict])
                                     }
                                     if self.computerGroupsButtonState == "on" {
                                         reportItems.append(["computergroups":self.computerGroupsDict])
@@ -855,6 +920,8 @@ class ViewController: NSViewController {
             objectEndpoint = "computerconfigurations/id"
         case "osxconfigurationprofiles":
             objectEndpoint = "osxconfigurationprofiles/id"
+        case "ebooks":
+            objectEndpoint = "ebooks/id"
         case "policies":
             objectEndpoint = "policies/id"
         case "patchpolicies":
@@ -966,6 +1033,74 @@ class ViewController: NSViewController {
                                 }
                             }
                             // look for nested device groups - end
+                        
+                        
+                        case "ebooks":
+                            
+                            let theEbook = result["ebook"] as! [String:AnyObject]
+                            
+                            // check for used computergroups - start
+                            let eBookScope = theEbook["scope"] as! [String:AnyObject]
+                            print("eBook (\(name)) scope: \(eBookScope)")
+        //
+                            if self.isScoped(scope: eBookScope) {
+                                self.ebooksDict["\(name)"]!["used"] = "true"
+                            }
+                            
+
+                            // check for used computergroups - start
+                            let computer_groupList = eBookScope["computer_groups"] as! [Dictionary<String, Any>]
+                            for theComputerGroup in computer_groupList {
+        //                                        print("thePackage: \(thePackage)")
+                                let theComputerGroupName = theComputerGroup["name"]
+        //                                        let theComputerGroupID = theComputerGroup["id"]
+        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - start
+                            let computer_groupExcl = eBookScope["exclusions"] as! [String:AnyObject]
+                            let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
+                            for theComputerGroupExcl in computer_groupListExcl {
+                                let theComputerGroupName = theComputerGroupExcl["name"]
+                                self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - end
+                            // check of used computergroups - end
+                        
+                            // check for used mobiledevicegroups - start
+//                            let theEbookObjectXml = result["ebook"] as! [String:AnyObject]
+//                            let eBookScope = theEbookObjectXml["scope"] as! [String:AnyObject]
+                            
+                            
+//                            let theMobileDeviceObjectXml = (theEndpoint == "mobiledeviceapplications") ? result["mobile_device_application"] as! [String:AnyObject]:result["configuration_profile"] as! [String:AnyObject]
+//
+//                            // check for used mobiledevicegroups - start
+//                            let mobileDeviceAppScope = theMobileDeviceObjectXml["scope"] as! [String:AnyObject]
+                            
+                            if self.isScoped(scope: eBookScope) {
+        //                        self.mobileDeviceAppsDict["\(name))"]!["used"] = "true"
+                                self.ebooksDict["\(name)"]!["used"] = "true"
+                            }
+                            
+                            let mda_groupList = eBookScope["mobile_device_groups"] as! [Dictionary<String, Any>]
+                            for theMdaGroup in mda_groupList {
+                                let theMobileDeviceGroupName = theMdaGroup["name"]
+        //                                        let theMdaGroupID = theMdaGroup["id"]
+                                self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - start
+                            let mobileDevice_groupExcl = eBookScope["exclusions"] as! [String:AnyObject]
+                            let mobileDevice_groupListExcl = mobileDevice_groupExcl["mobile_device_groups"] as! [Dictionary<String, Any>]
+                            for theMdaGroupExcl in mobileDevice_groupListExcl {
+                                let theMobileDeviceGroupName = theMdaGroupExcl["name"]
+                                self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
+                            }
+                            // check exclusions - end
+                            // check of used mobiledevicegroups - end
+                        
+                        // scan each ebook - end
+                        
+                        
                             
                         case "computerconfigurations":
                             // scan each computer configuration - start
@@ -1461,7 +1596,7 @@ class ViewController: NSViewController {
 //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
                             computerGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
                         }
-                    }   // for (key, _) in scriptsDict - end
+                    }   // for (key, _) in
                     computerGroupLogFileOp.seekToEndOfFile()
                     computerGroupLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
 //                    computerGroupLogFileOp.write("</unusedComputerGroups>".data(using: String.Encoding.utf8)!)
@@ -1490,7 +1625,7 @@ class ViewController: NSViewController {
 //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
                             computerProfileLogFileOp.write(text.data(using: String.Encoding.utf8)!)
                         }
-                    }   // for (key, _) in scriptsDict - end
+                    }   // for (key, _) in
                     computerProfileLogFileOp.seekToEndOfFile()
                     computerProfileLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
 //                    computerGroupLogFileOp.write("</unusedComputerGroups>".data(using: String.Encoding.utf8)!)
@@ -1550,7 +1685,7 @@ class ViewController: NSViewController {
 //                            let text = "\t<id>\(String(describing: mobileDeviceGroupLogFileOp[key]!["id"]!))</id><name>\(key)</name>\n"
                             mobileDeviceGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
                         }
-                    }   // for (key, _) in scriptsDict - end
+                    }   // for (key, _) in
                     mobileDeviceGroupLogFileOp.seekToEndOfFile()
                     mobileDeviceGroupLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
 //                    mobileDeviceGroupLogFileOp.write("</unusedMobileDeviceGroups>".data(using: String.Encoding.utf8)!)
@@ -1579,7 +1714,7 @@ class ViewController: NSViewController {
 //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))</id><name>\(key)</name>\n"
                             logFileOp.write(text.data(using: String.Encoding.utf8)!)
                         }
-                    }   // for (key, _) in scriptsDict - end
+                    }   // for (key, _) in
                     logFileOp.seekToEndOfFile()
                     logFileOp.write("]}".data(using: String.Encoding.utf8)!)
 //                    logFileOp.write("</unusedMobileDeviceApps>".data(using: String.Encoding.utf8)!)
@@ -1608,7 +1743,7 @@ class ViewController: NSViewController {
 //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))</id><name>\(key)</name>\n"
                             logFileOp.write(text.data(using: String.Encoding.utf8)!)
                         }
-                    }   // for (key, _) in scriptsDict - end
+                    }   // for (key, _) in
                     logFileOp.seekToEndOfFile()
                     logFileOp.write("]}".data(using: String.Encoding.utf8)!)
 //                    logFileOp.write("</unusedMobileDeviceConfigurationProfiles>".data(using: String.Encoding.utf8)!)
@@ -1897,6 +2032,7 @@ class ViewController: NSViewController {
             } else {
                 packages_Button.state = NSControl.StateValue(rawValue: 0)
                 scripts_Button.state = NSControl.StateValue(rawValue: 0)
+                ebooks_Button.state = NSControl.StateValue(rawValue: 0)
                 computerGroups_Button.state = NSControl.StateValue(rawValue: 0)
                 computerProfiles_Button.state = NSControl.StateValue(rawValue: 0)
                 policies_Button.state = NSControl.StateValue(rawValue: 0)
@@ -1924,13 +2060,16 @@ class ViewController: NSViewController {
             switch title {
             case "Packages":
                 packagesButtonState = "\(state)"
-//
+
             case "Scripts":
                 scriptsButtonState = "\(state)"
-//
+
+            case "eBooks":
+                ebooksButtonState = "\(state)"
+
             case "Computer Groups":
                 computerGroupsButtonState = "\(state)"
-//
+
             case "Computer Profiles":
                 computerProfilesButtonState = "\(state)"
 

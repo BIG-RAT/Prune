@@ -17,8 +17,9 @@ struct Log {
 
 struct waitFor {
     static var deviceGroup = true   // used for both computer and mobile device groups
-    static var computerConfiguration = true
+    static var computerConfiguration   = true
     static var osxconfigurationprofile = true
-    static var policy = true
-    static var mobiledeviceobject = true
+    static var policy                  = true
+    static var mobiledeviceobject      = true
+    static var ebook                   = true
 }
