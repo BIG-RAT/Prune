@@ -54,7 +54,7 @@ class WriteToLog {
                     if Int("\(logSize ?? 0)")! > Log.maxSize {
                         let dateTmpArray = getCurrentTime().split(separator: "_")
                         let dateStamp    = dateTmpArray[0]
-                        zipIt(args: "/usr/bin/zip -rm -jj -o \(Log.path!)jamfStatus_\(dateStamp) \(Log.path!)\(Log.file)") {
+                        zipIt(args: "/usr/bin/zip -rm -jj -o \(Log.path!)Prune_\(dateStamp) \(Log.path!)\(Log.file)") {
                             (result: String) in
                             print("zipIt result: \(result)")
                             self.createLogFile()

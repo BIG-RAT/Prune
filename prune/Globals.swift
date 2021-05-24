@@ -12,7 +12,7 @@ struct Log {
     static var path: String? = (NSHomeDirectory() + "/Library/Logs/")
     static var file  = "Prune.log"
     static var maxFiles = 10
-    static var maxSize  = 500000 // 5MB
+    static var maxSize  = 5000000 // 5MB
 }
 
 struct waitFor {
@@ -22,4 +22,5 @@ struct waitFor {
     static var policy                  = true
     static var mobiledeviceobject      = true
     static var ebook                   = true
+    static var classes                 = true
 }

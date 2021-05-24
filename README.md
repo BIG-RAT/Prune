@@ -20,6 +20,8 @@ Once the list of unused items is generated you can edit it within the app.  If y
 #### Important:
 This application deletes stuff, use with caution!  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Jamf Migrator](https://github.com/jamf/JamfMigrator) and export the (full) XML of all objects, or do both.
 
-#### Change log:
+#### History:
+2021-05-23 - Version 1.3.0: Added scan against eBooks and Classes.
+
 2020-10-06 - Version 1.2.0: Guard against corrupt policies/scripts (having no name).  Added warning before deleting is initiated.  Write logging information to: ```~/Library/Containers/com.jamf.pse.prune/Data/Library/Logs/Prune.log```
 

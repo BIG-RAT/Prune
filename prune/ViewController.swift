@@ -26,6 +26,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var packages_Button: NSButton!
     @IBOutlet weak var scripts_Button: NSButton!
     @IBOutlet weak var ebooks_Button: NSButton!
+    @IBOutlet weak var classes_Button: NSButton!
     @IBOutlet weak var computerGroups_Button: NSButton!
     @IBOutlet weak var computerProfiles_Button: NSButton!
     @IBOutlet weak var policies_Button: NSButton!
@@ -53,6 +54,7 @@ class ViewController: NSViewController {
     var packagesDict                 = Dictionary<String,Dictionary<String,String>>()    // id, name, used
     var scriptsDict                  = Dictionary<String,Dictionary<String,String>>()
     var ebooksDict                   = [String:[String:String]]()
+    var classesDict                  = [String:[String:String]]()
     var policiesDict                 = [String:[String:String]]()
     var computerConfigurationDict    = [String:String]()
     var computerGroupsDict           = Dictionary<String,Dictionary<String,String>>()
@@ -63,11 +65,15 @@ class ViewController: NSViewController {
     var unusedItems_TableArray: [String]?
     var unusedItems_TableDict: [[String:String]]?
     
+    var computerGroupNameByIdDict   = [Int:String]()
+    var mobileGroupNameByIdDict     = [Int:String]()
+    
     var itemSeperators              = [String]()
     
     var packagesButtonState              = "off"
     var scriptsButtonState               = "off"
     var ebooksButtonState                = "off"
+    var classesButtonState               = "off"
     var computerGroupsButtonState        = "off"
     var computerProfilesButtonState      = "off"
     var policiesButtonState              = "off"
@@ -86,12 +92,15 @@ class ViewController: NSViewController {
         packagesDict.removeAll()
         scriptsDict.removeAll()
         ebooksDict.removeAll()
+        classesDict.removeAll()
         policiesDict.removeAll()
         osxconfigurationprofilesDict.removeAll()
         computerConfigurationDict.removeAll()
         computerGroupsDict.removeAll()
         mobileDeviceGroupsDict.removeAll()
         mobileDeviceAppsDict.removeAll()
+//        computerGroupNameById.removeAll()
+        mobileGroupNameByIdDict.removeAll()
         for (key, _) in masterObjectDict {
             masterObjectDict[key]?.removeAll()
         }
@@ -184,10 +193,13 @@ class ViewController: NSViewController {
                                         if type == "computerGroups" {
                                             if "\(name)" != "All Managed Clients" && "\(name)" != "All Managed Servers" {
                                                 self.computerGroupsDict["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
+//                                                self.computerGroupNameById[id as! Int] = "\(name)"
                                             }
                                         } else {
                                             if "\(name)" != "All Managed iPads" && "\(name)" != "All Managed iPhones" && "\(name)" != "All Managed iPod touches" {
                                                 self.mobileDeviceGroupsDict["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
+                                                // used for classes, that list only group id
+                                                self.mobileGroupNameByIdDict[id as! Int] = "\(name)"
                                             }
                                         }
                                             
@@ -307,11 +319,11 @@ class ViewController: NSViewController {
                     
             case "ebooks":
                 var msgText    = "eBooks"
-                var nextObject = "computerConfigurations"
+                var nextObject = "classes"
                 
-                if self.ebooksButtonState == "on" {
+                if self.computerGroupsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" || self.ebooksButtonState == "on" {
                     DispatchQueue.main.async {
-                        self.process_TextField.stringValue = "Fetching eBooks..."
+                        self.process_TextField.stringValue = "Fetching \(msgText)..."
                     }
                     Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") {
                         (result: [String:AnyObject]) in
@@ -345,6 +357,57 @@ class ViewController: NSViewController {
                         }
                         
 //                        print("ebooksDict (\(self.ebooksDict.count)): \(self.ebooksDict)")
+                        WriteToLog().message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
+                        DispatchQueue.main.async {
+                            self.processItems(type: "\(nextObject)")
+                        }
+                    }
+                } else {
+                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
+                    DispatchQueue.main.async {
+                        self.processItems(type: "\(nextObject)")
+                    }
+               }
+                
+            case "classes":
+                var msgText    = "classes"
+                var nextObject = "computerConfigurations"
+                
+                if self.mobileDeviceGrpsButtonState == "on" || self.classesButtonState == "on" {
+                    DispatchQueue.main.async {
+                        self.process_TextField.stringValue = "Fetching \(msgText)..."
+                    }
+                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "classes") {
+                        (result: [String:AnyObject]) in
+    //                    print("json returned classes: \(result)")
+                        let classesArray = result["classes"] as! [Dictionary<String, Any>]
+                        let classesArrayCount = classesArray.count
+                        if classesArrayCount > 0 {
+                            for i in (0..<classesArrayCount) {
+                                if let id = classesArray[i]["id"], let name = classesArray[i]["name"] {
+                                    if "\(name)" != "" {
+                                        self.classesDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    }
+                                }
+                            }
+                            
+                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: classesArray, index: 0)
+                            waitFor.classes = true
+                            self.backgroundQ.async {
+                                while true {
+                                    usleep(10)
+                                    if !waitFor.classes {
+                                        WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                        DispatchQueue.main.async {
+                                            self.processItems(type: nextObject)
+                                        }
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                        
                         WriteToLog().message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
                         DispatchQueue.main.async {
                             self.processItems(type: "\(nextObject)")
@@ -777,6 +840,9 @@ class ViewController: NSViewController {
                                                 if self.ebooksButtonState == "on" {
                                                     reportItems.append(["ebooks":self.ebooksDict])
                                                 }
+                                                if self.classesButtonState == "on" {
+                                                    reportItems.append(["classes":self.classesDict])
+                                                }
                                                 if self.computerGroupsButtonState == "on" {
                                                     reportItems.append(["computergroups":self.computerGroupsDict])
                                                 }
@@ -823,6 +889,9 @@ class ViewController: NSViewController {
                                             if self.ebooksButtonState == "on" {
                                                 reportItems.append(["ebooks":self.ebooksDict])
                                             }
+                                            if self.classesButtonState == "on" {
+                                                reportItems.append(["classes":self.classesDict])
+                                            }
                                             if self.computerGroupsButtonState == "on" {
                                                 reportItems.append(["computergroups":self.computerGroupsDict])
                                             }
@@ -868,6 +937,9 @@ class ViewController: NSViewController {
                                     }
                                     if self.ebooksButtonState == "on" {
                                         reportItems.append(["ebooks":self.ebooksDict])
+                                    }
+                                    if self.classesButtonState == "on" {
+                                        reportItems.append(["classes":self.classesDict])
                                     }
                                     if self.computerGroupsButtonState == "on" {
                                         reportItems.append(["computergroups":self.computerGroupsDict])
@@ -922,6 +994,8 @@ class ViewController: NSViewController {
             objectEndpoint = "osxconfigurationprofiles/id"
         case "ebooks":
             objectEndpoint = "ebooks/id"
+        case "classes":
+            objectEndpoint = "classes/id"
         case "policies":
             objectEndpoint = "policies/id"
         case "patchpolicies":
@@ -1066,19 +1140,8 @@ class ViewController: NSViewController {
                             }
                             // check exclusions - end
                             // check of used computergroups - end
-                        
-                            // check for used mobiledevicegroups - start
-//                            let theEbookObjectXml = result["ebook"] as! [String:AnyObject]
-//                            let eBookScope = theEbookObjectXml["scope"] as! [String:AnyObject]
-                            
-                            
-//                            let theMobileDeviceObjectXml = (theEndpoint == "mobiledeviceapplications") ? result["mobile_device_application"] as! [String:AnyObject]:result["configuration_profile"] as! [String:AnyObject]
-//
-//                            // check for used mobiledevicegroups - start
-//                            let mobileDeviceAppScope = theMobileDeviceObjectXml["scope"] as! [String:AnyObject]
                             
                             if self.isScoped(scope: eBookScope) {
-        //                        self.mobileDeviceAppsDict["\(name))"]!["used"] = "true"
                                 self.ebooksDict["\(name)"]!["used"] = "true"
                             }
                             
@@ -1101,6 +1164,26 @@ class ViewController: NSViewController {
                         // scan each ebook - end
                         
                         
+                        case "classes":
+                            
+                            let theClass = result["class"] as! [String:AnyObject]
+                            
+                            let studentScope = theClass["students"] as! [String]
+                            let teacherScope = theClass["teachers"] as! [Int]
+                            let studentGroupScope = theClass["student_group_ids"] as! [Int]
+                            let teacherGroupScope = theClass["teacher_group_ids"] as! [Int]
+                            let mobileDeviceScope = theClass["mobile_devices"] as! [AnyObject]
+                            let mobileDevicGroupsScope = theClass["mobile_device_group_ids"] as! [Int]
+        //
+                            if (studentScope.count+teacherScope.count+studentGroupScope.count+teacherGroupScope.count+mobileDeviceScope.count+mobileDevicGroupsScope.count) > 0 {
+                                self.classesDict["\(name)"]!["used"] = "true"
+                            }
+                            
+                            if mobileDevicGroupsScope.count > 0 {
+                                for mobileDeviceGroupID in mobileDevicGroupsScope {
+                                    self.mobileDeviceGroupsDict[self.mobileGroupNameByIdDict[mobileDeviceGroupID]!]!["used"] = "true"
+                                }
+                            }
                             
                         case "computerconfigurations":
                             // scan each computer configuration - start
@@ -1269,6 +1352,10 @@ class ViewController: NSViewController {
                                 waitFor.deviceGroup = false
                             case "computerconfigurations":
                                 waitFor.computerConfiguration = false
+                            case "ebooks":
+                                waitFor.ebook = false
+                            case "classes":
+                                waitFor.classes = false
                             case "osxconfigurationprofiles":
                                 waitFor.osxconfigurationprofile = false
                             case "policies","patchpolicies","patchsoftwaretitles":
@@ -1437,6 +1524,12 @@ class ViewController: NSViewController {
         if sender.title == "Scripts" || (sender.title == "All" && scriptsButtonState == "on") {
             reportItems.append(["scripts":self.scriptsDict])
         }
+        if sender.title == "eBooks" || (sender.title == "All" && ebooksButtonState == "on") {
+            reportItems.append(["ebooks":self.ebooksDict])
+        }
+        if sender.title == "Classes" || (sender.title == "All" && classesButtonState == "on") {
+            reportItems.append(["ebooks":self.classesDict])
+        }
         if sender.title == "Computer Groups" || (sender.title == "All" && computerGroupsButtonState == "on") {
             reportItems.append(["computergroups":self.computerGroupsDict])
         }
@@ -1572,6 +1665,60 @@ class ViewController: NSViewController {
                     scriptLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
 //                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
                     scriptLogFileOp.closeFile()
+                }
+            }
+            
+            if self.ebooksButtonState == "on" {
+                let ebooksLogFile = "pruneEbooks_\(timeStamp).json"
+                let exportURL = getDownloadDirectory().appendingPathComponent(ebooksLogFile)
+
+                do {
+                    try "{\(header),\n \"unusedEbooks\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                } catch {
+                    WriteToLog().message(theString: "failed to write the following: <unusedEbooks>")
+                }
+                
+                if let ebooksLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                    for key in sortedArrayFromDict(theDict: ebooksDict) {
+                        if ebooksDict[key]?["used"]! == "false" {
+                            ebooksLogFileOp.seekToEndOfFile()
+                            let text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
+//                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
+                            ebooksLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                        }
+                    }   // for (key, _) in scriptsDict - end
+                    ebooksLogFileOp.seekToEndOfFile()
+                    ebooksLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
+//                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
+                    ebooksLogFileOp.closeFile()
+                }
+            }
+            
+            if self.classesButtonState == "on" {
+                let classesLogFile = "pruneClasses_\(timeStamp).json"
+                let exportURL = getDownloadDirectory().appendingPathComponent(classesLogFile)
+
+                do {
+                    try "{\(header),\n \"unusedClasses\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                } catch {
+                    WriteToLog().message(theString: "failed to write the following: <unusedClasses>")
+                }
+                
+                if let classesLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                    for key in sortedArrayFromDict(theDict: classesDict) {
+                        if classesDict[key]?["used"]! == "false" {
+                            classesLogFileOp.seekToEndOfFile()
+                            let text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
+//                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
+                            classesLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                        }
+                    }   // for (key, _) in scriptsDict - end
+                    classesLogFileOp.seekToEndOfFile()
+                    classesLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
+//                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
+                    classesLogFileOp.closeFile()
                 }
             }
             
@@ -1787,6 +1934,22 @@ class ViewController: NSViewController {
                                     case "scripts":
                                         if withOptionKey {
                                             self.scriptsDict.removeValue(forKey: itemName)
+                                        } else {
+                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
+                                        
+                                    case "ebooks":
+                                        if withOptionKey {
+                                            self.ebooksDict.removeValue(forKey: itemName)
+                                        } else {
+                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
+                                        
+                                    case "classes":
+                                        if withOptionKey {
+                                            self.classesDict.removeValue(forKey: itemName)
                                         } else {
                                             WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
@@ -2007,7 +2170,7 @@ class ViewController: NSViewController {
 
     @IBAction func updateViewButton_Action(_ sender: NSButton) {
         var withOptionKey = false
-        let availableButtons = ["Packages", "Scripts", "Computer Groups", "Computer Profiles", "Policies", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles"]
+        let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Policies", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles"]
         // check for option key - start
         if NSEvent.modifierFlags.contains(.option) {
             withOptionKey = true
@@ -2019,6 +2182,8 @@ class ViewController: NSViewController {
             if state == "on" {
                 packages_Button.state = NSControl.StateValue(rawValue: 1)
                 scripts_Button.state = NSControl.StateValue(rawValue: 1)
+                ebooks_Button.state = NSControl.StateValue(rawValue: 1)
+                classes_Button.state = NSControl.StateValue(rawValue: 1)
                 computerGroups_Button.state = NSControl.StateValue(rawValue: 1)
                 computerProfiles_Button.state = NSControl.StateValue(rawValue: 1)
                 policies_Button.state = NSControl.StateValue(rawValue: 1)
@@ -2033,6 +2198,7 @@ class ViewController: NSViewController {
                 packages_Button.state = NSControl.StateValue(rawValue: 0)
                 scripts_Button.state = NSControl.StateValue(rawValue: 0)
                 ebooks_Button.state = NSControl.StateValue(rawValue: 0)
+                classes_Button.state = NSControl.StateValue(rawValue: 0)
                 computerGroups_Button.state = NSControl.StateValue(rawValue: 0)
                 computerProfiles_Button.state = NSControl.StateValue(rawValue: 0)
                 policies_Button.state = NSControl.StateValue(rawValue: 0)
@@ -2044,6 +2210,8 @@ class ViewController: NSViewController {
             }
             packagesButtonState              = "\(state)"
             scriptsButtonState               = "\(state)"
+            ebooksButtonState                = "\(state)"
+            classesButtonState               = "\(state)"
             computerGroupsButtonState        = "\(state)"
             computerProfilesButtonState      = "\(state)"
             policiesButtonState              = "\(state)"
@@ -2060,31 +2228,24 @@ class ViewController: NSViewController {
             switch title {
             case "Packages":
                 packagesButtonState = "\(state)"
-
             case "Scripts":
                 scriptsButtonState = "\(state)"
-
             case "eBooks":
                 ebooksButtonState = "\(state)"
-
+            case "Classes":
+                classesButtonState = "\(state)"
             case "Computer Groups":
                 computerGroupsButtonState = "\(state)"
-
             case "Computer Profiles":
                 computerProfilesButtonState = "\(state)"
-
             case "Policies":
                 policiesButtonState = "\(state)"
-
             case "Mobile Device Groups":
                 mobileDeviceGrpsButtonState = "\(state)"
-
             case "Mobile Device Apps":
                 mobileDeviceAppsButtonState = "\(state)"
-
             case "Mobile Device Config. Profiles":
                 configurationProfilesButtonState = "\(state)"
-
             default:
                 if state == "on" {
                     
@@ -2179,6 +2340,18 @@ class ViewController: NSViewController {
                                 
                                 case "scripts":
                                     if let objectId = self.scriptsDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/view/settings/computer/scripts/\(objectId)") {
+                                      NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+                                    
+                                case "ebooks":
+                                    if let objectId = self.ebooksDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/eBooks.html/?id=\(objectId)") {
+                                      NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+                                        
+                                case "classes":
+                                    if let objectId = self.classesDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/classes.html/?id=\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                         return
                                     }
