@@ -18,9 +18,17 @@ class Json: NSObject, URLSessionDelegate {
     
         URLCache.shared.removeAllCachedResponses()
         var existingDestUrl = ""
+        var authType        = "Basic"
         
-        existingDestUrl = "\(theServer)/JSSResource/\(theEndpoint)"
-        existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
+        switch theEndpoint {
+        case "computer-prestages":
+            existingDestUrl = "\(theServer)/api/v2/\(theEndpoint)"
+            existingDestUrl = existingDestUrl.replacingOccurrences(of: "//api/v2", with: "/api/v2")
+            authType = "Bearer"
+        default:
+            existingDestUrl = "\(theServer)/JSSResource/\(theEndpoint)"
+            existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
+        }
         
 //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
         WriteToLog().message(theString: "[Json.getRecord] existing endpoints URL: \(existingDestUrl)")
@@ -33,7 +41,7 @@ class Json: NSObject, URLSessionDelegate {
             
             jsonRequest.httpMethod = "GET"
             let destConf = URLSessionConfiguration.default
-            destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
+            destConf.httpAdditionalHeaders = ["Authorization" : "\(authType) \(base64Creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: jsonRequest as URLRequest, completionHandler: {
                 (data, response, error) -> Void in

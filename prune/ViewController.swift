@@ -47,6 +47,7 @@ class ViewController: NSViewController {
     var currentServer   = ""
     var jamfCreds       = ""
     var jamfBase64Creds = ""
+    var jpapiToken      = ""
     var completed       = 0
     // define master dictionary of items
     // ex. masterObjectDict["packages"] = [[package1Name:["id":id1,"name":name1]],[package2Name:["id":id2,"name":name2]]]
@@ -67,6 +68,8 @@ class ViewController: NSViewController {
     
     var computerGroupNameByIdDict   = [Int:String]()
     var mobileGroupNameByIdDict     = [Int:String]()
+    var packagesByIdDict            = [String:String]()
+    var computerProfilesByIdDict    = [String:String]()
     
     var itemSeperators              = [String]()
     
@@ -125,6 +128,7 @@ class ViewController: NSViewController {
         Json().getToken(serverUrl: currentServer, base64creds: jamfBase64Creds) {
             (result: String) in
             if result != "" {
+                self.jpapiToken = result
                 DispatchQueue.main.async {
                     // save password if checked - start
                 let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
@@ -142,7 +146,6 @@ class ViewController: NSViewController {
                     self.process_TextField.isHidden = false
                     self.process_TextField.stringValue = "Starting lookups..."
                 }
-                print("[go_action caller] start lookups...")
                 WriteToLog().message(theString: "[Scan] start scanning...")
                 if self.computerGroupsButtonState == "on" {
                     self.processItems(type: "computerGroups")
@@ -268,6 +271,7 @@ class ViewController: NSViewController {
                                     for i in (0..<packagesArrayCount) {
                                         if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
                                             self.packagesDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                            self.packagesByIdDict["\(id)"] = "\(name)"
                                         }
                                     }
                                 }
@@ -317,109 +321,109 @@ class ViewController: NSViewController {
                         }
                    }
                     
-            case "ebooks":
-                var msgText    = "eBooks"
-                var nextObject = "classes"
-                
-                if self.computerGroupsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" || self.ebooksButtonState == "on" {
-                    DispatchQueue.main.async {
-                        self.process_TextField.stringValue = "Fetching \(msgText)..."
-                    }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") {
-                        (result: [String:AnyObject]) in
-    //                    print("json returned eBooks: \(result)")
-                        let ebooksArray = result["ebooks"] as! [Dictionary<String, Any>]
-                        let ebooksArrayCount = ebooksArray.count
-                        if ebooksArrayCount > 0 {
-                            for i in (0..<ebooksArrayCount) {
-                                if let id = ebooksArray[i]["id"], let name = ebooksArray[i]["name"] {
-                                    if "\(name)" != "" {
-                                        self.ebooksDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                case "ebooks":
+                    var msgText    = "eBooks"
+                    var nextObject = "classes"
+                    
+                    if self.computerGroupsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" || self.ebooksButtonState == "on" {
+                        DispatchQueue.main.async {
+                            self.process_TextField.stringValue = "Fetching \(msgText)..."
+                        }
+                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") {
+                            (result: [String:AnyObject]) in
+        //                    print("json returned eBooks: \(result)")
+                            let ebooksArray = result["ebooks"] as! [Dictionary<String, Any>]
+                            let ebooksArrayCount = ebooksArray.count
+                            if ebooksArrayCount > 0 {
+                                for i in (0..<ebooksArrayCount) {
+                                    if let id = ebooksArray[i]["id"], let name = ebooksArray[i]["name"] {
+                                        if "\(name)" != "" {
+                                            self.ebooksDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        }
+                                    }
+                                }
+                                
+                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: ebooksArray, index: 0)
+                                waitFor.ebook = true
+                                self.backgroundQ.async {
+                                    while true {
+                                        usleep(10)
+                                        if !waitFor.ebook {
+                                            WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                            DispatchQueue.main.async {
+                                                self.processItems(type: nextObject)
+                                            }
+                                            break
+                                        }
                                     }
                                 }
                             }
                             
-                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: ebooksArray, index: 0)
-                            waitFor.ebook = true
-                            self.backgroundQ.async {
-                                while true {
-                                    usleep(10)
-                                    if !waitFor.ebook {
-                                        WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
-                                        DispatchQueue.main.async {
-                                            self.processItems(type: nextObject)
-                                        }
-                                        break
-                                    }
-                                }
+    //                        print("ebooksDict (\(self.ebooksDict.count)): \(self.ebooksDict)")
+                            WriteToLog().message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
+                            DispatchQueue.main.async {
+                                self.processItems(type: "\(nextObject)")
                             }
                         }
-                        
-//                        print("ebooksDict (\(self.ebooksDict.count)): \(self.ebooksDict)")
-                        WriteToLog().message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
+                    } else {
+                        WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
                         DispatchQueue.main.async {
                             self.processItems(type: "\(nextObject)")
                         }
-                    }
-                } else {
-                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
-                    DispatchQueue.main.async {
-                        self.processItems(type: "\(nextObject)")
-                    }
-               }
-                
-            case "classes":
-                var msgText    = "classes"
-                var nextObject = "computerConfigurations"
-                
-                if self.mobileDeviceGrpsButtonState == "on" || self.classesButtonState == "on" {
-                    DispatchQueue.main.async {
-                        self.process_TextField.stringValue = "Fetching \(msgText)..."
-                    }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "classes") {
-                        (result: [String:AnyObject]) in
-    //                    print("json returned classes: \(result)")
-                        let classesArray = result["classes"] as! [Dictionary<String, Any>]
-                        let classesArrayCount = classesArray.count
-                        if classesArrayCount > 0 {
-                            for i in (0..<classesArrayCount) {
-                                if let id = classesArray[i]["id"], let name = classesArray[i]["name"] {
-                                    if "\(name)" != "" {
-                                        self.classesDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                   }
+                    
+                case "classes":
+                    var msgText    = "classes"
+                    var nextObject = "computerConfigurations"
+                    
+                    if self.mobileDeviceGrpsButtonState == "on" || self.classesButtonState == "on" {
+                        DispatchQueue.main.async {
+                            self.process_TextField.stringValue = "Fetching \(msgText)..."
+                        }
+                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "classes") {
+                            (result: [String:AnyObject]) in
+        //                    print("json returned classes: \(result)")
+                            let classesArray = result["classes"] as! [Dictionary<String, Any>]
+                            let classesArrayCount = classesArray.count
+                            if classesArrayCount > 0 {
+                                for i in (0..<classesArrayCount) {
+                                    if let id = classesArray[i]["id"], let name = classesArray[i]["name"] {
+                                        if "\(name)" != "" {
+                                            self.classesDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        }
+                                    }
+                                }
+                                
+                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: classesArray, index: 0)
+                                waitFor.classes = true
+                                self.backgroundQ.async {
+                                    while true {
+                                        usleep(10)
+                                        if !waitFor.classes {
+                                            WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                            DispatchQueue.main.async {
+                                                self.processItems(type: nextObject)
+                                            }
+                                            break
+                                        }
                                     }
                                 }
                             }
                             
-                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: classesArray, index: 0)
-                            waitFor.classes = true
-                            self.backgroundQ.async {
-                                while true {
-                                    usleep(10)
-                                    if !waitFor.classes {
-                                        WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
-                                        DispatchQueue.main.async {
-                                            self.processItems(type: nextObject)
-                                        }
-                                        break
-                                    }
-                                }
+                            WriteToLog().message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
+                            DispatchQueue.main.async {
+                                self.processItems(type: "\(nextObject)")
                             }
                         }
-                        
-                        WriteToLog().message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
+                    } else {
+                        WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
                         DispatchQueue.main.async {
                             self.processItems(type: "\(nextObject)")
                         }
-                    }
-                } else {
-                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
-                    DispatchQueue.main.async {
-                        self.processItems(type: "\(nextObject)")
-                    }
-               }
-                               
+                   }
+                                   
                 // object that have a scope - start
                 case "computerConfigurations":
                     if self.packagesButtonState == "on" || self.scriptsButtonState == "on" {
@@ -474,7 +478,6 @@ class ViewController: NSViewController {
                         }
                         Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                             (result: [String:AnyObject]) in
-        //                    print("json returned packages: \(result)")
                             self.masterObjectDict["osxconfigurationprofiles"] = [String:[String:String]]()
                             if let _  = result["os_x_configuration_profiles"] {
                                 let osxconfigurationprofilesArray = result["os_x_configuration_profiles"] as! [Dictionary<String, Any>]
@@ -573,7 +576,6 @@ class ViewController: NSViewController {
                         }
                         Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                             (result: [String:AnyObject]) in
-        //                    print("json returned packages: \(result)")
                             self.masterObjectDict[type] = [String:[String:String]]()
                             if let _ = result[xmlTag] {
                                 let mobileDeviceObjectArray = result[xmlTag] as! [Dictionary<String, Any>]
@@ -661,25 +663,6 @@ class ViewController: NSViewController {
                                 }
                             }
 
-                           /*
-                        }
-                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
-                            (result: [String:AnyObject]) in
-                            self.masterObjectDict[type] = [String:[String:String]]()
-                            //            print("json returned: \(result)")
-                            self.completed = 0
-                            let patchPoliciesArray = result["patch_policies"] as! [Dictionary<String, Any>]
-                            print("patchPoliciesArray: \(patchPoliciesArray)")
-                        
-                            // mark patch policies as unused - start
-                            for thePolicy in patchPoliciesArray {
-                                if let id = thePolicy["id"], let name = thePolicy["name"] {
-                                    // mark the policy as unused
-                                    self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                                }
-                            }
-                            // mark patch policies as unused - end
-            */
                            let patchPoliciesArrayCount = patchPoliciesArray.count
                            if patchPoliciesArrayCount > 0 {
                                DispatchQueue.main.async {
@@ -720,7 +703,7 @@ class ViewController: NSViewController {
                             // look for groups used in patch policies
                             WriteToLog().message(theString: "[processItems] patchpolicies")
                     //        let nextObject = "patchsoftwaretitles"
-                            let nextObject = "policies"
+                            let nextObject = "computer-prestages"
                             if self.computerGroupsButtonState == "on" {
                     //           var xmlTag = ""
                                 DispatchQueue.main.async {
@@ -786,6 +769,93 @@ class ViewController: NSViewController {
                                    self.processItems(type: nextObject)
                                }
                             }
+                        
+                        
+                    case "computer-prestages":
+                        var msgText    = "Computer Prestages"
+                        var nextObject = "policies"
+                        
+                        if (self.packagesButtonState == "on" || self.computerProfilesButtonState == "on") {
+                            var xmlTag = ""
+                            var name   = ""
+                            DispatchQueue.main.async {
+                                xmlTag = "results"
+                                self.process_TextField.stringValue = "Fetching Computer Prestages..."
+                            }
+                            Json().getRecord(theServer: self.currentServer, base64Creds: self.jpapiToken, theEndpoint: type) {
+                                (result: [String:AnyObject]) in
+//                                print("json returned prestages: \(result)")
+                                self.masterObjectDict[type] = [String:[String:String]]()
+                                if let _ = result[xmlTag] {
+                                    let prestageObjectArray = result[xmlTag] as! [[String: Any]]
+                                    let prestageObjectArrayCount = prestageObjectArray.count
+//                                    print("found \(prestageObjectArrayCount) prestages.")
+                                    if prestageObjectArrayCount > 0 {
+                                        for i in (0..<prestageObjectArrayCount) {
+                                            self.updateProcessTextfield(currentCount: "\n(\(i+1)/\(prestageObjectArrayCount))")
+                                            if let id = prestageObjectArray[i]["id"], let displayName = prestageObjectArray[i]["displayName"] {
+                                                self.masterObjectDict[type]!["\(displayName)"] = ["id":"\(id)", "used":"false"]
+                                                // mark used packages
+                                                let customPackageIds  = prestageObjectArray[i]["customPackageIds"] as! [String]
+                                                print("prestage \(displayName) has the following package ids \(customPackageIds)")
+                                                WriteToLog().message(theString: "[processItems] call recursiveLookup for packages in \(type)")
+                                                for prestagePackageId in customPackageIds {
+//                                                    print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
+                                                    self.packagesDict["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
+                                                }
+                                                // mark used computer profiles
+                                                let customProfileIds  = prestageObjectArray[i]["prestageInstalledProfileIds"] as! [String]
+                                                print("prestage \(displayName) has the following profile ids \(customProfileIds)")
+                                                WriteToLog().message(theString: "[processItems] call recursiveLookup for profiles in \(type)")
+                                                for prestageProfileId in customProfileIds {
+//                                                    print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
+                                                    self.osxconfigurationprofilesDict["\(String(describing: self.computerProfilesByIdDict[prestageProfileId]!))"]?["used"] = "true"
+                                                }
+                                            }
+                                        }
+                                        WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                        DispatchQueue.main.async {
+                                            self.processItems(type: nextObject)
+                                        }
+                                        
+//                                        self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
+//                                        waitFor.computerPrestage = true
+//                                        self.backgroundQ.async {
+//                                            while true {
+//                                                usleep(10)
+//                                                if !waitFor.computerPrestage {
+//                                                    WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+//                                                    DispatchQueue.main.async {
+//                                                        self.processItems(type: nextObject)
+//                                                    }
+//                                                    break
+//                                                }
+//                                            }
+//                                        }
+                                    } else {
+                                        // no computer Prestage exist
+                                        WriteToLog().message(theString: "[processItems] \(msgText) complete - \(nextObject)")
+                                        DispatchQueue.main.async {
+                                            self.processItems(type: nextObject)
+                                        }
+                                    }
+                                } else {
+                                    WriteToLog().message(theString: "[processItems] unable to read \(msgText) - \(nextObject)")
+                                    waitFor.computerPrestage = false
+                                    DispatchQueue.main.async {
+                                        self.processItems(type: nextObject)
+                                    }
+                                }
+                            }
+                        } else {
+                            // skip \(msgText)
+                            WriteToLog().message(theString: "[processItems] skipping \(msgText) - \(nextObject)")
+                            waitFor.computerPrestage = false
+                            DispatchQueue.main.async {
+                                self.processItems(type: nextObject)
+                            }
+                        }
+                        
                                   
                         
                           
@@ -1400,8 +1470,8 @@ class ViewController: NSViewController {
             let currentDict = itemDictionary[i]
 //            print("currentDict: \(currentDict)")
             for (type, theDict) in currentDict {
-                print("\ntype: \(type)")
-                print("dictionary of objects: \(theDict)")
+//                print("\ntype: \(type)")
+//                print("dictionary of objects: \(theDict)")
                 let currentItem = type
                 let newDict = theDict as! Dictionary<String,Dictionary<String,String>>
                 for (key, _) in newDict {
