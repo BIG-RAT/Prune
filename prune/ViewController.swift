@@ -1179,7 +1179,7 @@ class ViewController: NSViewController {
                                 self.classesDict["\(name)"]!["used"] = "true"
                             }
                             
-                            if mobileDevicGroupsScope.count > 0 {
+                            if mobileDevicGroupsScope.count > 0 && self.mobileDeviceGrpsButtonState == "on" {
                                 for mobileDeviceGroupID in mobileDevicGroupsScope {
                                     self.mobileDeviceGroupsDict[self.mobileGroupNameByIdDict[mobileDeviceGroupID]!]!["used"] = "true"
                                 }
