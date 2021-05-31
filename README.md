@@ -18,7 +18,8 @@ Once the list of unused items is generated you can edit it within the app.  If y
 * Click Export if you wish to save (to your Downloads folder) the lists of objects to remove for review/editing later.  These lists can then be imported into the application.
  
 <br><hr><br>
-### Object Usage Calculations
+### Usage Calculations<br>
+
 <table>
     <thead>
         <tr>
