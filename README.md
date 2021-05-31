@@ -18,50 +18,50 @@ Once the list of unused items is generated you can edit it within the app.  If y
 * Click Export if you wish to save (to your Downloads folder) the lists of objects to remove for review/editing later.  These lists can then be imported into the application.
  
 <br><hr><br>
-### Usage Consideration
+### Object Usage Calculations
 <table>
     <thead>
         <tr>
             <th>Object</th>
-            <th>Check for Usage in</th>
+            <th>Determine Usage</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>Packages</td>
-            <td>policies, patch policies, computer configurations</td>
+            <td>Check for usage in policies, patch policies, computer configurations, computer prestages</td>
         </tr>
         <tr>
             <td>Scripts</td>
-            <td>policies, computer configurations,</td>
+            <td>Check for usage in policies, computer configurations</td>
         </tr>
         <tr>
             <td>Computer Groups</td>
-            <td>policies, computer configuration profiles, computer groups, eBooks</td>
+            <td>Check for usage in policies, computer configuration profiles, computer groups, eBooks</td>
         </tr>
         <tr>
             <td>Computer Profiles</td>
-            <td>policies, computer configurations</td>
+            <td>Check scope, computer prestages</td>
         </tr>
         <tr>
             <td>eBooks</td>
-            <td>policies, patch policies, computer configurations, </td>
+            <td>Check scope</td>
         </tr>
         <tr>
             <td>Policies</td>
-            <td>policies, computer configurations</td>
+            <td>Check scope</td>
         </tr>
         <tr>
             <td>Mobile Device Groups</td>
-            <td>policies, computer configuration profiles, computer groups </td>
+            <td>Check for usage in mobile device apps, mobile device configuration profiles, mobile device groups, eBooks, classes</td>
         </tr>
         <tr>
             <td>Mobile Device Profiles</td>
-            <td>policies, computer configuration profiles, computer groups</td>
+            <td>Check scope</td>
         </tr>
         <tr>
             <td>Classes</td>
-            <td>policies, computer configurations,</td>
+            <td>Check scope</td>
         </tr>
     </tbody>
 </table>

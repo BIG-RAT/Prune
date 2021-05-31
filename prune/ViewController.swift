@@ -104,9 +104,10 @@ class ViewController: NSViewController {
         mobileDeviceAppsDict.removeAll()
 //        computerGroupNameById.removeAll()
         mobileGroupNameByIdDict.removeAll()
-        for (key, _) in masterObjectDict {
-            masterObjectDict[key]?.removeAll()
-        }
+        masterObjectDict.removeAll()
+//        for (key, _) in masterObjectDict {
+//            masterObjectDict[key]?.removeAll()
+//        }
         
         unusedItems_TableArray?.removeAll()
         unusedItems_TableDict?.removeAll()
@@ -374,8 +375,8 @@ class ViewController: NSViewController {
                    }
                     
                 case "classes":
-                    var msgText    = "classes"
-                    var nextObject = "computerConfigurations"
+                    let msgText    = "classes"
+                    let nextObject = "osxconfigurationprofiles"
                     
                     if self.mobileDeviceGrpsButtonState == "on" || self.classesButtonState == "on" {
                         DispatchQueue.main.async {
@@ -425,51 +426,51 @@ class ViewController: NSViewController {
                    }
                                    
                 // object that have a scope - start
-                case "computerConfigurations":
-                    if self.packagesButtonState == "on" || self.scriptsButtonState == "on" {
-                        DispatchQueue.main.async {
-                            self.process_TextField.stringValue = "Fetching Computer Configurations..."
-                        }
-                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations") {
-                            (result: [String:AnyObject]) in
-                //            print("json returned: \(result)")
-                            self.completed = 0
-                            let computerConfigurationsArray = result["computer_configurations"] as! [Dictionary<String, Any>]
-                            let computerConfigurationsArrayCount = computerConfigurationsArray.count
-                            if computerConfigurationsArrayCount > 0 {
-                                // loop through all the computerConfigurations
-                                DispatchQueue.main.async {
-                                    self.process_TextField.stringValue = "Scanning Computer Configurations for packages and scripts..."
-                                }
-                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations", theData: computerConfigurationsArray, index: 0)
-                                waitFor.computerConfiguration = true
-                                self.backgroundQ.async {
-                                    while true {
-                                        usleep(10)
-                                        if !waitFor.computerConfiguration {
-                                            WriteToLog().message(theString: "[processItems] computerConfigurations complete - call osxconfigurationprofiles")
-                                            DispatchQueue.main.async {
-                                                self.processItems(type: "osxconfigurationprofiles")
-                                            }
-                                            break
-                                        }
-                                    }
-                                }
-                                
-                            } else {
-                                // no computer configurations exist
-                                WriteToLog().message(theString: "[processItems] no computerConfigurations - call osxconfigurationprofiles")
-                                DispatchQueue.main.async {
-                                    self.processItems(type: "osxconfigurationprofiles")
-                                }
-                            }
-                        }   //         Json().getRecord - computerConfigurations - end
-                    } else {
-                        WriteToLog().message(theString: "[processItems] skipping computerConfigurations - call osxconfigurationprofiles")
-                        DispatchQueue.main.async {
-                            self.processItems(type: "osxconfigurationprofiles")
-                        }
-                    }
+//                case "computerConfigurations":
+//                    if self.packagesButtonState == "on" || self.scriptsButtonState == "on" {
+//                        DispatchQueue.main.async {
+//                            self.process_TextField.stringValue = "Fetching Computer Configurations..."
+//                        }
+//                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations") {
+//                            (result: [String:AnyObject]) in
+//                //            print("json returned: \(result)")
+//                            self.completed = 0
+//                            let computerConfigurationsArray = result["computer_configurations"] as! [Dictionary<String, Any>]
+//                            let computerConfigurationsArrayCount = computerConfigurationsArray.count
+//                            if computerConfigurationsArrayCount > 0 {
+//                                // loop through all the computerConfigurations
+//                                DispatchQueue.main.async {
+//                                    self.process_TextField.stringValue = "Scanning Computer Configurations for packages and scripts..."
+//                                }
+//                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations", theData: computerConfigurationsArray, index: 0)
+//                                waitFor.computerConfiguration = true
+//                                self.backgroundQ.async {
+//                                    while true {
+//                                        usleep(10)
+//                                        if !waitFor.computerConfiguration {
+//                                            WriteToLog().message(theString: "[processItems] computerConfigurations complete - call osxconfigurationprofiles")
+//                                            DispatchQueue.main.async {
+//                                                self.processItems(type: "osxconfigurationprofiles")
+//                                            }
+//                                            break
+//                                        }
+//                                    }
+//                                }
+//
+//                            } else {
+//                                // no computer configurations exist
+//                                WriteToLog().message(theString: "[processItems] no computerConfigurations - call osxconfigurationprofiles")
+//                                DispatchQueue.main.async {
+//                                    self.processItems(type: "osxconfigurationprofiles")
+//                                }
+//                            }
+//                        }   //         Json().getRecord - computerConfigurations - end
+//                    } else {
+//                        WriteToLog().message(theString: "[processItems] skipping computerConfigurations - call osxconfigurationprofiles")
+//                        DispatchQueue.main.async {
+//                            self.processItems(type: "osxconfigurationprofiles")
+//                        }
+//                    }
                                                     
                 case "osxconfigurationprofiles":
                     if self.computerGroupsButtonState == "on" || self.computerProfilesButtonState == "on" {
@@ -487,6 +488,7 @@ class ViewController: NSViewController {
                                         
                                         if let id = osxconfigurationprofilesArray[i]["id"], let name = osxconfigurationprofilesArray[i]["name"] {
                                             self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                            self.computerProfilesByIdDict["\(id)"] = "\(name)"
                                         }
                                     }
 
@@ -797,20 +799,30 @@ class ViewController: NSViewController {
                                                 self.masterObjectDict[type]!["\(displayName)"] = ["id":"\(id)", "used":"false"]
                                                 // mark used packages
                                                 let customPackageIds  = prestageObjectArray[i]["customPackageIds"] as! [String]
-                                                print("prestage \(displayName) has the following package ids \(customPackageIds)")
-                                                WriteToLog().message(theString: "[processItems] call recursiveLookup for packages in \(type)")
-                                                for prestagePackageId in customPackageIds {
-//                                                    print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
-                                                    self.packagesDict["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
+//                                                print("prestage \(displayName) has the following package ids \(customPackageIds)")
+                                                if self.packagesButtonState == "on" {
+                                                    WriteToLog().message(theString: "[processItems] call recursiveLookup for packages in \(type)")
+                                                    for prestagePackageId in customPackageIds {
+                                                        print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
+                                                        self.packagesDict["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
+                                                    }
                                                 }
-                                                // mark used computer profiles
-                                                let customProfileIds  = prestageObjectArray[i]["prestageInstalledProfileIds"] as! [String]
-                                                print("prestage \(displayName) has the following profile ids \(customProfileIds)")
-                                                WriteToLog().message(theString: "[processItems] call recursiveLookup for profiles in \(type)")
-                                                for prestageProfileId in customProfileIds {
-//                                                    print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
-                                                    self.osxconfigurationprofilesDict["\(String(describing: self.computerProfilesByIdDict[prestageProfileId]!))"]?["used"] = "true"
+                                                if self.computerProfilesButtonState == "on" {
+                                                    // mark used computer profiles
+                                                    if i == 0 {
+                                                        print("osxconfigurationprofilesDict: \(self.osxconfigurationprofilesDict)")
+                                                    }
+                                                    let customProfileIds  = prestageObjectArray[i]["prestageInstalledProfileIds"] as! [String]
+                                                    print("computer profile \(displayName) has the following ids \(customProfileIds)")
+                                                    WriteToLog().message(theString: "[processItems] call recursiveLookup for computer profiles in \(type)")
+                                                    for prestageProfileId in customProfileIds {
+                                                        print("mark computer profile \(String(describing: self.computerProfilesByIdDict[prestageProfileId]!)) as used.")
+                                                        self.masterObjectDict["osxconfigurationprofiles"]!["\(String(describing: self.computerProfilesByIdDict[prestageProfileId]!))"]!["used"] = "true"
+//                                                        self.osxconfigurationprofilesDict["\(String(describing: self.computerProfilesByIdDict[prestageProfileId]!))"]!["used"] = "true"
+                                                        print(self.osxconfigurationprofilesDict["\(String(describing: self.computerProfilesByIdDict[prestageProfileId]!))"]!["used"] ?? "Unknown")
+                                                    }
                                                 }
+                                                print("osxconfigurationprofilesDict: \(self.osxconfigurationprofilesDict)")
                                             }
                                         }
                                         WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
@@ -1051,6 +1063,10 @@ class ViewController: NSViewController {
     }
         // get the full record for each comuter group, policy, computer configuration profile...
     func recursiveLookup(theServer: String, base64Creds: String, theEndpoint: String, theData: [[String:Any]], index: Int) {
+        print("  theServer: \(theServer)")
+        print("base64Creds: \(base64Creds)")
+        print("theEndpoint: \(theEndpoint)")
+        print("      index: \(index) of \(theData.count)")
         
         var objectEndpoint = ""
         let objectArray = theData
@@ -1058,8 +1074,8 @@ class ViewController: NSViewController {
         switch theEndpoint {
         case "computergroups":
             objectEndpoint = "computergroups/id"
-        case "computerconfigurations":
-            objectEndpoint = "computerconfigurations/id"
+//        case "computerconfigurations":
+//            objectEndpoint = "computerconfigurations/id"
         case "osxconfigurationprofiles":
             objectEndpoint = "osxconfigurationprofiles/id"
         case "ebooks":
@@ -1100,7 +1116,7 @@ class ViewController: NSViewController {
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
 //                            print("[returnedXml] full XML: \(returnedXml)")
-                            print("statusCode: \(statusCode)")
+//                            print("statusCode: \(statusCode)")
                             let patchPolicyXml = self.nameFixedXml(originalXml: returnedXml)
 //                            print("[patchpolicy] returnedXml: \(patchPolicyXml)")
 
@@ -1116,7 +1132,7 @@ class ViewController: NSViewController {
                                 
                                 for thePackageInfo in packageVersionArray {
                                     if thePackageInfo.package.Name.text != nil {
-                                        print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
+//                                        print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
                                         self.packagesDict["\(thePackageInfo.package.Name.text!)"]?["used"] = "true"
                                     }
 
@@ -1127,7 +1143,7 @@ class ViewController: NSViewController {
                                 let patchPolicyScopeArray = parsedXmlData.patch_policy.scope.computer_groups.computer_group
                                 for scopedGroup in patchPolicyScopeArray {
                                     if scopedGroup.Name.text != nil {
-                                        print("theGroup: \(scopedGroup.Name.text!)")
+//                                        print("theGroup: \(scopedGroup.Name.text!)")
 //                                        self.computerGroupsDict["\(scopedGroup.Name.text!)"]?["used"] = "true"
                                         self.computerGroupsDict["\(scopedGroup.Name.text!)"] = ["used":"true"]
                                     }
@@ -1136,7 +1152,7 @@ class ViewController: NSViewController {
                                 let patchPolicyExcludeArray = parsedXmlData.patch_policy.scope.exclusions.computer_groups.computer_group
                                 for excludedGroup in patchPolicyExcludeArray {
                                     if excludedGroup.Name.text != nil {
-                                        print("theExcludedGroup: \(excludedGroup.Name.text!)")
+//                                        print("theExcludedGroup: \(excludedGroup.Name.text!)")
 //                                        self.computerGroupsDict["\(excludedGroup.Name.text!)"]?["used"] = "true"
                                         self.computerGroupsDict["\(excludedGroup.Name.text!)"] = ["used":"true"]
                                     }
@@ -1255,30 +1271,30 @@ class ViewController: NSViewController {
                                 }
                             }
                             
-                        case "computerconfigurations":
-                            // scan each computer configuration - start
-                            self.computerConfigurationDict["\(id)"] = "\(name)"
-                                
-                                if let _ = result["computer_configuration"] {
-                                    let theComputerConfiguration = result["computer_configuration"] as! [String:AnyObject]
-        //                            let packageList = theComputerConfiguration["packages"] as! [String:AnyObject]
-                                    let computerConfigurationPackageList = theComputerConfiguration["packages"] as! [Dictionary<String, Any>]
-                                    for thePackage in computerConfigurationPackageList {
-        //                                        print("thePackage: \(thePackage)")
-                                        let thePackageName = thePackage["name"]
-        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                        self.packagesDict["\(thePackageName!)"]?["used"] = "true"
-                                    }
-
-                                    let computerConfigurationScriptList = theComputerConfiguration["scripts"] as! [Dictionary<String, Any>]
-                                    for theScript in computerConfigurationScriptList {
-        //                                        print("thePackage: \(thePackage)")
-                                        let theScriptName = theScript["name"]
-        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                        self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
-                                    }
-        //                                    print("packages for policy id: \(id): \(packageList)")
-                                }
+//                        case "computerconfigurations":
+//                            // scan each computer configuration - start
+//                            self.computerConfigurationDict["\(id)"] = "\(name)"
+//
+//                                if let _ = result["computer_configuration"] {
+//                                    let theComputerConfiguration = result["computer_configuration"] as! [String:AnyObject]
+//        //                            let packageList = theComputerConfiguration["packages"] as! [String:AnyObject]
+//                                    let computerConfigurationPackageList = theComputerConfiguration["packages"] as! [Dictionary<String, Any>]
+//                                    for thePackage in computerConfigurationPackageList {
+//        //                                        print("thePackage: \(thePackage)")
+//                                        let thePackageName = thePackage["name"]
+//        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+//                                        self.packagesDict["\(thePackageName!)"]?["used"] = "true"
+//                                    }
+//
+//                                    let computerConfigurationScriptList = theComputerConfiguration["scripts"] as! [Dictionary<String, Any>]
+//                                    for theScript in computerConfigurationScriptList {
+//        //                                        print("thePackage: \(thePackage)")
+//                                        let theScriptName = theScript["name"]
+//        //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+//                                        self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
+//                                    }
+//        //                                    print("packages for policy id: \(id): \(packageList)")
+//                                }
                             // scan each computer configuration - end
                             
                         case "osxconfigurationprofiles":
@@ -1420,8 +1436,8 @@ class ViewController: NSViewController {
                             switch theEndpoint {
                             case "computergroups", "mobiledevicegroups":
                                 waitFor.deviceGroup = false
-                            case "computerconfigurations":
-                                waitFor.computerConfiguration = false
+//                            case "computerconfigurations":
+//                                waitFor.computerConfiguration = false
                             case "ebooks":
                                 waitFor.ebook = false
                             case "classes":
