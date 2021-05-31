@@ -31,7 +31,7 @@ class Json: NSObject, URLSessionDelegate {
         }
         
 //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
-        WriteToLog().message(theString: "[Json.getRecord] existing endpoints URL: \(existingDestUrl)")
+        WriteToLog().message(theString: "[Json.getRecord] get existing endpoints URL: \(existingDestUrl)")
         let destEncodedURL = URL(string: existingDestUrl)
         let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
         
@@ -59,7 +59,7 @@ class Json: NSObject, URLSessionDelegate {
                             }
                         }
                     } else {
-                        WriteToLog().message(theString: "[Json.getRecord] error HTTP Status Code: \(httpResponse.statusCode)\n")
+                        WriteToLog().message(theString: "[Json.getRecord] error during GET, HTTP Status Code: \(httpResponse.statusCode)\n")
                         if "\(httpResponse.statusCode)" == "401" {
                             Alert().display(header: "Alert", message: "Verify username and password.")
                         }
