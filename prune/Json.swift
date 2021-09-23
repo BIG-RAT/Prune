@@ -85,9 +85,9 @@ class Json: NSObject, URLSessionDelegate {
         
         var token          = ""
         
-        var tokenUrlString = "\(serverUrl)/uapi/auth/tokens"
-        tokenUrlString     = tokenUrlString.replacingOccurrences(of: "//uapi", with: "/uapi")
-//        print("\(tokenUrlString)")
+        var tokenUrlString = "\(serverUrl)/api/v1/auth/token"
+        tokenUrlString     = tokenUrlString.replacingOccurrences(of: "//api", with: "/api")
+//        print("tokenUrlString: \(tokenUrlString)")
         
         let tokenUrl       = URL(string: "\(tokenUrlString)")
         let configuration  = URLSessionConfiguration.default

@@ -56,7 +56,7 @@ class WriteToLog {
                         let dateStamp    = dateTmpArray[0]
                         zipIt(args: "/usr/bin/zip -rm -jj -o \(Log.path!)Prune_\(dateStamp) \(Log.path!)\(Log.file)") {
                             (result: String) in
-                            print("zipIt result: \(result)")
+//                            print("zipIt result: \(result)")
                             self.createLogFile()
                             completionHandler(result)
                             return
@@ -64,7 +64,7 @@ class WriteToLog {
                     }
                 }
             } catch {
-                print("no history")
+//                print("no history")
                 completionHandler("")
                 return
             }

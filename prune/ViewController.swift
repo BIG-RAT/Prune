@@ -222,14 +222,14 @@ class ViewController: NSViewController {
                                         usleep(10)
                                         if !waitFor.deviceGroup {
                                             if type == "computerGroups" {
-                                                print("[processItems] skipping \(type) - call mobileDeviceGroups")
+//                                                print("[processItems] skipping \(type) - call mobileDeviceGroups")
                                                 WriteToLog().message(theString: "[processItems] skipping \(type) - call mobileDeviceGroups")
                                                 DispatchQueue.main.async {
                                                     self.processItems(type: "mobileDeviceGroups")
                                                 }
                                                 
                                             } else {
-                                                print("[processItems] skipping \(type) - call packages")
+//                                                print("[processItems] skipping \(type) - call packages")
                                                 WriteToLog().message(theString: "[processItems] skipping \(type) - call packages")
                                                 DispatchQueue.main.async {
                                                     self.processItems(type: "packages")
@@ -649,8 +649,8 @@ class ViewController: NSViewController {
                         Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
                             (result: (Int,String)) in
                             let (statusCode,returnedXml) = result
-                            print("[patchsoftwaretitles] patchpolicies GET statusCode: \(statusCode)")
-                            print("[patchsoftwaretitles] patchpolicies GET xml: \(returnedXml)")
+//                            print("[patchsoftwaretitles] patchpolicies GET statusCode: \(statusCode)")
+//                            print("[patchsoftwaretitles] patchpolicies GET xml: \(returnedXml)")
                             var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
                             nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
                             let xmlData = nameFixedXml.data(using: .utf8)
@@ -721,8 +721,8 @@ class ViewController: NSViewController {
                                 Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") {
                                     (result: (Int,String)) in
                                     let (statusCode,returnedXml) = result
-                                    print("[processItems] patchpolicies GET statusCode: \(statusCode)")
-                                    print("[processItems] patchpolicies GET xml: \(returnedXml)")
+//                                    print("[processItems] patchpolicies GET statusCode: \(statusCode)")
+//                                    print("[processItems] patchpolicies GET xml: \(returnedXml)")
                                     var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
                                     nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
                                     let xmlData = nameFixedXml.data(using: .utf8)
@@ -1066,12 +1066,12 @@ class ViewController: NSViewController {
     }
         // get the full record for each comuter group, policy, computer configuration profile...
     func recursiveLookup(theServer: String, base64Creds: String, theEndpoint: String, theData: [[String:Any]], index: Int) {
-        if index == 0 {
-            print("  theServer: \(theServer)")
-            print("base64Creds: \(base64Creds)")
-            print("theEndpoint: \(theEndpoint)")
-            print("      index: \(index) of \(theData.count)")
-        }
+//        if index == 0 {
+//            print("  theServer: \(theServer)")
+//            print("base64Creds: \(base64Creds)")
+//            print("theEndpoint: \(theEndpoint)")
+//            print("      index: \(index) of \(theData.count)")
+//        }
         
         var objectEndpoint = ""
         let objectArray = theData
@@ -1111,7 +1111,7 @@ class ViewController: NSViewController {
 
             switch theEndpoint {
                 case "patchpolicies", "patchsoftwaretitles":
-                    print("hello \(theEndpoint)")
+//                    print("hello \(theEndpoint)")
                     // lookup patch software titles, loop through each by id
                     
                         // lookup complete record, XML format
@@ -1211,7 +1211,7 @@ class ViewController: NSViewController {
                                 
                                 // check for used computergroups - start
                                 let eBookScope = theEbook["scope"] as! [String:AnyObject]
-                                print("eBook (\(name)) scope: \(eBookScope)")
+//                                print("eBook (\(name)) scope: \(eBookScope)")
             //
                                 if self.isScoped(scope: eBookScope) {
                                     self.ebooksDict["\(name)"]!["used"] = "true"
@@ -1351,7 +1351,7 @@ class ViewController: NSViewController {
                                 
                                 // check for used computergroups - start
                                 let policyScope = thePolicy["scope"] as! [String:AnyObject]
-                                print("\(theEndpoint) (\(name)) scope: \(policyScope)")
+//                                print("\(theEndpoint) (\(name)) scope: \(policyScope)")
             //
                                 if self.isScoped(scope: policyScope) {
                                     if theEndpoint == "policies" {
@@ -1414,7 +1414,7 @@ class ViewController: NSViewController {
                                 
                                 // check for used mobiledevicegroups - start
                                 let mobileDeviceAppScope = theMobileDeviceObjectXml["scope"] as! [String:AnyObject]
-                                print("[recursiveLookup] mobileDeviceAppScope: \(mobileDeviceAppScope)")
+//                                print("[recursiveLookup] mobileDeviceAppScope: \(mobileDeviceAppScope)")
             //
                                 if self.isScoped(scope: mobileDeviceAppScope) {
             //                        self.mobileDeviceAppsDict["\(name))"]!["used"] = "true"
@@ -1657,7 +1657,7 @@ class ViewController: NSViewController {
         if let pathToFile = import_Button.url {
             let objPath: URL!
             if let pathOrDirectory = import_Button.url {
-                print("fileOrPath: \(pathOrDirectory)")
+//                print("fileOrPath: \(pathOrDirectory)")
                 
                 objPath = URL(string: "\(pathOrDirectory)")!
                 var isDir : ObjCBool = false
@@ -1668,7 +1668,7 @@ class ViewController: NSViewController {
                     let dataFile =  try Data(contentsOf:pathToFile, options: .mappedIfSafe)
                     let objectJSON = try JSONSerialization.jsonObject(with: dataFile, options: .mutableLeaves) as? [String:Any]
                     
-                    print("objectJSON: \(String(describing: objectJSON!))")
+//                    print("objectJSON: \(String(describing: objectJSON!))")
                     for (key, value) in objectJSON! {
 //                        print("\(key)")
                         switch key {
@@ -1703,12 +1703,16 @@ class ViewController: NSViewController {
     
     @IBAction func export_Action(_ sender: Any) {
         
+        var text = ""
+        var exportedItems:[String] = ["Exported Items"]
+        var failedExported:[String] = ["Failed Exported Items"]
         let timeStamp = Time().getCurrent()
         let exportQ = DispatchQueue(label: "com.jamf.prune.exportQ", qos: DispatchQoS.background)
         working(isWorking: true)
         let header = "\"jamfServer\": \"\(currentServer)\",\n \"username\": \"\(uname_TextField.stringValue)\""
         exportQ.sync {
             if self.packagesButtonState == "on" {
+                var firstPackage = true
                 let packageLogFile = "prunePackages_\(timeStamp).json"
 //                let packageLogFile = "prunePackages_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(packageLogFile)
@@ -1716,30 +1720,37 @@ class ViewController: NSViewController {
                 do {
                     try "{\(header),\n \"unusedPackages\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let packageLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: packagesDict) {
+    //                   for (key, _) in packagesDict {
+                            if packagesDict[key]?["used"]! == "false" {
+                                packageLogFileOp.seekToEndOfFile()
+                                if firstPackage {
+                                    text = "\t{\"id\": \"\(String(describing: packagesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    firstPackage = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: packagesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                }
+    //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
+    //                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
+    //                            let text = "\t<id>\(key)</id><name>\(String(describing: packagesDict[key]!["name"]!))</name>\n"
+                                packageLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in packagesDict - end
+                        packageLogFileOp.seekToEndOfFile()
+                        packageLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    packageLogFileOp.write("</unusedPackages>".data(using: String.Encoding.utf8)!)
+                        packageLogFileOp.closeFile()
+                        exportedItems.append("\tUnused Packages")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedPackages>")
-                }
-                
-                if let packageLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: packagesDict) {
-//                   for (key, _) in packagesDict {
-                        if packagesDict[key]?["used"]! == "false" {
-                            packageLogFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: packagesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-//                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
-//                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
-//                            let text = "\t<id>\(key)</id><name>\(String(describing: packagesDict[key]!["name"]!))</name>\n"
-                            packageLogFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in packagesDict - end
-                    packageLogFileOp.seekToEndOfFile()
-                    packageLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    packageLogFileOp.write("</unusedPackages>".data(using: String.Encoding.utf8)!)
-                    packageLogFileOp.closeFile()
                 }
             }
             
             if self.scriptsButtonState == "on" {
+                var firstScript = true
                 let scriptLogFile = "pruneScripts_\(timeStamp).json"
 //                let scriptLogFile = "pruneScripts_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(scriptLogFile)
@@ -1747,83 +1758,107 @@ class ViewController: NSViewController {
                 do {
                     try "{\(header),\n \"unusedScripts\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedScripts>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let scriptLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: scriptsDict) {
+    //                    for (key, _) in scriptsDict {
+                            if scriptsDict[key]?["used"]! == "false" {
+                                scriptLogFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+                                if firstScript {
+                                    text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    firstScript = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                }
+    //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
+    //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
+                                scriptLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in scriptsDict - end
+                        scriptLogFileOp.seekToEndOfFile()
+                        scriptLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
+                        scriptLogFileOp.closeFile()
+                        exportedItems.append("\tUnused Scripts")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedScripts>")
-                }
-                
-                if let scriptLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: scriptsDict) {
-//                    for (key, _) in scriptsDict {
-                        if scriptsDict[key]?["used"]! == "false" {
-                            scriptLogFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-//                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
-//                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
-                            scriptLogFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in scriptsDict - end
-                    scriptLogFileOp.seekToEndOfFile()
-                    scriptLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
-                    scriptLogFileOp.closeFile()
                 }
             }
             
             if self.ebooksButtonState == "on" {
+                var firstEbook = true
                 let ebooksLogFile = "pruneEbooks_\(timeStamp).json"
                 let exportURL = getDownloadDirectory().appendingPathComponent(ebooksLogFile)
 
                 do {
                     try "{\(header),\n \"unusedEbooks\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let ebooksLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: ebooksDict) {
+                            if ebooksDict[key]?["used"]! == "false" {
+                                ebooksLogFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+                                if firstEbook {
+                                    text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    firstEbook = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                }
+    //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
+    //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
+                                ebooksLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in scriptsDict - end
+                        ebooksLogFileOp.seekToEndOfFile()
+                        ebooksLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
+                        ebooksLogFileOp.closeFile()
+                        exportedItems.append("\tUnused eBooks")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedEbooks>")
-                }
-                
-                if let ebooksLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: ebooksDict) {
-                        if ebooksDict[key]?["used"]! == "false" {
-                            ebooksLogFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-//                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
-//                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
-                            ebooksLogFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in scriptsDict - end
-                    ebooksLogFileOp.seekToEndOfFile()
-                    ebooksLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
-                    ebooksLogFileOp.closeFile()
                 }
             }
             
             if self.classesButtonState == "on" {
+                var firstClass = true
                 let classesLogFile = "pruneClasses_\(timeStamp).json"
                 let exportURL = getDownloadDirectory().appendingPathComponent(classesLogFile)
 
                 do {
                     try "{\(header),\n \"unusedClasses\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let classesLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: classesDict) {
+                            if classesDict[key]?["used"]! == "false" {
+                                classesLogFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+                                if firstClass {
+                                    text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    firstClass = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                }
+    //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
+    //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
+                                classesLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in scriptsDict - end
+                        classesLogFileOp.seekToEndOfFile()
+                        classesLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
+                        classesLogFileOp.closeFile()
+                        exportedItems.append("\tUnused Classes")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedClasses>")
-                }
-                
-                if let classesLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: classesDict) {
-                        if classesDict[key]?["used"]! == "false" {
-                            classesLogFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-//                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
-//                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
-                            classesLogFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in scriptsDict - end
-                    classesLogFileOp.seekToEndOfFile()
-                    classesLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    scriptLogFileOp.write("</unusedScripts>".data(using: String.Encoding.utf8)!)
-                    classesLogFileOp.closeFile()
                 }
             }
             
             if self.computerGroupsButtonState == "on" {
+                var firstComputerGroup = true
                 let computerGroupLogFile = "pruneComputerGroups_\(timeStamp).json"
 //                let computerGroupLogFile = "pruneComputerGroups_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(computerGroupLogFile)
@@ -1831,28 +1866,36 @@ class ViewController: NSViewController {
                 do {
                     try "{\(header),\n \"unusedComputerGroups\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedComputerGroups>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let computerGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: computerGroupsDict) {
+    //                    for (key, _) in computerGroupsDict {
+                            if computerGroupsDict[key]?["used"]! == "false" {
+                                computerGroupLogFileOp.seekToEndOfFile()
+    //                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"},\n"
+                                if firstComputerGroup {
+                                    text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"}"
+                                    firstComputerGroup = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"}"
+                                }
+    //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
+                                computerGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in
+                        computerGroupLogFileOp.seekToEndOfFile()
+                        computerGroupLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    computerGroupLogFileOp.write("</unusedComputerGroups>".data(using: String.Encoding.utf8)!)
+                        computerGroupLogFileOp.closeFile()
+                        exportedItems.append("\tUnused Computer Groups")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedComputerGroups>")
-                }
-                
-                if let computerGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: computerGroupsDict) {
-//                    for (key, _) in computerGroupsDict {
-                        if computerGroupsDict[key]?["used"]! == "false" {
-                            computerGroupLogFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"},\n"
-//                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
-                            computerGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in
-                    computerGroupLogFileOp.seekToEndOfFile()
-                    computerGroupLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    computerGroupLogFileOp.write("</unusedComputerGroups>".data(using: String.Encoding.utf8)!)
-                    computerGroupLogFileOp.closeFile()
                 }
             }   // if self.computerGroupsButtonState == "on" - end
                         
             if self.computerProfilesButtonState == "on" {
+                var firstComputerProfile = true
                 let ComputerProfileLogFile = "pruneComputerProfiles_\(timeStamp).json"
 //                let ComputerProfileLogFile = "pruneComputerProfiles_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(ComputerProfileLogFile)
@@ -1860,28 +1903,37 @@ class ViewController: NSViewController {
                 do {
                     try "{\(header),\n \"unusedComputerProfiles\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedComputerProfiles>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let computerProfileLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["osxconfigurationprofiles"]!) {
+    //                   for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
+                            if masterObjectDict["osxconfigurationprofiles"]![key]?["used"]! == "false" {
+                                computerProfileLogFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+                                if firstComputerProfile {
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    firstComputerProfile = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                }
+    //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
+                                computerProfileLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                                firstComputerProfile = false
+                            }
+                        }   // for (key, _) in
+                        computerProfileLogFileOp.seekToEndOfFile()
+                        computerProfileLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    computerGroupLogFileOp.write("</unusedComputerGroups>".data(using: String.Encoding.utf8)!)
+                        computerProfileLogFileOp.closeFile()
+                        exportedItems.append("\tUnused Computer Configuration Profiles")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedComputerProfiles>")
-                }
-                
-                if let computerProfileLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: masterObjectDict["osxconfigurationprofiles"]!) {
-//                   for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
-                        if masterObjectDict["osxconfigurationprofiles"]![key]?["used"]! == "false" {
-                            computerProfileLogFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-//                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
-                            computerProfileLogFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in
-                    computerProfileLogFileOp.seekToEndOfFile()
-                    computerProfileLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    computerGroupLogFileOp.write("</unusedComputerGroups>".data(using: String.Encoding.utf8)!)
-                    computerProfileLogFileOp.closeFile()
                 }
             }   // if self.computerGroupsButtonState == "on" - end
 
             if self.policiesButtonState == "on" {
+                var firstPolicy = true
                 let policyLogFile = "prunePolicies_\(timeStamp).json"
 //                let policyLogFile = "prunePolicies_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(policyLogFile)
@@ -1889,30 +1941,38 @@ class ViewController: NSViewController {
                 do {
                     try "{\(header),\n \"unusedPolicies\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let policyLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: policiesDict) {
+    //                   for (key, _) in policiesDict {
+                            if policiesDict[key]?["used"]! == "false" {
+                                policyLogFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+                                if firstPolicy {
+                                    text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    firstPolicy = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                }
+    //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
+    //                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
+    //                            let text = "\t<id>\(key)</id><name>\(String(describing: packagesDict[key]!["name"]!))</name>\n"
+                                policyLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in packagesDict - end
+                        policyLogFileOp.seekToEndOfFile()
+                        policyLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    packageLogFileOp.write("</unusedPackages>".data(using: String.Encoding.utf8)!)
+                        policyLogFileOp.closeFile()
+                        exportedItems.append("\tUnused Policies")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedPolicies>")
-                }
-                
-                if let policyLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: policiesDict) {
-//                   for (key, _) in policiesDict {
-                        if policiesDict[key]?["used"]! == "false" {
-                            policyLogFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-//                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
-//                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
-//                            let text = "\t<id>\(key)</id><name>\(String(describing: packagesDict[key]!["name"]!))</name>\n"
-                            policyLogFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in packagesDict - end
-                    policyLogFileOp.seekToEndOfFile()
-                    policyLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    packageLogFileOp.write("</unusedPackages>".data(using: String.Encoding.utf8)!)
-                    policyLogFileOp.closeFile()
                 }
             }
                         
             if self.mobileDeviceGrpsButtonState == "on" {
+                var firstMobileDeviceGrp = true
                 let mobileDeviceGroupLogFile = "pruneMobileDeviceGroups_\(timeStamp).json"
 //                let mobileDeviceGroupLogFile = "pruneComputerGroups_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(mobileDeviceGroupLogFile)
@@ -1920,28 +1980,36 @@ class ViewController: NSViewController {
                 do {
                     try "{\(header),\n \"unusedMobileDeviceGroups\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedMobileDeviceGroups>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let mobileDeviceGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: mobileDeviceGroupsDict) {
+    //                   for (key, _) in mobileDeviceGroupsDict {
+                            if mobileDeviceGroupsDict[key]?["used"]! == "false" {
+                                mobileDeviceGroupLogFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"},\n"
+                                if firstMobileDeviceGrp {
+                                    text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"}"
+                                    firstMobileDeviceGrp = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"}"
+                                }
+    //                            let text = "\t<id>\(String(describing: mobileDeviceGroupLogFileOp[key]!["id"]!))</id><name>\(key)</name>\n"
+                                mobileDeviceGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in
+                        mobileDeviceGroupLogFileOp.seekToEndOfFile()
+                        mobileDeviceGroupLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    mobileDeviceGroupLogFileOp.write("</unusedMobileDeviceGroups>".data(using: String.Encoding.utf8)!)
+                        mobileDeviceGroupLogFileOp.closeFile()
+                        exportedItems.append("\tUnused Mobile Device Groups")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceGroups>")
-                }
-                
-                if let mobileDeviceGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: mobileDeviceGroupsDict) {
-//                   for (key, _) in mobileDeviceGroupsDict {
-                        if mobileDeviceGroupsDict[key]?["used"]! == "false" {
-                            mobileDeviceGroupLogFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"},\n"
-//                            let text = "\t<id>\(String(describing: mobileDeviceGroupLogFileOp[key]!["id"]!))</id><name>\(key)</name>\n"
-                            mobileDeviceGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in
-                    mobileDeviceGroupLogFileOp.seekToEndOfFile()
-                    mobileDeviceGroupLogFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    mobileDeviceGroupLogFileOp.write("</unusedMobileDeviceGroups>".data(using: String.Encoding.utf8)!)
-                    mobileDeviceGroupLogFileOp.closeFile()
                 }
             }   // if self.mobileDeviceGrpsButtonState == "on" - end
             
             if self.mobileDeviceAppsButtonState == "on" {
+                var firstMobileDeviceApp = true
                 let logFile = "pruneMobileDeviceApps_\(timeStamp).json"
 //                let logFile = "pruneComputerProfiles_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(logFile)
@@ -1949,28 +2017,36 @@ class ViewController: NSViewController {
                 do {
                     try "{\(header),\n \"unusedMobileDeviceApps\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedMobileDeviceApps>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let logFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceapplications"]!) {
+    //                   for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
+                            if masterObjectDict["mobiledeviceapplications"]![key]?["used"]! == "false" {
+                                logFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+                                if firstMobileDeviceApp {
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    firstMobileDeviceApp = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                }
+    //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))</id><name>\(key)</name>\n"
+                                logFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in
+                        logFileOp.seekToEndOfFile()
+                        logFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    logFileOp.write("</unusedMobileDeviceApps>".data(using: String.Encoding.utf8)!)
+                        logFileOp.closeFile()
+                        exportedItems.append("\tUnused Mobile Device Apps")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceApps>")
-                }
-                
-                if let logFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceapplications"]!) {
-//                   for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
-                        if masterObjectDict["mobiledeviceapplications"]![key]?["used"]! == "false" {
-                            logFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-//                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))</id><name>\(key)</name>\n"
-                            logFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in
-                    logFileOp.seekToEndOfFile()
-                    logFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    logFileOp.write("</unusedMobileDeviceApps>".data(using: String.Encoding.utf8)!)
-                    logFileOp.closeFile()
                 }
             }   // if self.mobileDeviceAppsButtonState == "on" - end
                         
             if self.configurationProfilesButtonState == "on" {
+                var firstConfigurationProfile = true
                 let logFile = "pruneMobileDeviceConfigurationProfiles_\(timeStamp).json"
 //                let logFile = "pruneMobileDeviceConfigurationProfiles_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(logFile)
@@ -1978,27 +2054,48 @@ class ViewController: NSViewController {
                 do {
                     try "{\(header),\n \"unusedMobileDeviceConfigurationProfiles\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
 //                    try "<unusedMobileDeviceConfigurationProfiles>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let logFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceconfigurationprofiles"]!) {
+    //                    for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
+                            if masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["used"]! == "false" {
+                                logFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+                                if firstConfigurationProfile {
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    firstConfigurationProfile = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                }
+    //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))</id><name>\(key)</name>\n"
+                                logFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in
+                        logFileOp.seekToEndOfFile()
+                        logFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    logFileOp.write("</unusedMobileDeviceConfigurationProfiles>".data(using: String.Encoding.utf8)!)
+                        logFileOp.closeFile()
+                        exportedItems.append("\tUnused Mobile Device Configuration Profiles")
+                    }
                 } catch {
                     WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceConfigurationProfiles>")
                 }
-                
-                if let logFileOp = try? FileHandle(forUpdating: exportURL) {
-                    for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceconfigurationprofiles"]!) {
-//                    for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
-                        if masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["used"]! == "false" {
-                            logFileOp.seekToEndOfFile()
-                            let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-//                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))</id><name>\(key)</name>\n"
-                            logFileOp.write(text.data(using: String.Encoding.utf8)!)
-                        }
-                    }   // for (key, _) in
-                    logFileOp.seekToEndOfFile()
-                    logFileOp.write("]}".data(using: String.Encoding.utf8)!)
-//                    logFileOp.write("</unusedMobileDeviceConfigurationProfiles>".data(using: String.Encoding.utf8)!)
-                    logFileOp.closeFile()
-                }
             }   // if self.configurationProfilesButtonState == "on" - end
             
+            if (exportedItems.count + failedExported.count > 2) {
+                var exportSummary = ""
+                if exportedItems.count > 1 {
+                    for exportLine in exportedItems {
+                        exportSummary  = "\(exportSummary)\n\(exportLine)"
+                    }
+                }
+                if failedExported.count > 1 {
+                    for failedExportLine in failedExported {
+                        exportSummary  = "\(exportSummary)\n\(failedExportLine)"
+                    }
+                }
+                Alert().summary(header: "Export Summary", message: exportSummary)
+            }
             working(isWorking: false)
         }   // exportQ.sync - end
     }
@@ -2133,8 +2230,8 @@ class ViewController: NSViewController {
         theDeleteQ.maxConcurrentOperationCount = 4
         
         let viewing = view_PopUpButton.title
-        print("[remove] viewing: \(viewing)")
-        print("[remove_Action] packagesDict: \(packagesDict)")
+//        print("[remove] viewing: \(viewing)")
+//        print("[remove_Action] packagesDict: \(packagesDict)")
         
         var masterItemsToDeleteArray = [[String:String]]()
         if (viewing == "All" && packagesButtonState == "on") || viewing == "Packages" {
@@ -2217,7 +2314,7 @@ class ViewController: NSViewController {
             }
         }
         
-        print("masterItemsToDeleteArray: \(masterItemsToDeleteArray)")
+//        print("masterItemsToDeleteArray: \(masterItemsToDeleteArray)")
 
         // alert the user before deleting
         let continueDelete = Alert().warning(header: "Caution:", message: "You are about to remove \(masterItemsToDeleteArray.count) objects, are you sure you want to continue?")
@@ -2419,7 +2516,7 @@ class ViewController: NSViewController {
     }
     
     @objc func viewSelectObject() {
-        print("doubleClicked Row: \(String(object_TableView.clickedRow))")
+//        print("doubleClicked Row: \(String(object_TableView.clickedRow))")
 
         DispatchQueue.main.async {
             let theRow = self.object_TableView.selectedRow
