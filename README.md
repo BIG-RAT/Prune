@@ -73,6 +73,8 @@ This application deletes stuff, use with caution!  It is recommended you have a 
 <br><br><hr><br>
 
 ### History:
+2021-09-23 - Updated URL used for a token request from Jamf Pro API, corrected extra comma in exported items, added export summary.
+
 2021-05-30 - Scan computer prestages for packages and configuration profiles.  Remove check against computer configurations.  Fix app crash whem only classes is selected.  Fix issue of duplicate API calls.  Additional error handling.
 
 2021-05-23 - Version 1.3.0: Added scan against eBooks and Classes.
