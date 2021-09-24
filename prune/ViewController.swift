@@ -2314,6 +2314,16 @@ class ViewController: NSViewController {
             }
         }
         
+        if (viewing == "All" && ebooksButtonState == "on") || viewing == "eBooks" {
+            for (key, _) in ebooksDict {
+                if ebooksDict[key]?["used"] == "false" {
+                    let id = "\(String(describing: ebooksDict[key]!["id"]!))"
+                    WriteToLog().message(theString: "[remove_Action] remove eBook with id: \(key)")
+                    masterItemsToDeleteArray.append(["ebooks":id])
+                }
+            }
+        }
+        
 //        print("masterItemsToDeleteArray: \(masterItemsToDeleteArray)")
 
         // alert the user before deleting
