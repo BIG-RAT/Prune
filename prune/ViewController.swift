@@ -2273,6 +2273,16 @@ class ViewController: NSViewController {
                 }
             }
         }
+        
+        if (viewing == "All" && ebooksButtonState == "on") || viewing == "eBooks" {
+            for (key, _) in ebooksDict {
+                if ebooksDict[key]?["used"] == "false" {
+                    let id = "\(String(describing: ebooksDict[key]!["id"]!))"
+                    WriteToLog().message(theString: "[remove_Action] remove eBook with id: \(key)")
+                    masterItemsToDeleteArray.append(["ebooks":id])
+                }
+            }
+        }
 
         if (viewing == "All" && policiesButtonState == "on") || viewing == "Policies" {
             for (key, _) in policiesDict {
@@ -2314,12 +2324,12 @@ class ViewController: NSViewController {
             }
         }
         
-        if (viewing == "All" && ebooksButtonState == "on") || viewing == "eBooks" {
-            for (key, _) in ebooksDict {
-                if ebooksDict[key]?["used"] == "false" {
-                    let id = "\(String(describing: ebooksDict[key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove eBook with id: \(key)")
-                    masterItemsToDeleteArray.append(["ebooks":id])
+        if (viewing == "All" && classesButtonState == "on") || viewing == "Classes" {
+            for (key, _) in classesDict {
+                if classesDict[key]?["used"] == "false" {
+                    let id = "\(String(describing: classesDict[key]!["id"]!))"
+                    WriteToLog().message(theString: "[remove_Action] remove class with id: \(id)")
+                    masterItemsToDeleteArray.append(["classes":id])
                 }
             }
         }
