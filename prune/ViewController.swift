@@ -116,7 +116,7 @@ class ViewController: NSViewController {
         process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(12))
         process_TextField.stringValue = ""
         
-        currentServer       = jamfServer_TextField.stringValue
+        currentServer       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
         jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
         let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
         jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
@@ -2222,7 +2222,7 @@ class ViewController: NSViewController {
         
         working(isWorking: true)
         
-        currentServer       = jamfServer_TextField.stringValue
+        currentServer       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
         jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
         let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
         jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
@@ -2637,7 +2637,7 @@ class ViewController: NSViewController {
         jamfServer_TextField.stringValue = defaults.object(forKey: "server") as? String ?? ""
         if (jamfServer_TextField.stringValue != "") {
             let regexKey        = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
-            let credKey         = regexKey.stringByReplacingMatches(in: jamfServer_TextField.stringValue, options: [], range: NSRange(0..<jamfServer_TextField.stringValue.utf16.count), withTemplate: "")
+            let credKey         = regexKey.stringByReplacingMatches(in: jamfServer_TextField.stringValue, options: [], range: NSRange(0..<jamfServer_TextField.stringValue.utf16.count), withTemplate: "").replacingOccurrences(of: "?failover", with: "")
             let credentailArray  = Credentials2().retrieve(service: "prune - "+credKey)
             if credentailArray.count == 2 {
                 uname_TextField.stringValue  = credentailArray[0]
