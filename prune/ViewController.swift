@@ -44,6 +44,9 @@ class ViewController: NSViewController {
     
     let defaults = UserDefaults.standard
     
+    var username       = ""
+    var password       = ""
+    
     var currentServer   = ""
     var jamfCreds       = ""
     var jamfBase64Creds = ""
@@ -2727,6 +2730,11 @@ class ViewController: NSViewController {
         import_Button.url          = getDownloadDirectory().appendingPathComponent("/.")
         import_Button.allowedTypes = ["json"]
         
+        jamfServer_TextField.stringValue = currentServer
+        uname_TextField.stringValue      = username
+        passwd_TextField.stringValue     = password
+        
+        /*
         jamfServer_TextField.stringValue = defaults.object(forKey: "server") as? String ?? ""
         if (jamfServer_TextField.stringValue != "") {
             let regexKey        = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
@@ -2744,6 +2752,7 @@ class ViewController: NSViewController {
             passwd_TextField.stringValue = ""
         }
         savePassword_Button.state = NSControl.StateValue(rawValue: defaults.object(forKey: "passwordButton") as? Int ?? 0)
+        */
     }
 
     override var representedObject: Any? {
