@@ -83,15 +83,15 @@ class WriteToLog {
         createLogFile()
         logCleanup() {
             (result: String) in
-            self.writeToLogQ.sync {
-                let logString = "\(self.logDate()) \(theString)\n"
+//            self.writeToLogQ.sync {
+            let logString = "\(self.logDate()) \(theString)\n"
                     
                 self.logFileW?.seekToEndOfFile()
                     
                 let logText = (logString as NSString).data(using: String.Encoding.utf8.rawValue)
                 self.logFileW?.write(logText!)
 //                self.logFileW?.closeFile()
-            }
+//            }
         }
     }
     

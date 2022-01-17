@@ -511,7 +511,7 @@ class ViewController: NSViewController {
                                                     }
                                                 }   // if self.mobileDeviceAppsButtonState == "on" - end
                                                 break
-                                            }
+                                            }   // if !waitFor.osxconfigurationprofile - end
                                         }
                                     }
                                 } else {
@@ -527,11 +527,6 @@ class ViewController: NSViewController {
                                         }
                                     }   // if self.mobileDeviceAppsButtonState == "on" - end
                                 }
-
-    //                            print("call policies")
-    //                            DispatchQueue.main.async {
-    //                                self.processItems(type: "policies")
-    //                            }
                             } else {
                                 WriteToLog().message(theString: "[processItems] unable to read computer configuration profiles - call mobiledeviceapplications")
                                 waitFor.osxconfigurationprofile = false
@@ -638,7 +633,6 @@ class ViewController: NSViewController {
                     let nextObject = "patchpolicies"
 //                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
                     if self.packagesButtonState == "on" {
-            //           var xmlTag = ""
                         DispatchQueue.main.async {
                                self.process_TextField.stringValue = "Fetching Patch Software Titles..."
                         }
@@ -687,7 +681,7 @@ class ViewController: NSViewController {
                                            break
                                        }
                                    }
-                               }
+                               }    // self.backgroundQ.async - end
                                
                            } else {
                                // no patch policies exist
@@ -707,10 +701,8 @@ class ViewController: NSViewController {
                     case "patchpolicies":
                             // look for groups used in patch policies
                             WriteToLog().message(theString: "[processItems] patchpolicies")
-                    //        let nextObject = "patchsoftwaretitles"
                             let nextObject = "computer-prestages"
                             if self.computerGroupsButtonState == "on" {
-                    //           var xmlTag = ""
                                 DispatchQueue.main.async {
                                        self.process_TextField.stringValue = "Fetching Patch Policies..."
                                 }
@@ -745,7 +737,7 @@ class ViewController: NSViewController {
                                            self.process_TextField.stringValue = "Scanning Patch Policies for groups..."
                                        }
                                     
-                                        WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                       WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
                                        self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
                                        waitFor.policy = true
                                        self.backgroundQ.async {
@@ -779,7 +771,9 @@ class ViewController: NSViewController {
                         
                     case "computer-prestages":
                         let msgText    = "Computer Prestages"
-                        let nextObject = "policies"
+                        let nextObject = "restrictedsoftware"
+//                        let nextObject = "policies"
+
                         
                         if (self.packagesButtonState == "on" || self.computerProfilesButtonState == "on") {
                             var xmlTag = ""
@@ -863,18 +857,84 @@ class ViewController: NSViewController {
                                 }
                             }
                         } else {
-                            // skip \(msgText)
+                            // skip computer-prestages
                             WriteToLog().message(theString: "[processItems] skipping \(msgText) - \(nextObject)")
                             waitFor.computerPrestage = false
                             DispatchQueue.main.async {
                                 self.processItems(type: nextObject)
                             }
                         }
-                        
-                                  
-                        
-                          
                 
+            case "restrictedsoftware":
+                WriteToLog().message(theString: "[processItems] restrictedsoftware")
+               let nextObject = "policies"
+               if self.computerGroupsButtonState == "on" {
+                   DispatchQueue.main.async {
+                          self.process_TextField.stringValue = "Fetching Restricted Software..."
+                   }
+
+                   self.masterObjectDict[type] = [String:[String:String]]()
+                   var restrictedsoftwareArray = [[String:Any]]()
+                   
+                   Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "restrictedsoftware") {
+                       (result: (Int,String)) in
+                       let (statusCode,returnedXml) = result
+       //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
+       //                                    print("[processItems] restrictedsoftware GET xml: \(returnedXml)")
+                       var nameFixedXml  = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
+                       nameFixedXml      = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
+                       let xmlData       = nameFixedXml.data(using: .utf8)
+                       let parsedXmlData = XML.parse(xmlData!)
+
+                       for rsPolicy in parsedXmlData.restricted_software.restricted_software_title {
+                           if let id = rsPolicy.id.text, let name = rsPolicy.Name.text {
+
+                               print("restricted software title id: \(rsPolicy.id.text!) \t name: \(rsPolicy.Name.text!)")
+                               WriteToLog().message(theString: "restricted software title id: \(rsPolicy.id.text!) \t name: \(rsPolicy.Name.text!)")
+                               restrictedsoftwareArray.append(["id": "\(rsPolicy.id.text!)", "name": "\(rsPolicy.Name.text!)"])
+                               // mark restricted software title as unused (reporting only)
+                               self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                           }
+                       }
+                       
+                       let restrictedsoftwareArrayCount = restrictedsoftwareArray.count
+                       if restrictedsoftwareArrayCount > 0 {
+                           DispatchQueue.main.async {
+                               self.process_TextField.stringValue = "Scanning Restricted Software for groups..."
+                           }
+                        
+                           WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                           self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: restrictedsoftwareArray, index: 0)
+                           waitFor.policy = true
+                           self.backgroundQ.async {
+                               while true {
+                                   usleep(10)
+                                   if !waitFor.policy {
+                                       WriteToLog().message(theString: "[processItems] restricted software configurations complete - call \(nextObject)")
+                                       DispatchQueue.main.async {
+                                           self.processItems(type: nextObject)
+                                       }
+                                       break
+                                   }
+                               }
+                           }
+                           
+                       } else {
+                           // no restricted software configurations exist
+                           WriteToLog().message(theString: "[processItems] no restricted software configurations - call \(nextObject)")
+                           DispatchQueue.main.async {
+                               self.processItems(type: nextObject)
+                           }
+                       }
+                   }
+                } else {
+                    // skip restrictedsoftware
+                    WriteToLog().message(theString: "[processItems] skipping restricted software, calling - \(nextObject)")
+                    DispatchQueue.main.async {
+                        self.processItems(type: nextObject)
+                    }
+                }
+                          
                 case "policies":
                     if self.policiesButtonState == "on" || self.packagesButtonState == "on" || self.scriptsButtonState == "on" || self.computerGroupsButtonState == "on" {
                         DispatchQueue.main.async {
@@ -1093,6 +1153,8 @@ class ViewController: NSViewController {
             objectEndpoint = "patchpolicies/id"
         case "patchsoftwaretitles":
             objectEndpoint = "patchsoftwaretitles/id"
+        case "restrictedsoftware":
+            objectEndpoint = "restrictedsoftware/id"
         case "mobiledevicegroups":
             objectEndpoint = "mobiledevicegroups/id"
         case "mobiledeviceapplications":
@@ -1417,7 +1479,6 @@ class ViewController: NSViewController {
 //                                print("[recursiveLookup] mobileDeviceAppScope: \(mobileDeviceAppScope)")
             //
                                 if self.isScoped(scope: mobileDeviceAppScope) {
-            //                        self.mobileDeviceAppsDict["\(name))"]!["used"] = "true"
                                     self.masterObjectDict[theEndpoint]!["\(name)"]!["used"] = "true"
                                 }
 
@@ -1440,6 +1501,38 @@ class ViewController: NSViewController {
                                 // check exclusions - end
                                 // check of used mobiledevicegroups - end
                                 
+                            case "restrictedsoftware":
+                                WriteToLog().message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
+                                
+                                let restrictedsoftwareObjectXml = result["restricted_software"] as! [String:AnyObject]
+                                
+                                // check for used mobiledevicegroups - start
+                                let restrictedsoftwareScope = restrictedsoftwareObjectXml["scope"] as! [String:AnyObject]
+//                                print("[recursiveLookup] restrictedsoftwareScope: \(restrictedsoftwareScope)")
+            //
+                                if self.isScoped(scope: restrictedsoftwareScope) {
+                                    self.masterObjectDict[theEndpoint]!["\(name)"]!["used"] = "true"
+                                }
+
+                                // check for used computergroups - start
+                                let rsGroupList  = restrictedsoftwareObjectXml["scope"] as! [String:AnyObject]
+            //                                    print("rsGroupList: \(rsGroupList)")
+                                let rs_groupList = rsGroupList["computer_groups"] as! [Dictionary<String, Any>]
+                                for theRstGroup in rs_groupList {
+                                    let restrictedsoftwareGroupName = theRstGroup["name"]
+            //                                        let theMdaGroupID = theMdaGroup["id"]
+                                    self.computerGroupsDict["\(restrictedsoftwareGroupName!)"]?["used"] = "true"
+                                }
+                                // check exclusions - start
+                                let rs_groupExcl     = rsGroupList["exclusions"] as! [String:AnyObject]
+                                let rs_groupListExcl = rs_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
+                                for theRstGroupExcl in rs_groupListExcl {
+                                    let restrictedsoftwareGroupName = theRstGroupExcl["name"]
+                                    self.computerGroupsDict["\(restrictedsoftwareGroupName!)"]?["used"] = "true"
+                                }
+                                // check exclusions - end
+                                // check of used computergroups - end
+                                
                             default:
                                 WriteToLog().message(theString: "[recursiveLookup] unknown endpoint: \(theEndpoint)")
                             }
@@ -1459,7 +1552,7 @@ class ViewController: NSViewController {
                                 waitFor.classes = false
                             case "osxconfigurationprofiles":
                                 waitFor.osxconfigurationprofile = false
-                            case "policies","patchpolicies","patchsoftwaretitles":
+                            case "policies","patchpolicies","patchsoftwaretitles","restrictedsoftware":
                                 waitFor.policy = false
                             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                                 waitFor.mobiledeviceobject = false

@@ -38,7 +38,7 @@ Once the list of unused items is generated you can edit it within the app.  If y
         </tr>
         <tr>
             <td>Computer Groups</td>
-            <td>Check for usage in policies, computer configuration profiles, computer groups, eBooks</td>
+            <td>Check for usage in policies, computer configuration profiles, computer groups, eBooks, restricted software</td>
         </tr>
         <tr>
             <td>Computer Profiles</td>
