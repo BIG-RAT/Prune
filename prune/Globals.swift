@@ -15,6 +15,10 @@ struct Log {
     static var maxSize  = 5000000 // 5MB
 }
 
+struct LoginWindow {
+    static var show     = true
+}
+
 struct waitFor {
     static var deviceGroup             = true   // used for both computer and mobile device groups
     static var computerConfiguration   = true

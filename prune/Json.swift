@@ -14,6 +14,7 @@ class Json: NSObject, URLSessionDelegate {
     
     func getRecord(theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: [String:AnyObject]) -> Void) {
 
+        
         let getRecordQ = OperationQueue() // DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
     
         URLCache.shared.removeAllCachedResponses()

@@ -10,8 +10,7 @@ import Cocoa
 import Foundation
 import SwiftyXMLParser
 
-class ViewController: NSViewController {
-
+class ViewController: NSViewController, SendingLoginInfoDelegate {
     
     var theGetQ    = OperationQueue() // create operation queue for API POST/PUT calls
     var theDeleteQ = OperationQueue() // queue for delete API calls
@@ -30,6 +29,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var computerGroups_Button: NSButton!
     @IBOutlet weak var computerProfiles_Button: NSButton!
     @IBOutlet weak var policies_Button: NSButton!
+    @IBOutlet weak var restrictedSoftware_Button: NSButton!
     @IBOutlet weak var mobileDeviceGroups_Button: NSButton!
     @IBOutlet weak var mobileDeviceApps_Button: NSButton!
     @IBOutlet weak var configurationProfiles_Button: NSButton!
@@ -50,8 +50,10 @@ class ViewController: NSViewController {
     var currentServer   = ""
     var jamfCreds       = ""
     var jamfBase64Creds = ""
+    var saveCreds       = false
     var jpapiToken      = ""
     var completed       = 0
+    var logout          = false
     // define master dictionary of items
     // ex. masterObjectDict["packages"] = [[package1Name:["id":id1,"name":name1]],[package2Name:["id":id2,"name":name2]]]
     var masterObjectDict             = [String:[String:[String:String]]]()
@@ -83,11 +85,24 @@ class ViewController: NSViewController {
     var computerGroupsButtonState        = "off"
     var computerProfilesButtonState      = "off"
     var policiesButtonState              = "off"
+    var restrictedSoftwareButtonState    = "off"
     var mobileDeviceGrpsButtonState      = "off"
     var mobileDeviceAppsButtonState      = "off"
     var configurationProfilesButtonState = "off"
     
     let backgroundQ = DispatchQueue(label: "com.jamf.prune.backgroundQ", qos: DispatchQoS.background)
+    
+    @IBAction func logout_Action(_ sender: Any) {
+        let url = URL(fileURLWithPath: Bundle.main.resourcePath!)
+        let path = url.deletingLastPathComponent().deletingLastPathComponent().absoluteString
+        let task = Process()
+        task.launchPath = "/usr/bin/open"
+        task.arguments = [path]
+        task.launch()
+        exit(0)
+//        NSApplication.shared.terminate(self)
+    }
+    
     
     @IBAction func go_action(_ sender: Any) {
         
@@ -108,9 +123,6 @@ class ViewController: NSViewController {
 //        computerGroupNameById.removeAll()
         mobileGroupNameByIdDict.removeAll()
         masterObjectDict.removeAll()
-//        for (key, _) in masterObjectDict {
-//            masterObjectDict[key]?.removeAll()
-//        }
         
         unusedItems_TableArray?.removeAll()
         unusedItems_TableDict?.removeAll()
@@ -136,17 +148,19 @@ class ViewController: NSViewController {
                 DispatchQueue.main.async {
                     // save password if checked - start
                 let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
+                    /*
                     if self.savePassword_Button.state.rawValue == 1 {
                         let credKey = regexKey.stringByReplacingMatches(in: self.currentServer, options: [], range: NSRange(0..<self.currentServer.utf16.count), withTemplate: "")
                         Credentials2().save(service: "prune - "+credKey, account: self.uname_TextField.stringValue, data: self.passwd_TextField.stringValue)
                     }
+                     // save password if checked - end
+                     if self.savePassword_Button.state.rawValue == 1 {
+                         self.defaults.set(self.passwd_TextField.stringValue, forKey: "password")
+                     }
+                    */
                     
                     self.defaults.set(self.currentServer, forKey: "server")
                     self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
-                    // save password if checked - end
-                    if self.savePassword_Button.state.rawValue == 1 {
-                        self.defaults.set(self.passwd_TextField.stringValue, forKey: "password")
-                    }
                     self.process_TextField.isHidden = false
                     self.process_TextField.stringValue = "Starting lookups..."
                 }
@@ -871,7 +885,7 @@ class ViewController: NSViewController {
             case "restrictedsoftware":
                 WriteToLog().message(theString: "[processItems] restrictedsoftware")
                let nextObject = "policies"
-               if self.computerGroupsButtonState == "on" {
+                if self.restrictedSoftwareButtonState == "on" || self.computerGroupsButtonState == "on" {
                    DispatchQueue.main.async {
                           self.process_TextField.stringValue = "Fetching Restricted Software..."
                    }
@@ -1000,6 +1014,9 @@ class ViewController: NSViewController {
                                             if self.policiesButtonState == "on" {
                                                 reportItems.append(["policies":self.policiesDict])
                                             }
+                                            if self.restrictedSoftwareButtonState == "on" {
+                                                reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
+                                            }
                                             if self.mobileDeviceGrpsButtonState == "on" {
                                                 reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
                                             }
@@ -1048,6 +1065,9 @@ class ViewController: NSViewController {
                                             }
                                             if self.policiesButtonState == "on" {
                                                 reportItems.append(["policies":self.policiesDict])
+                                            }
+                                            if self.restrictedSoftwareButtonState == "on" {
+                                                reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
                                             }
                                             if self.mobileDeviceGrpsButtonState == "on" {
                                                 reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
@@ -1098,6 +1118,9 @@ class ViewController: NSViewController {
                                     if self.policiesButtonState == "on" {
                                         reportItems.append(["policies":self.policiesDict])
                                     }
+                                    if self.restrictedSoftwareButtonState == "on" {
+                                        reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
+                                    }
                                     if self.mobileDeviceGrpsButtonState == "on" {
                                         reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
                                     }
@@ -1129,12 +1152,6 @@ class ViewController: NSViewController {
     }
         // get the full record for each comuter group, policy, computer configuration profile...
     func recursiveLookup(theServer: String, base64Creds: String, theEndpoint: String, theData: [[String:Any]], index: Int) {
-//        if index == 0 {
-//            print("  theServer: \(theServer)")
-//            print("base64Creds: \(base64Creds)")
-//            print("theEndpoint: \(theEndpoint)")
-//            print("      index: \(index) of \(theData.count)")
-//        }
         
         var objectEndpoint = ""
         let objectArray = theData
@@ -1691,6 +1708,8 @@ class ViewController: NSViewController {
             category = "osxconfigurationprofiles"
         case "unusedPolicies":
             category = "policies"
+        case "unusedRestrictedsoftware":
+            category = "restrictedsoftware"
         case "unusedMobileDeviceGroups":
             category = "mobiledevicegroups"
         case "unusedMobileDeviceApps":
@@ -1735,6 +1754,9 @@ class ViewController: NSViewController {
         }
         if sender.title == "Policies" || (sender.title == "All" && policiesButtonState == "on") {
             reportItems.append(["policies":self.policiesDict])
+        }
+        if sender.title == "Restricted Software" || (sender.title == "All" && restrictedSoftwareButtonState == "on") {
+            reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
         }
         if sender.title == "Mobile Device Groups" || (sender.title == "All" && mobileDeviceGrpsButtonState == "on") {
             reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
@@ -2066,6 +2088,43 @@ class ViewController: NSViewController {
                     WriteToLog().message(theString: "failed to write the following: <unusedPolicies>")
                 }
             }
+            
+            if self.restrictedSoftwareButtonState == "on" {
+                var firstTitle = true
+                let rsLogFile = "pruneRestrictedSoftware_\(timeStamp).json"
+//                let rsLogFile = "pruneRestrictedSoftware_\(timeStamp).xml"
+                let exportURL = getDownloadDirectory().appendingPathComponent(rsLogFile)
+
+                do {
+                    try "{\(header),\n \"unusedRestrictedSoftware\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+//                    try "<unusedRestrictedSoftware>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let logFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["restrictedsoftware"]!) {
+    //                   for (key, _) in masterObjectDict["restrictedsoftware"]! {
+                            if masterObjectDict["restrictedsoftware"]![key]?["used"]! == "false" {
+                                logFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+                                if firstTitle {
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    firstTitle = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                }
+    //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))</id><name>\(key)</name>\n"
+                                logFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in
+                        logFileOp.seekToEndOfFile()
+                        logFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+    //                    logFileOp.write("</unusedRestrictedSoftware>".data(using: String.Encoding.utf8)!)
+                        logFileOp.closeFile()
+                        exportedItems.append("\tUnused Restricted Software")
+                    }
+                } catch {
+                    WriteToLog().message(theString: "failed to write the following: <unusedRestrictedSoftware>")
+                }
+            }
                         
             if self.mobileDeviceGrpsButtonState == "on" {
                 var firstMobileDeviceGrp = true
@@ -2272,6 +2331,14 @@ class ViewController: NSViewController {
                                             WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
+                                    
+                                    case "restrictedsoftware":
+                                        if withOptionKey {
+                                            self.masterObjectDict["restrictedsoftware"]?.removeValue(forKey: itemName)
+                                        } else {
+                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
 
                                     case "mobiledevicegroups":
                                         if withOptionKey {
@@ -2389,6 +2456,16 @@ class ViewController: NSViewController {
                 }
             }
         }
+        
+        if (viewing == "All" && restrictedSoftwareButtonState == "on") || viewing == "Restricted Software" {
+            for (key, _) in masterObjectDict["restrictedsoftware"]! {
+                if masterObjectDict["restrictedsoftware"]?[key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))"
+                    WriteToLog().message(theString: "[remove_Action] remove restricted software with id: \(id)")
+                    masterItemsToDeleteArray.append(["restrictedsoftware":id])
+                }
+            }
+        }
 
         if (viewing == "All" && mobileDeviceGrpsButtonState == "on") || viewing == "Mobile Device Groups" {
             for (key, _) in mobileDeviceGroupsDict {
@@ -2484,7 +2561,7 @@ class ViewController: NSViewController {
 
     @IBAction func updateViewButton_Action(_ sender: NSButton) {
         var withOptionKey = false
-        let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Policies", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles"]
+        let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Policies", "Restricted Software", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles"]
         // check for option key - start
         if NSEvent.modifierFlags.contains(.option) {
             withOptionKey = true
@@ -2501,6 +2578,7 @@ class ViewController: NSViewController {
                 computerGroups_Button.state = NSControl.StateValue(rawValue: 1)
                 computerProfiles_Button.state = NSControl.StateValue(rawValue: 1)
                 policies_Button.state = NSControl.StateValue(rawValue: 1)
+                restrictedSoftware_Button.state = NSControl.StateValue(rawValue: 1)
                 mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: 1)
                 mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: 1)
                 configurationProfiles_Button.state = NSControl.StateValue(rawValue: 1)
@@ -2516,6 +2594,7 @@ class ViewController: NSViewController {
                 computerGroups_Button.state = NSControl.StateValue(rawValue: 0)
                 computerProfiles_Button.state = NSControl.StateValue(rawValue: 0)
                 policies_Button.state = NSControl.StateValue(rawValue: 0)
+                restrictedSoftware_Button.state = NSControl.StateValue(rawValue: 0)
                 mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: 0)
                 mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: 0)
                 configurationProfiles_Button.state = NSControl.StateValue(rawValue: 0)
@@ -2529,6 +2608,7 @@ class ViewController: NSViewController {
             computerGroupsButtonState        = "\(state)"
             computerProfilesButtonState      = "\(state)"
             policiesButtonState              = "\(state)"
+            restrictedSoftwareButtonState    = "\(state)"
             mobileDeviceGrpsButtonState      = "\(state)"
             mobileDeviceAppsButtonState      = "\(state)"
             configurationProfilesButtonState = "\(state)"
@@ -2554,6 +2634,8 @@ class ViewController: NSViewController {
                 computerProfilesButtonState = "\(state)"
             case "Policies":
                 policiesButtonState = "\(state)"
+            case "Restricted Software":
+                restrictedSoftwareButtonState = "\(state)"
             case "Mobile Device Groups":
                 mobileDeviceGrpsButtonState = "\(state)"
             case "Mobile Device Apps":
@@ -2687,6 +2769,12 @@ class ViewController: NSViewController {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
+                                
+                                case "restrictedsoftware":
+                                    if let objectId = self.masterObjectDict["restrictedsoftware"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/restrictedSoftware.html?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
 
                                 case "mobiledevicegroups":
                                     if let objectId = self.mobileDeviceGroupsDict[itemName]?["id"], let groupType = self.mobileDeviceGroupsDict[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
@@ -2717,6 +2805,52 @@ class ViewController: NSViewController {
         }   // dispatchQueue.main.async - end
     }   // func viewSelectObject - end
     
+    // Delegate Method
+    func sendLoginInfo(loginInfo: (String,String,String,Int)) {
+        var saveCredsState: Int?
+        (jamfServer_TextField.stringValue,uname_TextField.stringValue,passwd_TextField.stringValue,saveCredsState) = loginInfo
+        currentServer = jamfServer_TextField.stringValue
+        jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
+        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
+        jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
+        
+        saveCreds = (saveCredsState == 1) ? true:false
+        // check authentication - start
+        Json().getToken(serverUrl: currentServer, base64creds: jamfBase64Creds) {
+            (result: String) in
+            if result != "" {
+                self.jpapiToken = result
+                DispatchQueue.main.async {
+                    // save password if checked - start
+                let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
+                    if self.saveCreds {
+                        let credKey = regexKey.stringByReplacingMatches(in: self.currentServer, options: [], range: NSRange(0..<self.currentServer.utf16.count), withTemplate: "")
+                        Credentials2().save(service: "prune - "+credKey, account: self.uname_TextField.stringValue, data: self.passwd_TextField.stringValue)
+                    }
+                    
+                    self.defaults.set(self.currentServer, forKey: "server")
+                    self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
+                    self.logout = false
+                    WriteToLog().message(theString: "[ViewController] successfully authenticated to \(self.currentServer)")
+                    // save password if checked - end
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.performSegue(withIdentifier: "loginView", sender: nil)
+                    self.working(isWorking: false)
+                }
+            }
+        }
+        // check authentication - stop
+    }
+    override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
+
+        if segue.identifier == "loginView" {
+            let loginVC: LoginViewController = segue.destinationController as! LoginViewController
+            loginVC.delegate = self
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -2730,29 +2864,15 @@ class ViewController: NSViewController {
         import_Button.url          = getDownloadDirectory().appendingPathComponent("/.")
         import_Button.allowedTypes = ["json"]
         
-        jamfServer_TextField.stringValue = currentServer
-        uname_TextField.stringValue      = username
-        passwd_TextField.stringValue     = password
-        
-        /*
-        jamfServer_TextField.stringValue = defaults.object(forKey: "server") as? String ?? ""
-        if (jamfServer_TextField.stringValue != "") {
-            let regexKey        = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
-            let credKey         = regexKey.stringByReplacingMatches(in: jamfServer_TextField.stringValue, options: [], range: NSRange(0..<jamfServer_TextField.stringValue.utf16.count), withTemplate: "").replacingOccurrences(of: "?failover", with: "")
-            let credentailArray  = Credentials2().retrieve(service: "prune - "+credKey)
-            if credentailArray.count == 2 {
-                uname_TextField.stringValue  = credentailArray[0]
-                passwd_TextField.stringValue = credentailArray[1]
-            } else {
-                uname_TextField.stringValue  = defaults.object(forKey: "username") as? String ?? ""
-                passwd_TextField.stringValue = ""
-            }
-        } else {
-            uname_TextField.stringValue  = defaults.object(forKey: "username") as? String ?? ""
-            passwd_TextField.stringValue = ""
+    }
+
+    override func viewDidAppear() {
+        super.viewDidAppear()
+
+        if LoginWindow.show {
+            performSegue(withIdentifier: "loginView", sender: nil)
+            LoginWindow.show = false
         }
-        savePassword_Button.state = NSControl.StateValue(rawValue: defaults.object(forKey: "passwordButton") as? Int ?? 0)
-        */
     }
 
     override var representedObject: Any? {
