@@ -53,6 +53,10 @@ Once the list of unused items is generated you can edit it within the app.  If y
             <td>Check scope</td>
         </tr>
         <tr>
+            <td>Restricted Software</td>
+            <td>Check scope for computer groups</td>
+        </tr>
+        <tr>
             <td>Mobile Device Groups</td>
             <td>Check for usage in mobile device apps, mobile device configuration profiles, mobile device groups, eBooks, classes</td>
         </tr>
@@ -73,6 +77,8 @@ This application deletes stuff, use with caution!  It is recommended you have a 
 <br><br><hr><br>
 
 ### History:
+2022-01-17 - Apologies in advance.  Layout changed as a dedicated login window was added.  Added restricted softare as an item to query.  Changed Remove button to Delete.
+
 2021-09-23 - Fixed issue where ebooks and classes were not getting deleted.
 
 2021-09-23 - Updated URL used for a token request from Jamf Pro API, corrected extra comma in exported items, added export summary.
