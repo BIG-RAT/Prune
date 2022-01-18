@@ -77,7 +77,7 @@ This application deletes stuff, use with caution!  It is recommended you have a 
 <br><br><hr><br>
 
 ### History:
-2022-01-17 - Apologies in advance.  Layout changed as a dedicated login window was added.  Added restricted softare as an item to query.  Changed Remove button to Delete.
+2022-01-17 - Apologies in advance.  Layout changed as a dedicated login window was added.  Added restricted software as an item to query.  Changed Remove button to Delete.
 
 2021-09-23 - Fixed issue where ebooks and classes were not getting deleted.
 
