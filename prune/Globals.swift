@@ -8,15 +8,38 @@
 
 import Foundation
 
+struct appInfo {
+    static let dict    = Bundle.main.infoDictionary!
+    static let version = dict["CFBundleShortVersionString"] as! String
+    static let name    = dict["CFBundleExecutable"] as! String
+
+    static let userAgentHeader = "\(String(describing: name.addingPercentEncoding(withAllowedCharacters: .alphanumerics)!))/\(appInfo.version)"
+}
+
+struct JamfProServer {
+    static var majorVersion = 0
+    static var minorVersion = 0
+    static var patchVersion = 0
+    static var build        = ""
+    static var authType     = "Basic"
+    static var authCreds    = ""
+}
+
 struct Log {
     static var path: String? = (NSHomeDirectory() + "/Library/Logs/")
-    static var file  = "Prune.log"
+    static var file     = "Prune.log"
     static var maxFiles = 10
     static var maxSize  = 5000000 // 5MB
 }
 
 struct LoginWindow {
-    static var show     = true
+    static var show = true
+}
+
+struct token {
+    static var refreshInterval:UInt32 = 20*60  // 20 minutes
+    static var sourceServer  = ""
+    static var sourceExpires = ""
 }
 
 struct waitFor {

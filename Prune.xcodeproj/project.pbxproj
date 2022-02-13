@@ -10,6 +10,7 @@
 		79E6527585CEA12C7F96FD1C /* Pods_Prune.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2FC4023F18644BA239A2BAD /* Pods_Prune.framework */; };
 		B5247031252C53A1006CCFD3 /* WriteToLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5247030252C53A1006CCFD3 /* WriteToLog.swift */; };
 		B5426F15279643C400265669 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5426F14279643C400265669 /* LoginViewController.swift */; };
+		B580FA3F27B8324300E425EC /* JamfPro.swift in Sources */ = {isa = PBXBuildFile; fileRef = B580FA3E27B8324300E425EC /* JamfPro.swift */; };
 		B58981E923B3DAC800CC3C5B /* Credentials2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58981E823B3DAC700CC3C5B /* Credentials2.swift */; };
 		B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A313E23A1397E0023EA63 /* AppDelegate.swift */; };
 		B58A314123A1397E0023EA63 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A314023A1397E0023EA63 /* ViewController.swift */; };
@@ -27,6 +28,7 @@
 		3B4BFF58D8F7DEFE4EB7A2C5 /* Pods-Prune.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Prune.release.xcconfig"; path = "Target Support Files/Pods-Prune/Pods-Prune.release.xcconfig"; sourceTree = "<group>"; };
 		B5247030252C53A1006CCFD3 /* WriteToLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
 		B5426F14279643C400265669 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginViewController.swift; path = ../../../../Desktop/prune/prune/LoginViewController.swift; sourceTree = "<group>"; };
+		B580FA3E27B8324300E425EC /* JamfPro.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JamfPro.swift; sourceTree = "<group>"; };
 		B58981E823B3DAC700CC3C5B /* Credentials2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials2.swift; sourceTree = "<group>"; };
 		B58A313B23A1397E0023EA63 /* Prune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prune.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B58A313E23A1397E0023EA63 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 				B58A314E23A13CF30023EA63 /* Json.swift */,
 				B5426F14279643C400265669 /* LoginViewController.swift */,
 				B5DF4D6B23A5771A00225468 /* Time.swift */,
+				B580FA3E27B8324300E425EC /* JamfPro.swift */,
 				B58A314023A1397E0023EA63 /* ViewController.swift */,
 				B5247030252C53A1006CCFD3 /* WriteToLog.swift */,
 				B5DF4D6D23A7103200225468 /* Xml.swift */,
@@ -232,6 +235,7 @@
 				B58A314123A1397E0023EA63 /* ViewController.swift in Sources */,
 				B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */,
 				B58981E923B3DAC800CC3C5B /* Credentials2.swift in Sources */,
+				B580FA3F27B8324300E425EC /* JamfPro.swift in Sources */,
 				B5B3096C23B05120004BA9DB /* Globals.swift in Sources */,
 				B5426F15279643C400265669 /* LoginViewController.swift in Sources */,
 				B5DF4D6E23A7103200225468 /* Xml.swift in Sources */,

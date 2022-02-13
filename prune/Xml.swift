@@ -30,7 +30,14 @@ class Xml: NSObject, URLSessionDelegate {
             
             xmlRequest.httpMethod = "\(action.uppercased())"
             let destConf = URLSessionConfiguration.default
-            destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml"]
+            destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(token.sourceServer)", "Content-Type" : "text/xml", "Accept" : "text/xml"]
+                        
+            switch JamfProServer.authType {
+            case "Basic":
+                destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
+            default:
+                destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(token.sourceServer)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
+            }
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {
                 (data, response, error) -> Void in

@@ -19,16 +19,19 @@ class Json: NSObject, URLSessionDelegate {
     
         URLCache.shared.removeAllCachedResponses()
         var existingDestUrl = ""
-        var authType        = "Basic"
+        var authType        = "Bearer"
         
         switch theEndpoint {
         case "computer-prestages":
             existingDestUrl = "\(theServer)/api/v2/\(theEndpoint)"
             existingDestUrl = existingDestUrl.replacingOccurrences(of: "//api/v2", with: "/api/v2")
-            authType = "Bearer"
+//            authType = "Bearer"
         default:
             existingDestUrl = "\(theServer)/JSSResource/\(theEndpoint)"
             existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
+            if JamfProServer.authType == "Basic" {
+                authType = "Basic"
+            }
         }
         
 //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
@@ -42,7 +45,13 @@ class Json: NSObject, URLSessionDelegate {
             
             jsonRequest.httpMethod = "GET"
             let destConf = URLSessionConfiguration.default
-            destConf.httpAdditionalHeaders = ["Authorization" : "\(authType) \(base64Creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
+            switch authType {
+            case "Basic":
+                destConf.httpAdditionalHeaders = ["Authorization" : "\(authType) \(base64Creds)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
+            default:
+                destConf.httpAdditionalHeaders = ["Authorization" : "\(authType) \(token.sourceServer)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
+            }
+            
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: jsonRequest as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
@@ -80,6 +89,7 @@ class Json: NSObject, URLSessionDelegate {
         }   // getRecordQ - end
     }
     
+    /*
     func getToken(serverUrl: String, base64creds: String, completion: @escaping (_ returnedToken: String) -> Void) {
         
         URLCache.shared.removeAllCachedResponses()
@@ -134,6 +144,7 @@ class Json: NSObject, URLSessionDelegate {
         task.resume()
         
     }   // func token - end
+    */
     
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping(  URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))

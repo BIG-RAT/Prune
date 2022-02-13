@@ -55,19 +55,19 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
     var completed       = 0
     var logout          = false
     // define master dictionary of items
-    // ex. masterObjectDict["packages"] = [[package1Name:["id":id1,"name":name1]],[package2Name:["id":id2,"name":name2]]]
+    // ex. masterObjectDict["packages"] = [package1Name:["id":id1,"name":name1],package2Name:["id":id2,"name":name2]]
     var masterObjectDict             = [String:[String:[String:String]]]()
-    var packagesDict                 = Dictionary<String,Dictionary<String,String>>()    // id, name, used
-    var scriptsDict                  = Dictionary<String,Dictionary<String,String>>()
-    var ebooksDict                   = [String:[String:String]]()
-    var classesDict                  = [String:[String:String]]()
-    var policiesDict                 = [String:[String:String]]()
-    var computerConfigurationDict    = [String:String]()
-    var computerGroupsDict           = Dictionary<String,Dictionary<String,String>>()
-    var osxconfigurationprofilesDict = [String:[String:String]]()
-    var mobileDeviceGroupsDict       = [String:[String:String]]()
-    var mobileDeviceAppsDict         = [String:[String:String]]()
-    var allUnused                    = [[String:[String:String]]]() //Dictionary<String,Dictionary<String,String>>()    // currently unused var
+//    var packagesDict                 = Dictionary<String,Dictionary<String,String>>()    // id, name, used
+//    var scriptsDict                  = Dictionary<String,Dictionary<String,String>>()
+//    var ebooksDict                   = [String:[String:String]]()
+//    var classesDict                  = [String:[String:String]]()
+//    var policiesDict                 = [String:[String:String]]()
+//    var computerConfigurationDict    = [String:String]()
+//    var computerGroupsDict           = Dictionary<String,Dictionary<String,String>>()
+//    var osxconfigurationprofilesDict = [String:[String:String]]()
+//    var mobileDeviceGroupsDict       = [String:[String:String]]()
+//    var mobileDeviceAppsDict         = [String:[String:String]]()
+//    var allUnused                    = [[String:[String:String]]]()
     var unusedItems_TableArray: [String]?
     var unusedItems_TableDict: [[String:String]]?
     
@@ -93,14 +93,13 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
     let backgroundQ = DispatchQueue(label: "com.jamf.prune.backgroundQ", qos: DispatchQoS.background)
     
     @IBAction func logout_Action(_ sender: Any) {
-        let url = URL(fileURLWithPath: Bundle.main.resourcePath!)
+        let url  = URL(fileURLWithPath: Bundle.main.resourcePath!)
         let path = url.deletingLastPathComponent().deletingLastPathComponent().absoluteString
         let task = Process()
         task.launchPath = "/usr/bin/open"
         task.arguments = [path]
         task.launch()
         exit(0)
-//        NSApplication.shared.terminate(self)
     }
     
     
@@ -110,16 +109,16 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         
         view_PopUpButton.isEnabled = false
         view_PopUpButton.selectItem(at: 0)
-        packagesDict.removeAll()
-        scriptsDict.removeAll()
-        ebooksDict.removeAll()
-        classesDict.removeAll()
-        policiesDict.removeAll()
-        osxconfigurationprofilesDict.removeAll()
-        computerConfigurationDict.removeAll()
-        computerGroupsDict.removeAll()
-        mobileDeviceGroupsDict.removeAll()
-        mobileDeviceAppsDict.removeAll()
+//        packagesDict.removeAll()
+//        scriptsDict.removeAll()
+//        ebooksDict.removeAll()
+//        classesDict.removeAll()
+//        policiesDict.removeAll()
+//        osxconfigurationprofilesDict.removeAll()
+//        computerConfigurationDict.removeAll()
+//        computerGroupsDict.removeAll()
+//        mobileDeviceGroupsDict.removeAll()
+//        mobileDeviceAppsDict.removeAll()
 //        computerGroupNameById.removeAll()
         mobileGroupNameByIdDict.removeAll()
         masterObjectDict.removeAll()
@@ -141,14 +140,15 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             object_TableView.reloadData()
         }
         
-        Json().getToken(serverUrl: currentServer, base64creds: jamfBase64Creds) {
+//        Json().getToken(serverUrl: currentServer, base64creds: jamfBase64Creds) {
+        JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) {
             (result: String) in
-            if result != "" {
+            if result == "success" {
                 self.jpapiToken = result
                 DispatchQueue.main.async {
                     // save password if checked - start
-                let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
                     /*
+                let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
                     if self.savePassword_Button.state.rawValue == 1 {
                         let credKey = regexKey.stringByReplacingMatches(in: self.currentServer, options: [], range: NSRange(0..<self.currentServer.utf16.count), withTemplate: "")
                         Credentials2().save(service: "prune - "+credKey, account: self.uname_TextField.stringValue, data: self.passwd_TextField.stringValue)
@@ -188,6 +188,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         var groupType = ""
 
         theGetQ.addOperation {
+            
+            self.masterObjectDict[type] = [String:[String:String]]()
+            
             switch type {
                 case "computerGroups", "mobileDeviceGroups":
                     if self.computerGroupsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
@@ -214,12 +217,12 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                         }
                                         if type == "computerGroups" {
                                             if "\(name)" != "All Managed Clients" && "\(name)" != "All Managed Servers" {
-                                                self.computerGroupsDict["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
+                                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
 //                                                self.computerGroupNameById[id as! Int] = "\(name)"
                                             }
                                         } else {
                                             if "\(name)" != "All Managed iPads" && "\(name)" != "All Managed iPhones" && "\(name)" != "All Managed iPod touches" {
-                                                self.mobileDeviceGroupsDict["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
+                                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
                                                 // used for classes, that list only group id
                                                 self.mobileGroupNameByIdDict[id as! Int] = "\(name)"
                                             }
@@ -282,6 +285,28 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                         }
                         Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
                             (result: [String:AnyObject]) in
+
+                            if let _  = result["packages"] {
+                                let packagesArray = result["packages"] as! [[String:Any]]
+                                let packagesArrayCount = packagesArray.count
+                                // loop through all packages and mark as unused
+                                if packagesArrayCount > 0 {
+                                    for i in (0..<packagesArrayCount) {
+                                        if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
+                                            if "\(name)" != "" {
+                                                self.masterObjectDict["packages"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                                self.packagesByIdDict["\(id)"] = "\(name)"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            WriteToLog().message(theString: "[processItems] call scripts")
+                            DispatchQueue.main.async {
+                                self.processItems(type: "scripts")
+                            }
+                            
+                           /*
         //                    print("json returned packages: \(result)")
                             if let _ = result["packages"] {
                                 let packagesArray = result["packages"] as! [Dictionary<String, Any>]
@@ -301,6 +326,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     self.processItems(type: "scripts")
                                 }
                             }
+                            */
                         }
                     } else {
                         WriteToLog().message(theString: "[processItems] skipping packages - call scripts")
@@ -316,19 +342,20 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                         }
                         Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "scripts") {
                             (result: [String:AnyObject]) in
-        //                    print("json returned scripts: \(result)")
-                            let scriptsArray = result["scripts"] as! [Dictionary<String, Any>]
-                            let scriptsArrayCount = scriptsArray.count
-                            if scriptsArrayCount > 0 {
-                                for i in (0..<scriptsArrayCount) {
-                                    if let id = scriptsArray[i]["id"], let name = scriptsArray[i]["name"] {
-                                        if "\(name)" != "" {
-                                            self.scriptsDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                            if let _  = result[type] {
+                                let objectsArray = result[type] as! [[String:Any]]
+                                let objectsArrayCount = objectsArray.count
+                                if objectsArrayCount > 0 {
+                                    for i in (0..<objectsArrayCount) {
+                                        if let id = objectsArray[i]["id"], let name = objectsArray[i]["name"] {
+                                            if "\(name)" != "" {
+                                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                            }
                                         }
                                     }
                                 }
                             }
-    //                        print("scriptsDict (\(self.scriptsDict.count)): \(self.scriptsDict)")
+                            
                             WriteToLog().message(theString: "[processItems] scripts complete - call eBooks")
                             DispatchQueue.main.async {
                                 self.processItems(type: "ebooks")
@@ -352,13 +379,13 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                         Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") {
                             (result: [String:AnyObject]) in
         //                    print("json returned eBooks: \(result)")
-                            let ebooksArray = result["ebooks"] as! [Dictionary<String, Any>]
+                            let ebooksArray = result["ebooks"] as! [[String:Any]]
                             let ebooksArrayCount = ebooksArray.count
                             if ebooksArrayCount > 0 {
                                 for i in (0..<ebooksArrayCount) {
                                     if let id = ebooksArray[i]["id"], let name = ebooksArray[i]["name"] {
                                         if "\(name)" != "" {
-                                            self.ebooksDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
                                         }
                                     }
                                 }
@@ -409,7 +436,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                 for i in (0..<classesArrayCount) {
                                     if let id = classesArray[i]["id"], let name = classesArray[i]["name"] {
                                         if "\(name)" != "" {
-                                            self.classesDict["\(name)"] = ["id":"\(id)", "used":"false"]
+                                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
                                         }
                                     }
                                 }
@@ -819,7 +846,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                                 if self.packagesButtonState == "on" {
                                                     for prestagePackageId in customPackageIds {
 //                                                        print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
-                                                        self.packagesDict["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
+                                                        self.masterObjectDict["packages"]!["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
                                                     }
                                                 }
                                                 if self.computerProfilesButtonState == "on" {
@@ -906,7 +933,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                        for rsPolicy in parsedXmlData.restricted_software.restricted_software_title {
                            if let id = rsPolicy.id.text, let name = rsPolicy.Name.text {
 
-                               print("restricted software title id: \(rsPolicy.id.text!) \t name: \(rsPolicy.Name.text!)")
+//                               print("restricted software title id: \(rsPolicy.id.text!) \t name: \(rsPolicy.Name.text!)")
                                WriteToLog().message(theString: "restricted software title id: \(rsPolicy.id.text!) \t name: \(rsPolicy.Name.text!)")
                                restrictedsoftwareArray.append(["id": "\(rsPolicy.id.text!)", "name": "\(rsPolicy.Name.text!)"])
                                // mark restricted software title as unused (reporting only)
@@ -971,7 +998,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     if policyName.range(of:"[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] at", options: .regularExpression) == nil && policyName != "Update Inventory" && policyName != "" {
                                         policiesArray.append(thePolicy)
                                         // mark the policy as unused
-                                        self.policiesDict["\(name) - (\(id))"] = ["id":"\(id)", "used":"false"]
+                                        self.masterObjectDict[type]!["\(name) - (\(id))"] = ["id":"\(id)", "used":"false"]
                                     }
                                 }
                             }
@@ -994,31 +1021,31 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                             WriteToLog().message(theString: "[processItems] policies complete - call unused")
                                             var reportItems = [[String:[String:[String:String]]]]()
                                             if self.packagesButtonState == "on" {
-                                                reportItems.append(["packages":self.packagesDict])
+                                                reportItems.append(["packages":self.masterObjectDict["packages"]!])
                                             }
                                             if self.scriptsButtonState == "on" {
-                                                reportItems.append(["scripts":self.scriptsDict])
+                                                reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
                                             }
                                             if self.ebooksButtonState == "on" {
-                                                reportItems.append(["ebooks":self.ebooksDict])
+                                                reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
                                             }
                                             if self.classesButtonState == "on" {
-                                                reportItems.append(["classes":self.classesDict])
+                                                reportItems.append(["classes":self.masterObjectDict["classes"]!])
                                             }
                                             if self.computerGroupsButtonState == "on" {
-                                                reportItems.append(["computergroups":self.computerGroupsDict])
+                                                reportItems.append(["computergroups":self.masterObjectDict["computerGroups"]!])
                                             }
                                             if self.computerProfilesButtonState == "on" {
                                                 reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
                                             }
                                             if self.policiesButtonState == "on" {
-                                                reportItems.append(["policies":self.policiesDict])
+                                                reportItems.append(["policies":self.masterObjectDict["policies"]!])
                                             }
                                             if self.restrictedSoftwareButtonState == "on" {
                                                 reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
                                             }
                                             if self.mobileDeviceGrpsButtonState == "on" {
-                                                reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
+                                                reportItems.append(["mobiledevicegroups":self.masterObjectDict["mobileDeviceGroups"]!])
                                             }
                                             if self.mobileDeviceAppsButtonState == "on" {
                                                 reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
@@ -1046,31 +1073,31 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                             WriteToLog().message(theString: "[processItems] policies complete - call unused")
                                             var reportItems = [[String:[String:[String:String]]]]()
                                             if self.packagesButtonState == "on" {
-                                                reportItems.append(["packages":self.packagesDict])
+                                                reportItems.append(["packages":self.masterObjectDict["packages"]!])
                                             }
                                             if self.scriptsButtonState == "on" {
-                                                reportItems.append(["scripts":self.scriptsDict])
+                                                reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
                                             }
                                             if self.ebooksButtonState == "on" {
-                                                reportItems.append(["ebooks":self.ebooksDict])
+                                                reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
                                             }
                                             if self.classesButtonState == "on" {
-                                                reportItems.append(["classes":self.classesDict])
+                                                reportItems.append(["classes":self.masterObjectDict["classes"]!])
                                             }
                                             if self.computerGroupsButtonState == "on" {
-                                                reportItems.append(["computergroups":self.computerGroupsDict])
+                                                reportItems.append(["computergroups":self.masterObjectDict["computerGroups"]!])
                                             }
                                             if self.computerProfilesButtonState == "on" {
                                                 reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
                                             }
                                             if self.policiesButtonState == "on" {
-                                                reportItems.append(["policies":self.policiesDict])
+                                                reportItems.append(["policies":self.masterObjectDict["policies"]!])
                                             }
                                             if self.restrictedSoftwareButtonState == "on" {
                                                 reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
                                             }
                                             if self.mobileDeviceGrpsButtonState == "on" {
-                                                reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
+                                                reportItems.append(["mobiledevicegroups":self.masterObjectDict["mobileDeviceGroups"]!])
                                             }
                                             if self.mobileDeviceAppsButtonState == "on" {
                                             reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
@@ -1098,31 +1125,31 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     WriteToLog().message(theString: "[processItems] policies complete - call unused")
                                     var reportItems = [[String:[String:[String:String]]]]()
                                     if self.packagesButtonState == "on" {
-                                        reportItems.append(["packages":self.packagesDict])
+                                        reportItems.append(["packages":self.masterObjectDict["packages"]!])
                                     }
                                     if self.scriptsButtonState == "on" {
-                                        reportItems.append(["scripts":self.scriptsDict])
+                                        reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
                                     }
                                     if self.ebooksButtonState == "on" {
-                                        reportItems.append(["ebooks":self.ebooksDict])
+                                        reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
                                     }
                                     if self.classesButtonState == "on" {
-                                        reportItems.append(["classes":self.classesDict])
+                                        reportItems.append(["classes":self.masterObjectDict["classes"]!])
                                     }
                                     if self.computerGroupsButtonState == "on" {
-                                        reportItems.append(["computergroups":self.computerGroupsDict])
+                                        reportItems.append(["computergroups":self.masterObjectDict["computerGroups"]!])
                                     }
                                     if self.computerProfilesButtonState == "on" {
                                         reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
                                     }
                                     if self.policiesButtonState == "on" {
-                                        reportItems.append(["policies":self.policiesDict])
+                                        reportItems.append(["policies":self.masterObjectDict["policies"]!])
                                     }
                                     if self.restrictedSoftwareButtonState == "on" {
                                         reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
                                     }
                                     if self.mobileDeviceGrpsButtonState == "on" {
-                                        reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
+                                        reportItems.append(["mobiledevicegroups":self.masterObjectDict["mobileDeviceGroups"]!])
                                     }
                                     if self.mobileDeviceAppsButtonState == "on" {
                                         reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
@@ -1221,7 +1248,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     for thePackageInfo in packageVersionArray {
                                         if thePackageInfo.package.Name.text != nil {
     //                                        print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
-                                            self.packagesDict["\(thePackageInfo.package.Name.text!)"]?["used"] = "true"
+                                            self.masterObjectDict["packages"]!["\(thePackageInfo.package.Name.text!)"]?["used"] = "true"
                                         }
 
                                     }
@@ -1233,7 +1260,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                         if scopedGroup.Name.text != nil {
     //                                        print("theGroup: \(scopedGroup.Name.text!)")
     //                                        self.computerGroupsDict["\(scopedGroup.Name.text!)"]?["used"] = "true"
-                                            self.computerGroupsDict["\(scopedGroup.Name.text!)"] = ["used":"true"]
+                                            self.masterObjectDict["computerGroups"]!["\(scopedGroup.Name.text!)"] = ["used":"true"]
                                         }
                                     }
                                     // check excluded groups
@@ -1242,7 +1269,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                         if excludedGroup.Name.text != nil {
     //                                        print("theExcludedGroup: \(excludedGroup.Name.text!)")
     //                                        self.computerGroupsDict["\(excludedGroup.Name.text!)"]?["used"] = "true"
-                                            self.computerGroupsDict["\(excludedGroup.Name.text!)"] = ["used":"true"]
+                                            self.masterObjectDict["computerGroups"]!["\(excludedGroup.Name.text!)"] = ["used":"true"]
                                         }
                                     }
                                 }
@@ -1276,9 +1303,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             //                            }
                                         switch (name as! String) {
                                         case "Computer Group":
-                                            self.computerGroupsDict["\(value)"] = ["used":"true"]
+                                            self.masterObjectDict["computerGroups"]!["\(value)"] = ["used":"true"]
                                         case "Mobile Device Group":
-                                            self.mobileDeviceGroupsDict["\(value)"] = ["used":"true"]
+                                            self.masterObjectDict["mobileDeviceGroups"]!["\(value)"] = ["used":"true"]
                                         default:
                                             break
                                         }
@@ -1296,7 +1323,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 //                                print("eBook (\(name)) scope: \(eBookScope)")
             //
                                 if self.isScoped(scope: eBookScope) {
-                                    self.ebooksDict["\(name)"]!["used"] = "true"
+                                    self.masterObjectDict["ebooks"]!["\(name)"]!["used"] = "true"
                                 }
                                 
 
@@ -1307,34 +1334,34 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     let theComputerGroupName = theComputerGroup["name"]
             //                                        let theComputerGroupID = theComputerGroup["id"]
             //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - start
                                 let computer_groupExcl = eBookScope["exclusions"] as! [String:AnyObject]
                                 let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
                                 for theComputerGroupExcl in computer_groupListExcl {
                                     let theComputerGroupName = theComputerGroupExcl["name"]
-                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - end
                                 // check of used computergroups - end
                                 
                                 if self.isScoped(scope: eBookScope) {
-                                    self.ebooksDict["\(name)"]!["used"] = "true"
+                                    self.masterObjectDict["ebooks"]!["\(name)"]!["used"] = "true"
                                 }
                                 
                                 let mda_groupList = eBookScope["mobile_device_groups"] as! [Dictionary<String, Any>]
                                 for theMdaGroup in mda_groupList {
                                     let theMobileDeviceGroupName = theMdaGroup["name"]
             //                                        let theMdaGroupID = theMdaGroup["id"]
-                                    self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["mobileDeviceGroups"]!["\(theMobileDeviceGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - start
                                 let mobileDevice_groupExcl = eBookScope["exclusions"] as! [String:AnyObject]
                                 let mobileDevice_groupListExcl = mobileDevice_groupExcl["mobile_device_groups"] as! [Dictionary<String, Any>]
                                 for theMdaGroupExcl in mobileDevice_groupListExcl {
                                     let theMobileDeviceGroupName = theMdaGroupExcl["name"]
-                                    self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["mobileDeviceGroups"]!["\(theMobileDeviceGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - end
                                 // check of used mobiledevicegroups - end
@@ -1356,12 +1383,12 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
     //                            if (studentScope.count+teacherScope.count+studentGroupScope.count+teacherGroupScope.count+mobileDeviceScope.count+mobileDevicGroupsScope.count) > 0 {
 
                                 if (studentScope.count+studentGroupScope.count+mobileDeviceScope.count+mobileDevicGroupsScope.count) > 0 {
-                                    self.classesDict["\(name)"]!["used"] = "true"
+                                    self.masterObjectDict["classes"]!["\(name)"]!["used"] = "true"
                                 }
                                 
                                 if mobileDevicGroupsScope.count > 0 && self.mobileDeviceGrpsButtonState == "on" {
                                     for mobileDeviceGroupID in mobileDevicGroupsScope {
-                                        self.mobileDeviceGroupsDict[self.mobileGroupNameByIdDict[mobileDeviceGroupID]!]!["used"] = "true"
+                                        self.masterObjectDict["mobileDeviceGroups"]![self.mobileGroupNameByIdDict[mobileDeviceGroupID]!]!["used"] = "true"
                                     }
                                 }
                                 
@@ -1393,7 +1420,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                 
                             case "osxconfigurationprofiles":
                                 self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                                self.osxconfigurationprofilesDict["\(name)"] = ["id":"\(id)", "used":"false"]
+//                                self.osxconfigurationprofilesDict["\(name)"] = ["id":"\(id)", "used":"false"]
                                 // look up each computer profile and check scope/limitations - start
                                                                                 
                                 let theConfigProfile = result["os_x_configuration_profile"] as! [String:AnyObject]
@@ -1410,7 +1437,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     let theComputerGroupName = theComputerGroup["name"]
             //                                        let theComputerGroupID = theComputerGroup["id"]
             //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - start
                                 let computer_groupExcl = profileScope["exclusions"] as! [String:AnyObject]
@@ -1419,7 +1446,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             //                                        print("thePackage: \(thePackage)")
                                     let theComputerGroupName = theComputerGroupExcl["name"]
             //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - end
                                 // check of used computergroups - end
@@ -1437,7 +1464,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             //
                                 if self.isScoped(scope: policyScope) {
                                     if theEndpoint == "policies" {
-                                        self.policiesDict["\(name) - (\(id))"]!["used"] = "true"
+                                        self.masterObjectDict["policies"]!["\(name) - (\(id))"]!["used"] = "true"
                                     } else {
                                         self.masterObjectDict["patchpolicies"]!["\(name)"]!["used"] = "true"
                                     }
@@ -1451,7 +1478,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                 //                                        print("thePackage: \(thePackage)")
                                         let thePackageName = thePackage["name"]
                 //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                        self.packagesDict["\(thePackageName!)"]?["used"] = "true"
+                                        self.masterObjectDict["packages"]!["\(thePackageName!)"]?["used"] = "true"
                                     }
                                     // check of used packages - end
 
@@ -1461,7 +1488,8 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                 //                                        print("thePackage: \(thePackage)")
                                         let theScriptName = theScript["name"]
                 //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                        self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
+                                        self.masterObjectDict["scripts"]!["\(theScriptName!)"]?["used"] = "true"
+//                                        self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
                                     }
                                     // check of used scripts - end
                                 }
@@ -1476,7 +1504,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     let theComputerGroupName = theComputerGroup["name"]
             //                                        let theComputerGroupID = theComputerGroup["id"]
             //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - start
             //                    let computer_groupExcl = computerGroupList["exclusions"] as! [String:AnyObject]
@@ -1484,7 +1512,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                 let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
                                 for theComputerGroupExcl in computer_groupListExcl {
                                     let theComputerGroupName = theComputerGroupExcl["name"]
-                                    self.computerGroupsDict["\(theComputerGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - end
                                 // check of used computergroups - end
@@ -1509,14 +1537,14 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                 for theMdaGroup in mda_groupList {
                                     let theMobileDeviceGroupName = theMdaGroup["name"]
             //                                        let theMdaGroupID = theMdaGroup["id"]
-                                    self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["mobileDeviceGroups"]!["\(theMobileDeviceGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - start
                                 let mobileDevice_groupExcl = mdaGroupList["exclusions"] as! [String:AnyObject]
                                 let mobileDevice_groupListExcl = mobileDevice_groupExcl["mobile_device_groups"] as! [Dictionary<String, Any>]
                                 for theMdaGroupExcl in mobileDevice_groupListExcl {
                                     let theMobileDeviceGroupName = theMdaGroupExcl["name"]
-                                    self.mobileDeviceGroupsDict["\(theMobileDeviceGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["mobileDeviceGroups"]!["\(theMobileDeviceGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - end
                                 // check of used mobiledevicegroups - end
@@ -1541,14 +1569,14 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                 for theRstGroup in rs_groupList {
                                     let restrictedsoftwareGroupName = theRstGroup["name"]
             //                                        let theMdaGroupID = theMdaGroup["id"]
-                                    self.computerGroupsDict["\(restrictedsoftwareGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(restrictedsoftwareGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - start
                                 let rs_groupExcl     = rsGroupList["exclusions"] as! [String:AnyObject]
                                 let rs_groupListExcl = rs_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
                                 for theRstGroupExcl in rs_groupListExcl {
                                     let restrictedsoftwareGroupName = theRstGroupExcl["name"]
-                                    self.computerGroupsDict["\(restrictedsoftwareGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(restrictedsoftwareGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - end
                                 // check of used computergroups - end
@@ -1590,8 +1618,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
     }
 
     func unused(itemDictionary: [[String:Any]]) {
-//        print("looking for unused packages")
-//        print("packagesDict (\(self.packagesDict.count)): \(self.packagesDict)")
         
         var unusedCount = 0
         var sortedArray = [String]()
@@ -1678,8 +1704,26 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 
     }
     
+    func generateMasterObjectDict(type: String, data: [String:Any], nextItem: String) {
+        let objectsArray = data[type] as! [[String:Any]]
+        let objectsArrayCount = objectsArray.count
+        if objectsArrayCount > 0 {
+            for i in (0..<objectsArrayCount) {
+                if let id = objectsArray[i]["id"], let name = objectsArray[i]["name"] {
+                    if "\(name)" != "" {
+                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                    }
+                }
+            }
+        }
+        
+        WriteToLog().message(theString: "[processItems] scripts complete - call \(nextItem)")
+        DispatchQueue.main.async {
+            self.processItems(type: nextItem)
+        }
+    }
     
-//    func buildDictionary(type: String, used: String, data: [String:Any]) -> [String:[String:String]] {
+    
     // used when importing files
     func buildDictionary(type: String, used: String, data: [String:Any]) -> [String:Any] {
         
@@ -1687,19 +1731,10 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         var unusedItemsDictionary = [String:Any]()
         var category            = ""
         
-        if let listOfUnused = data[type] {
-            for theDict in listOfUnused as! [[String:String]] {
-                if type != "unusedComputerGroups" && type != "unusedMobileDeviceGroups" {
-                    unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false"]
-                } else {
-                    unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false","groupType":theDict["groupType"]]
-                }
-            }
-        }
         switch type {
         case "unusedPackages":
             category = "packages"
-            packagesDict = (unusedItemsDictionary as! [String:[String:String]])
+//            packagesDict = (unusedItemsDictionary as! [String:[String:String]])
         case "unusedScripts":
             category = "scripts"
         case "unusedComputerGroups":
@@ -1719,7 +1754,25 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         default:
             category = type
         }
-//        return packagesDict
+        
+        self.masterObjectDict["\(category)"] = [String:[String:String]]()
+        
+        if let listOfUnused = data[type] {
+            for theDict in listOfUnused as! [[String:String]] {
+                if type != "unusedComputerGroups" && type != "unusedMobileDeviceGroups" {
+                    unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false"]
+                    masterObjectDict["\(category)"]![theDict["name"]!] = ["id":theDict["id"]!, "used":"false"]
+                    // self.masterObjectDict["scripts"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                } else {
+                    unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false","groupType":theDict["groupType"]]
+                    masterObjectDict["\(category)"]![theDict["name"]!] = ["id":theDict["id"]!,"used":"false"]
+                }
+                
+            }
+        }
+        
+//        print("[buildDictionary] masterObjectDict for \(category): \(masterObjectDict)")
+//        print("[buildDictionary] unusedItemsDictionary for \(category): \(unusedItemsDictionary)")
         return ["\(category)":unusedItemsDictionary]
     }
     
@@ -1735,31 +1788,31 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         var reportItems = [[String:[String:[String:String]]]]()
         unusedItems_TableDict?.removeAll()
         if sender.title == "Packages" || (sender.title == "All" && packagesButtonState == "on") {
-            reportItems.append(["packages":self.packagesDict])
+            reportItems.append(["packages":self.masterObjectDict["packages"]!])
         }
         if sender.title == "Scripts" || (sender.title == "All" && scriptsButtonState == "on") {
-            reportItems.append(["scripts":self.scriptsDict])
+            reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
         }
         if sender.title == "eBooks" || (sender.title == "All" && ebooksButtonState == "on") {
-            reportItems.append(["ebooks":self.ebooksDict])
+            reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
         }
         if sender.title == "Classes" || (sender.title == "All" && classesButtonState == "on") {
-            reportItems.append(["ebooks":self.classesDict])
+            reportItems.append(["ebooks":self.masterObjectDict["classes"]!])
         }
         if sender.title == "Computer Groups" || (sender.title == "All" && computerGroupsButtonState == "on") {
-            reportItems.append(["computergroups":self.computerGroupsDict])
+            reportItems.append(["computergroups":self.masterObjectDict["computerGroups"]!])
         }
         if sender.title == "Computer Profiles" || (sender.title == "All" && computerProfilesButtonState == "on") {
             reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
         }
         if sender.title == "Policies" || (sender.title == "All" && policiesButtonState == "on") {
-            reportItems.append(["policies":self.policiesDict])
+            reportItems.append(["policies":self.masterObjectDict["policies"]!])
         }
         if sender.title == "Restricted Software" || (sender.title == "All" && restrictedSoftwareButtonState == "on") {
             reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
         }
         if sender.title == "Mobile Device Groups" || (sender.title == "All" && mobileDeviceGrpsButtonState == "on") {
-            reportItems.append(["mobiledevicegroups":self.mobileDeviceGroupsDict])
+            reportItems.append(["mobiledevicegroups":self.masterObjectDict["mobileDeviceGroups"]!])
         }
         if sender.title == "Mobile Device Apps" || (sender.title == "All" && mobileDeviceAppsButtonState == "on") {
             reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
@@ -1783,12 +1836,13 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                 sleep(1)
                 _ = FileManager.default.fileExists(atPath: objPath.path, isDirectory:&isDir)
                 do {
+                    setAllButtonsState(theState: "off")
                     let dataFile =  try Data(contentsOf:pathToFile, options: .mappedIfSafe)
                     let objectJSON = try JSONSerialization.jsonObject(with: dataFile, options: .mutableLeaves) as? [String:Any]
                     
 //                    print("objectJSON: \(String(describing: objectJSON!))")
                     for (key, value) in objectJSON! {
-//                        print("\(key)")
+//                        print("key: \(key)")
                         switch key {
                         case "jamfServer":
                             jamfServer_TextField.stringValue = "\(value)"
@@ -1796,8 +1850,33 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                         case "username":
                             uname_TextField.stringValue = "\(value)"
                         default:
-                            print("buildDictionary: \(buildDictionary(type: key, used: "false", data: objectJSON!))")
                             unused(itemDictionary: [buildDictionary(type: key, used: "false", data: objectJSON!)])
+                            switch key {
+                            case "unusedPackages":
+                                packages_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedScripts":
+                                scripts_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedComputerGroups":
+                                computerGroups_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedComputerProfiles":
+                                computerProfiles_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedPolicies":
+                                policies_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedRestrictedSoftware":
+                                restrictedSoftware_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedMobileDeviceGroups":
+                                mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedMobileDeviceApps":
+                                mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedMobileDeviceConfigurationProfiles":
+                                configurationProfiles_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedClasses":
+                                classes_Button.state = NSControl.StateValue(rawValue: 1)
+                            case "unusedEbooks":
+                                ebooks_Button.state = NSControl.StateValue(rawValue: 1)
+                            default:
+                                break
+                            }
                         }
                     }
 
@@ -1840,15 +1919,14 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 //                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let packageLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                        for key in sortedArrayFromDict(theDict: packagesDict) {
-    //                   for (key, _) in packagesDict {
-                            if packagesDict[key]?["used"]! == "false" {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["packages"]!) {
+                            if masterObjectDict["packages"]![key]?["used"]! == "false" {
                                 packageLogFileOp.seekToEndOfFile()
                                 if firstPackage {
-                                    text = "\t{\"id\": \"\(String(describing: packagesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                     firstPackage = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: packagesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
     //                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
@@ -1878,16 +1956,15 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 //                    try "<unusedScripts>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let scriptLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                        for key in sortedArrayFromDict(theDict: scriptsDict) {
-    //                    for (key, _) in scriptsDict {
-                            if scriptsDict[key]?["used"]! == "false" {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["scripts"]!) {
+                            if masterObjectDict["scripts"]![key]?["used"]! == "false" {
                                 scriptLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
                                 if firstScript {
-                                    text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                     firstScript = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
     //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
@@ -1914,15 +1991,15 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                     try "{\(header),\n \"unusedEbooks\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let ebooksLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                        for key in sortedArrayFromDict(theDict: ebooksDict) {
-                            if ebooksDict[key]?["used"]! == "false" {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["ebooks"]!) {
+                            if masterObjectDict["ebooks"]![key]?["used"]! == "false" {
                                 ebooksLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
                                 if firstEbook {
-                                    text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                     firstEbook = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
     //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
@@ -1949,15 +2026,15 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                     try "{\(header),\n \"unusedClasses\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let classesLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                        for key in sortedArrayFromDict(theDict: classesDict) {
-                            if classesDict[key]?["used"]! == "false" {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["classes"]!) {
+                            if masterObjectDict["classes"]![key]?["used"]! == "false" {
                                 classesLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
                                 if firstClass {
-                                    text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                     firstClass = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
     //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
@@ -1986,16 +2063,16 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 //                    try "<unusedComputerGroups>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let computerGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                        for key in sortedArrayFromDict(theDict: computerGroupsDict) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["computerGroups"]!) {
     //                    for (key, _) in computerGroupsDict {
-                            if computerGroupsDict[key]?["used"]! == "false" {
+                            if masterObjectDict["computerGroups"]![key]?["used"]! == "false" {
                                 computerGroupLogFileOp.seekToEndOfFile()
     //                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"},\n"
                                 if firstComputerGroup {
-                                    text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["groupType"]!))\"}"
                                     firstComputerGroup = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["groupType"]!))\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
                                 computerGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -2061,16 +2138,16 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 //                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let policyLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                        for key in sortedArrayFromDict(theDict: policiesDict) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["policies"]!) {
     //                   for (key, _) in policiesDict {
-                            if policiesDict[key]?["used"]! == "false" {
+                            if masterObjectDict["policies"]![key]?["used"]! == "false" {
                                 policyLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
                                 if firstPolicy {
-                                    text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["policies"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                     firstPolicy = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["policies"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
     //                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
@@ -2137,16 +2214,16 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 //                    try "<unusedMobileDeviceGroups>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let mobileDeviceGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
-                        for key in sortedArrayFromDict(theDict: mobileDeviceGroupsDict) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["mobileDeviceGroups"]!) {
     //                   for (key, _) in mobileDeviceGroupsDict {
-                            if mobileDeviceGroupsDict[key]?["used"]! == "false" {
+                            if masterObjectDict["mobileDeviceGroups"]![key]?["used"]! == "false" {
                                 mobileDeviceGroupLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"},\n"
                                 if firstMobileDeviceGrp {
-                                    text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["groupType"]!))\"}"
                                     firstMobileDeviceGrp = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["groupType"]!))\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: mobileDeviceGroupLogFileOp[key]!["id"]!))</id><name>\(key)</name>\n"
                                 mobileDeviceGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -2278,7 +2355,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                 switch objectType {
                                     case "packages":
                                         if withOptionKey {
-                                            self.packagesDict.removeValue(forKey: itemName)
+                                            self.masterObjectDict["packages"]!.removeValue(forKey: itemName)
                                         } else {
                                             WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
@@ -2286,7 +2363,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     
                                     case "scripts":
                                         if withOptionKey {
-                                            self.scriptsDict.removeValue(forKey: itemName)
+                                            self.masterObjectDict["scripts"]!.removeValue(forKey: itemName)
                                         } else {
                                             WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
@@ -2294,7 +2371,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                         
                                     case "ebooks":
                                         if withOptionKey {
-                                            self.ebooksDict.removeValue(forKey: itemName)
+                                            self.masterObjectDict["ebooks"]!.removeValue(forKey: itemName)
                                         } else {
                                             WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
@@ -2302,7 +2379,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                         
                                     case "classes":
                                         if withOptionKey {
-                                            self.classesDict.removeValue(forKey: itemName)
+                                            self.masterObjectDict["classes"]!.removeValue(forKey: itemName)
                                         } else {
                                             WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
@@ -2310,7 +2387,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     
                                     case "computergroups":
                                         if withOptionKey {
-                                          self.computerGroupsDict.removeValue(forKey: itemName)
+                                          self.masterObjectDict["computerGroups"]!.removeValue(forKey: itemName)
                                         } else {
                                           WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                           return
@@ -2326,7 +2403,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     
                                     case "policies":
                                         if withOptionKey {
-                                            self.policiesDict.removeValue(forKey: itemName)
+                                            self.masterObjectDict["policies"]?.removeValue(forKey: itemName)
                                         } else {
                                             WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
@@ -2342,7 +2419,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 
                                     case "mobiledevicegroups":
                                         if withOptionKey {
-                                            self.mobileDeviceGroupsDict.removeValue(forKey: itemName)
+                                            self.masterObjectDict["mobileDeviceGroups"]!.removeValue(forKey: itemName)
                                         } else {
                                             WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
@@ -2393,41 +2470,40 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         theDeleteQ.maxConcurrentOperationCount = 4
         
         let viewing = view_PopUpButton.title
-//        print("[remove] viewing: \(viewing)")
-//        print("[remove_Action] packagesDict: \(packagesDict)")
         
         var masterItemsToDeleteArray = [[String:String]]()
-        if (viewing == "All" && packagesButtonState == "on") || viewing == "Packages" {
-            for (key, _) in packagesDict {
-                if packagesDict[key]?["used"] == "false" {
-                    let id = "\(String(describing: packagesDict[key]!["id"]!))"
+        if (viewing == "All" && packages_Button.state.rawValue == 1) || viewing == "Packages" {
+            for (key, _) in masterObjectDict["packages"]! {
+                if masterObjectDict["packages"]![key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["packages"]![key]!["id"]!))"
                     WriteToLog().message(theString: "[remove_Action] remove package with id: \(key)")
                     masterItemsToDeleteArray.append(["packages":id])
                 }
             }
         }
 
-        if (viewing == "All" && scriptsButtonState == "on") || viewing == "Scripts" {
-            for (key, _) in scriptsDict {
-                if scriptsDict[key]?["used"] == "false" {
-                    let id = "\(String(describing: scriptsDict[key]!["id"]!))"
+//        if (viewing == "All" && scriptsButtonState == "on") || viewing == "Scripts" {
+        if (viewing == "All" && scripts_Button.state.rawValue == 1) || viewing == "Scripts" {
+            for (key, _) in masterObjectDict["scripts"]! {
+                if masterObjectDict["scripts"]![key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))"
                     WriteToLog().message(theString: "[remove_Action] remove script with id: \(id)")
                     masterItemsToDeleteArray.append(["scripts":id])
                 }
             }
         }
 
-        if (viewing == "All" && computerGroupsButtonState == "on") || viewing == "Computer Groups" {
-            for (key, _) in computerGroupsDict {
-                if computerGroupsDict[key]?["used"] == "false" {
-                    let id = "\(String(describing: computerGroupsDict[key]!["id"]!))"
+        if (viewing == "All" && computerGroups_Button.state.rawValue == 1) || viewing == "Computer Groups" {
+            for (key, _) in masterObjectDict["computerGroups"]! {
+                if masterObjectDict["computerGroups"]![key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))"
                     WriteToLog().message(theString: "[remove_Action] remove computer group with id: \(id)")
                     masterItemsToDeleteArray.append(["computergroups":id])
                 }
             }
         }
 
-        if (viewing == "All" && computerProfilesButtonState == "on") || viewing == "Configuration Policies" {
+        if (viewing == "All" && computerProfiles_Button.state.rawValue == 1) || viewing == "Configuration Policies" {
             for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
                 if masterObjectDict["osxconfigurationprofiles"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))"
@@ -2437,27 +2513,27 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             }
         }
         
-        if (viewing == "All" && ebooksButtonState == "on") || viewing == "eBooks" {
-            for (key, _) in ebooksDict {
-                if ebooksDict[key]?["used"] == "false" {
-                    let id = "\(String(describing: ebooksDict[key]!["id"]!))"
+        if (viewing == "All" && ebooks_Button.state.rawValue == 1) || viewing == "eBooks" {
+            for (key, _) in masterObjectDict["ebooks"]! {
+                if masterObjectDict["ebooks"]?[key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))"
                     WriteToLog().message(theString: "[remove_Action] remove eBook with id: \(key)")
                     masterItemsToDeleteArray.append(["ebooks":id])
                 }
             }
         }
 
-        if (viewing == "All" && policiesButtonState == "on") || viewing == "Policies" {
-            for (key, _) in policiesDict {
-                if policiesDict[key]?["used"] == "false" {
-                    let id = "\(String(describing: policiesDict[key]!["id"]!))"
+        if (viewing == "All" && policies_Button.state.rawValue == 1) || viewing == "Policies" {
+            for (key, _) in masterObjectDict["policies"]! {
+                if masterObjectDict["policies"]?[key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["policies"]![key]!["id"]!))"
                     WriteToLog().message(theString: "[remove_Action] remove policy with id: \(id)")
                     masterItemsToDeleteArray.append(["policies":id])
                 }
             }
         }
         
-        if (viewing == "All" && restrictedSoftwareButtonState == "on") || viewing == "Restricted Software" {
+        if (viewing == "All" && restrictedSoftware_Button.state.rawValue == 1) || viewing == "Restricted Software" {
             for (key, _) in masterObjectDict["restrictedsoftware"]! {
                 if masterObjectDict["restrictedsoftware"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))"
@@ -2467,17 +2543,17 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             }
         }
 
-        if (viewing == "All" && mobileDeviceGrpsButtonState == "on") || viewing == "Mobile Device Groups" {
-            for (key, _) in mobileDeviceGroupsDict {
-                if mobileDeviceGroupsDict[key]?["used"] == "false" {
-                    let id = "\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))"
+        if (viewing == "All" && mobileDeviceGroups_Button.state.rawValue == 1) || viewing == "Mobile Device Groups" {
+            for (key, _) in masterObjectDict["mobileDeviceGroups"]! {
+                if masterObjectDict["mobileDeviceGroups"]?[key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))"
                     WriteToLog().message(theString: "[remove_Action] remove mobile device group with id: \(id)")
                     masterItemsToDeleteArray.append(["mobiledevicegroups":id])
                 }
             }
         }
 
-        if (viewing == "All" && mobileDeviceAppsButtonState == "on") || viewing == "Mobile Device Apps" {
+        if (viewing == "All" && mobileDeviceApps_Button.state.rawValue == 1) || viewing == "Mobile Device Apps" {
             for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
                 if masterObjectDict["mobiledeviceapplications"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))"
@@ -2487,7 +2563,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             }
         }
 
-        if (viewing == "All" && configurationProfilesButtonState == "on") || viewing == "Mobile Device Config. Profiles" {
+        if (viewing == "All" && configurationProfiles_Button.state.rawValue == 1) || viewing == "Mobile Device Config. Profiles" {
             for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
                 if masterObjectDict["mobiledeviceconfigurationprofiles"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))"
@@ -2497,10 +2573,10 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             }
         }
         
-        if (viewing == "All" && classesButtonState == "on") || viewing == "Classes" {
-            for (key, _) in classesDict {
-                if classesDict[key]?["used"] == "false" {
-                    let id = "\(String(describing: classesDict[key]!["id"]!))"
+        if (viewing == "All" && classes_Button.state.rawValue == 1) || viewing == "Classes" {
+            for (key, _) in masterObjectDict["classes"]! {
+                if masterObjectDict["classes"]?[key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["classes"]?[key]!["id"]!))"
                     WriteToLog().message(theString: "[remove_Action] remove class with id: \(id)")
                     masterItemsToDeleteArray.append(["classes":id])
                 }
@@ -2561,7 +2637,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 
     @IBAction func updateViewButton_Action(_ sender: NSButton) {
         var withOptionKey = false
-        let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Policies", "Restricted Software", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles"]
         // check for option key - start
         if NSEvent.modifierFlags.contains(.option) {
             withOptionKey = true
@@ -2570,48 +2645,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         
         let state = (sender.state.rawValue == 1) ? "on":"off"
         if withOptionKey {
-            if state == "on" {
-                packages_Button.state = NSControl.StateValue(rawValue: 1)
-                scripts_Button.state = NSControl.StateValue(rawValue: 1)
-                ebooks_Button.state = NSControl.StateValue(rawValue: 1)
-                classes_Button.state = NSControl.StateValue(rawValue: 1)
-                computerGroups_Button.state = NSControl.StateValue(rawValue: 1)
-                computerProfiles_Button.state = NSControl.StateValue(rawValue: 1)
-                policies_Button.state = NSControl.StateValue(rawValue: 1)
-                restrictedSoftware_Button.state = NSControl.StateValue(rawValue: 1)
-                mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: 1)
-                mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: 1)
-                configurationProfiles_Button.state = NSControl.StateValue(rawValue: 1)
-                for theButton in availableButtons {
-//                    computers_button.state = NSControl.StateValue(rawValue: 0)
-                    view_PopUpButton.addItem(withTitle: "\(theButton)")
-                }
-            } else {
-                packages_Button.state = NSControl.StateValue(rawValue: 0)
-                scripts_Button.state = NSControl.StateValue(rawValue: 0)
-                ebooks_Button.state = NSControl.StateValue(rawValue: 0)
-                classes_Button.state = NSControl.StateValue(rawValue: 0)
-                computerGroups_Button.state = NSControl.StateValue(rawValue: 0)
-                computerProfiles_Button.state = NSControl.StateValue(rawValue: 0)
-                policies_Button.state = NSControl.StateValue(rawValue: 0)
-                restrictedSoftware_Button.state = NSControl.StateValue(rawValue: 0)
-                mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: 0)
-                mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: 0)
-                configurationProfiles_Button.state = NSControl.StateValue(rawValue: 0)
-                view_PopUpButton.removeAllItems()
-                view_PopUpButton.addItem(withTitle: "All")
-            }
-            packagesButtonState              = "\(state)"
-            scriptsButtonState               = "\(state)"
-            ebooksButtonState                = "\(state)"
-            classesButtonState               = "\(state)"
-            computerGroupsButtonState        = "\(state)"
-            computerProfilesButtonState      = "\(state)"
-            policiesButtonState              = "\(state)"
-            restrictedSoftwareButtonState    = "\(state)"
-            mobileDeviceGrpsButtonState      = "\(state)"
-            mobileDeviceAppsButtonState      = "\(state)"
-            configurationProfilesButtonState = "\(state)"
+            setAllButtonsState(theState: state)
         } else {
             let title = sender.title
             if state == "on" {
@@ -2648,6 +2682,40 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                 }
             }
         }
+    }
+    
+    func setAllButtonsState(theState: String) {
+        let state = (theState == "on") ? 1:0
+        
+        packages_Button.state = NSControl.StateValue(rawValue: state)
+        scripts_Button.state = NSControl.StateValue(rawValue: state)
+        ebooks_Button.state = NSControl.StateValue(rawValue: state)
+        classes_Button.state = NSControl.StateValue(rawValue: state)
+        computerGroups_Button.state = NSControl.StateValue(rawValue: state)
+        computerProfiles_Button.state = NSControl.StateValue(rawValue: state)
+        policies_Button.state = NSControl.StateValue(rawValue: state)
+        restrictedSoftware_Button.state = NSControl.StateValue(rawValue: state)
+        mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: state)
+        mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: state)
+        configurationProfiles_Button.state = NSControl.StateValue(rawValue: state)
+        
+        if theState == "on" {
+            let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Policies", "Restricted Software", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles"]
+            for theButton in availableButtons {
+                view_PopUpButton.addItem(withTitle: "\(theButton)")
+            }
+        }
+        packagesButtonState              = "\(theState)"
+        scriptsButtonState               = "\(theState)"
+        ebooksButtonState                = "\(theState)"
+        classesButtonState               = "\(theState)"
+        computerGroupsButtonState        = "\(theState)"
+        computerProfilesButtonState      = "\(theState)"
+        policiesButtonState              = "\(theState)"
+        restrictedSoftwareButtonState    = "\(theState)"
+        mobileDeviceGrpsButtonState      = "\(theState)"
+        mobileDeviceAppsButtonState      = "\(theState)"
+        configurationProfilesButtonState = "\(theState)"
     }
         
     func updateProcessTextfield(currentCount: String) {
@@ -2729,31 +2797,31 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                             
                             switch objectType {
                                 case "packages":
-                                    if let objectId = self.packagesDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/packages.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["packages"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/packages.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                 
                                 case "scripts":
-                                    if let objectId = self.scriptsDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/view/settings/computer/scripts/\(objectId)") {
+                                    if let objectId = self.masterObjectDict["scripts"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/view/settings/computer/scripts/\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                     
                                 case "ebooks":
-                                    if let objectId = self.ebooksDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/eBooks.html/?id=\(objectId)") {
+                                    if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/eBooks.html/?id=\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                         
                                 case "classes":
-                                    if let objectId = self.classesDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/classes.html/?id=\(objectId)") {
+                                    if let objectId = self.masterObjectDict["classes"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/classes.html/?id=\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                 
                                 case "computergroups":
-                                      if let objectId = self.computerGroupsDict[itemName]?["id"], let groupType = self.computerGroupsDict[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
+                                      if let objectId = self.masterObjectDict["computerGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["computerGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                           return
                                       }
@@ -2765,7 +2833,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                       }
                                 
                                 case "policies":
-                                    if let objectId = self.policiesDict[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/policies.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["policies"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/policies.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
@@ -2777,7 +2845,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     }
 
                                 case "mobiledevicegroups":
-                                    if let objectId = self.mobileDeviceGroupsDict[itemName]?["id"], let groupType = self.mobileDeviceGroupsDict[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
@@ -2816,9 +2884,10 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         
         saveCreds = (saveCredsState == 1) ? true:false
         // check authentication - start
-        Json().getToken(serverUrl: currentServer, base64creds: jamfBase64Creds) {
+//        Json().getToken(serverUrl: currentServer, base64creds: jamfBase64Creds) {
+        JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) {
             (result: String) in
-            if result != "" {
+            if result == "success" {
                 self.jpapiToken = result
                 DispatchQueue.main.async {
                     // save password if checked - start
@@ -2843,6 +2912,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         }
         // check authentication - stop
     }
+    
     override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
 
         if segue.identifier == "loginView" {
