@@ -56,18 +56,8 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
     var logout          = false
     // define master dictionary of items
     // ex. masterObjectDict["packages"] = [package1Name:["id":id1,"name":name1],package2Name:["id":id2,"name":name2]]
-    var masterObjectDict             = [String:[String:[String:String]]]()
-//    var packagesDict                 = Dictionary<String,Dictionary<String,String>>()    // id, name, used
-//    var scriptsDict                  = Dictionary<String,Dictionary<String,String>>()
-//    var ebooksDict                   = [String:[String:String]]()
-//    var classesDict                  = [String:[String:String]]()
-//    var policiesDict                 = [String:[String:String]]()
-//    var computerConfigurationDict    = [String:String]()
-//    var computerGroupsDict           = Dictionary<String,Dictionary<String,String>>()
-//    var osxconfigurationprofilesDict = [String:[String:String]]()
-//    var mobileDeviceGroupsDict       = [String:[String:String]]()
-//    var mobileDeviceAppsDict         = [String:[String:String]]()
-//    var allUnused                    = [[String:[String:String]]]()
+    var masterObjectDict = [String:[String:[String:String]]]()
+
     var unusedItems_TableArray: [String]?
     var unusedItems_TableDict: [[String:String]]?
     
@@ -97,7 +87,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         let path = url.deletingLastPathComponent().deletingLastPathComponent().absoluteString
         let task = Process()
         task.launchPath = "/usr/bin/open"
-        task.arguments = [path]
+        task.arguments  = [path]
         task.launch()
         exit(0)
     }
@@ -107,19 +97,18 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         
         working(isWorking: true)
         
+        waitFor.deviceGroup             = true   // used for both computer and mobile device groups
+        waitFor.computerConfiguration   = true
+        waitFor.computerPrestage        = true
+        waitFor.osxconfigurationprofile = true
+        waitFor.policy                  = true
+        waitFor.mobiledeviceobject      = true
+        waitFor.ebook                   = true
+        waitFor.classes                 = true
+        
         view_PopUpButton.isEnabled = false
         view_PopUpButton.selectItem(at: 0)
-//        packagesDict.removeAll()
-//        scriptsDict.removeAll()
-//        ebooksDict.removeAll()
-//        classesDict.removeAll()
-//        policiesDict.removeAll()
-//        osxconfigurationprofilesDict.removeAll()
-//        computerConfigurationDict.removeAll()
-//        computerGroupsDict.removeAll()
-//        mobileDeviceGroupsDict.removeAll()
-//        mobileDeviceAppsDict.removeAll()
-//        computerGroupNameById.removeAll()
+
         mobileGroupNameByIdDict.removeAll()
         masterObjectDict.removeAll()
         
@@ -140,25 +129,11 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             object_TableView.reloadData()
         }
         
-//        Json().getToken(serverUrl: currentServer, base64creds: jamfBase64Creds) {
         JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) {
             (result: String) in
             if result == "success" {
                 self.jpapiToken = result
                 DispatchQueue.main.async {
-                    // save password if checked - start
-                    /*
-                let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
-                    if self.savePassword_Button.state.rawValue == 1 {
-                        let credKey = regexKey.stringByReplacingMatches(in: self.currentServer, options: [], range: NSRange(0..<self.currentServer.utf16.count), withTemplate: "")
-                        Credentials2().save(service: "prune - "+credKey, account: self.uname_TextField.stringValue, data: self.passwd_TextField.stringValue)
-                    }
-                     // save password if checked - end
-                     if self.savePassword_Button.state.rawValue == 1 {
-                         self.defaults.set(self.passwd_TextField.stringValue, forKey: "password")
-                     }
-                    */
-                    
                     self.defaults.set(self.currentServer, forKey: "server")
                     self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
                     self.process_TextField.isHidden = false
@@ -305,28 +280,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                             DispatchQueue.main.async {
                                 self.processItems(type: "scripts")
                             }
-                            
-                           /*
-        //                    print("json returned packages: \(result)")
-                            if let _ = result["packages"] {
-                                let packagesArray = result["packages"] as! [Dictionary<String, Any>]
-                                let packagesArrayCount = packagesArray.count
-                                // loop through all packages and mark as unused
-                                if packagesArrayCount > 0 {
-                                    for i in (0..<packagesArrayCount) {
-                                        if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
-                                            self.packagesDict["\(name)"] = ["id":"\(id)", "used":"false"]
-                                            self.packagesByIdDict["\(id)"] = "\(name)"
-                                        }
-                                    }
-                                }
-            //                    print("packagesDict (\(self.packagesDict.count)): \(self.packagesDict)")
-                                WriteToLog().message(theString: "[processItems] call scripts")
-                                DispatchQueue.main.async {
-                                    self.processItems(type: "scripts")
-                                }
-                            }
-                            */
                         }
                     } else {
                         WriteToLog().message(theString: "[processItems] skipping packages - call scripts")
@@ -852,16 +805,13 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                                 }
                                                 if self.computerProfilesButtonState == "on" {
                                                     // mark used computer profiles
-//                                                    if i == 0 {
-//                                                        print("osxconfigurationprofilesDict: \(self.osxconfigurationprofilesDict)")
-//                                                    }
+
                                                     let customProfileIds  = prestageObjectArray[i]["prestageInstalledProfileIds"] as! [String]
 //                                                    print("computer profile \(displayName) has the following ids \(customProfileIds)")
                                                     for prestageProfileId in customProfileIds {
 //                                                        print("mark computer profile \(String(describing: self.computerProfilesByIdDict[prestageProfileId]!)) as used.")
                                                         self.masterObjectDict["osxconfigurationprofiles"]!["\(String(describing: self.computerProfilesByIdDict[prestageProfileId]!))"]!["used"] = "true"
-//                                                        self.osxconfigurationprofilesDict["\(String(describing: self.computerProfilesByIdDict[prestageProfileId]!))"]!["used"] = "true"
-//                                                        print(self.osxconfigurationprofilesDict["\(String(describing: self.computerProfilesByIdDict[prestageProfileId]!))"]!["used"] ?? "Unknown")
+
                                                     }
                                                 }
 //                                                print("osxconfigurationprofilesDict: \(self.osxconfigurationprofilesDict)")
@@ -1735,7 +1685,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         switch type {
         case "unusedPackages":
             category = "packages"
-//            packagesDict = (unusedItemsDictionary as! [String:[String:String]])
         case "unusedScripts":
             category = "scripts"
         case "unusedComputerGroups":

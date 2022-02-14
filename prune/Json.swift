@@ -89,63 +89,6 @@ class Json: NSObject, URLSessionDelegate {
         }   // getRecordQ - end
     }
     
-    /*
-    func getToken(serverUrl: String, base64creds: String, completion: @escaping (_ returnedToken: String) -> Void) {
-        
-        URLCache.shared.removeAllCachedResponses()
-        
-        var token          = ""
-        
-        var tokenUrlString = "\(serverUrl)/api/v1/auth/token"
-        tokenUrlString     = tokenUrlString.replacingOccurrences(of: "//api", with: "/api")
-//        print("tokenUrlString: \(tokenUrlString)")
-        
-        let tokenUrl       = URL(string: "\(tokenUrlString)")
-        let configuration  = URLSessionConfiguration.default
-        var request        = URLRequest(url: tokenUrl!)
-        request.httpMethod = "POST"
-        
-        configuration.httpAdditionalHeaders = ["Authorization" : "Basic \(base64creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
-        let session = Foundation.URLSession(configuration: configuration, delegate: self as URLSessionDelegate, delegateQueue: OperationQueue.main)
-        let task = session.dataTask(with: request as URLRequest, completionHandler: {
-            (data, response, error) -> Void in
-            if let httpResponse = response as? HTTPURLResponse {
-                if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
-                    let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                    if let endpointJSON = json! as? Dictionary<String, Any>, let _ = endpointJSON["token"] {
-                        token = endpointJSON["token"] as! String
-                        WriteToLog().message(theString: "[getToken] retrieved token from \(serverUrl)")
-                        completion(token)
-                        return
-                    } else {    // if let endpointJSON error
-                        print("JSON error")
-                        WriteToLog().message(theString: "[getToken] error with returned JSON: \(String(describing: json))")
-                        completion("")
-                        return
-                    }
-                } else {    // if httpResponse.statusCode <200 or >299
-                    print("response error: \(httpResponse.statusCode)")
-                    WriteToLog().message(theString: "[getToken] failed to retrieved token from \(serverUrl): Status code: \(httpResponse.statusCode)")
-
-                    if "\(httpResponse.statusCode)" == "401" {
-                        Alert().display(header: "Alert", message: "Failed to authenticate.  Verify username and password.")
-                    }
-                    completion("")
-                    return
-                }
-            } else {
-                print("token response error.  Verify url and port.")
-                WriteToLog().message(theString: "[getToken] No response from the server.  Verify URL and port")
-                Alert().display(header: "Alert", message: "No response from the server.  Verify URL and port.")
-                completion("")
-                return
-            }
-        })
-        task.resume()
-        
-    }   // func token - end
-    */
-    
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping(  URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }
