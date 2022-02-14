@@ -560,6 +560,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     }
                                 } else {
                                     // no computer profiles exist
+                                    waitFor.osxconfigurationprofile = false
                                     WriteToLog().message(theString: "[processItems] computer configuration profiles complete - call mobiledeviceapplications")
                                     if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGrpsButtonState == "on" {
                                         DispatchQueue.main.async {
@@ -2576,7 +2577,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         if (viewing == "All" && classes_Button.state.rawValue == 1) || viewing == "Classes" {
             for (key, _) in masterObjectDict["classes"]! {
                 if masterObjectDict["classes"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["classes"]?[key]!["id"]!))"
+                    let id = "\(String(describing: masterObjectDict["classes"]![key]!["id"]!))"
                     WriteToLog().message(theString: "[remove_Action] remove class with id: \(id)")
                     masterItemsToDeleteArray.append(["classes":id])
                 }
@@ -2593,6 +2594,14 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                 var counter = 0
                 var completed = false
                 // loop through master list and delete items - start
+                
+                DispatchQueue.main.async {
+                    self.process_TextField.isHidden = false
+                }
+                
+                var deleteCount       = 0
+                var failedDeleteCount = 0
+                var extraMessage      = ""
                 for item in masterItemsToDeleteArray {
                     // pause on the first record in a category to make sure we have the permissions to delete
                     completed = false
@@ -2606,8 +2615,15 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                     Alert().display(header: "Alert", message: "Verify username and password.")
                                     return
                                 }
+                                failedDeleteCount+=1
                                 WriteToLog().message(theString: "[remove_Action] failed to removed category \(category) with id: \(id)")
+                            } else {
+                                deleteCount+=1
                             }
+                            DispatchQueue.main.async {
+                                self.process_TextField.stringValue = "\nRemoved item \(deleteCount) of \(masterItemsToDeleteArray.count)"
+                            }
+                            
                             completed = true
 
                             WriteToLog().message(theString: "[remove_Action] removed category \(category) with id: \(id)")
@@ -2615,7 +2631,11 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                             counter += 1
                             if counter == masterItemsToDeleteArray.count {
                                 self.working(isWorking: false)
-                                Alert().display(header: "Congratulations", message: "Removal process complete.")
+                                self.process_TextField.isHidden = true
+                                if failedDeleteCount > 0 {
+                                    extraMessage = "\nNote, \(failedDeleteCount) items were not deleted."
+                                }
+                                Alert().display(header: "Congratulations", message: "Removal process complete.\(extraMessage)")
     //                            self.process_TextField.stringValue = "All removals have been processed."
     //                            sleep(3)
                             }
@@ -2884,33 +2904,35 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         
         saveCreds = (saveCredsState == 1) ? true:false
         // check authentication - start
-//        Json().getToken(serverUrl: currentServer, base64creds: jamfBase64Creds) {
-        JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) {
+        JamfPro().getVersion(jpURL: currentServer, basicCreds: jamfBase64Creds) { [self]
             (result: String) in
-            if result == "success" {
-                self.jpapiToken = result
-                DispatchQueue.main.async {
-                    // save password if checked - start
-                let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
-                    if self.saveCreds {
-                        let credKey = regexKey.stringByReplacingMatches(in: self.currentServer, options: [], range: NSRange(0..<self.currentServer.utf16.count), withTemplate: "")
-                        Credentials2().save(service: "prune - "+credKey, account: self.uname_TextField.stringValue, data: self.passwd_TextField.stringValue)
+            JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) {
+                (result: String) in
+                if result == "success" {
+                    self.jpapiToken = result
+                    DispatchQueue.main.async {
+                        // save password if checked - start
+                    let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
+                        if self.saveCreds {
+                            let credKey = regexKey.stringByReplacingMatches(in: self.currentServer, options: [], range: NSRange(0..<self.currentServer.utf16.count), withTemplate: "")
+                            Credentials2().save(service: "prune - "+credKey, account: self.uname_TextField.stringValue, data: self.passwd_TextField.stringValue)
+                        }
+                        
+                        self.defaults.set(self.currentServer, forKey: "server")
+                        self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
+                        self.logout = false
+                        WriteToLog().message(theString: "[ViewController] successfully authenticated to \(self.currentServer)")
+                        // save password if checked - end
                     }
-                    
-                    self.defaults.set(self.currentServer, forKey: "server")
-                    self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
-                    self.logout = false
-                    WriteToLog().message(theString: "[ViewController] successfully authenticated to \(self.currentServer)")
-                    // save password if checked - end
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.performSegue(withIdentifier: "loginView", sender: nil)
-                    self.working(isWorking: false)
+                } else {
+                    DispatchQueue.main.async {
+                        self.performSegue(withIdentifier: "loginView", sender: nil)
+                        self.working(isWorking: false)
+                    }
                 }
             }
+            // check authentication - stop
         }
-        // check authentication - stop
     }
     
     override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
