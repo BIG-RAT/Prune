@@ -1449,22 +1449,26 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
             //                    let computerGroupList = thePolicy["scope"] as! [String:AnyObject]
             //                                    print("computerGroupList: \(computerGroupList)")
             //                    let computer_groupList = computerGroupList["computer_groups"] as! [Dictionary<String, Any>]
-                                let computer_groupList = policyScope["computer_groups"] as! [Dictionary<String, Any>]
-                                for theComputerGroup in computer_groupList {
-            //                                        print("thePackage: \(thePackage)")
-                                    let theComputerGroupName = theComputerGroup["name"]
-            //                                        let theComputerGroupID = theComputerGroup["id"]
-            //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
+                                let computer_groupList = policyScope["computer_groups"] as! [[String:Any]]
+
+                                if self.masterObjectDict["computerGroups"]?.count ?? 0 > 0 {
+                                    for theComputerGroup in computer_groupList {
+                //                                        print("thePackage: \(thePackage)")
+                                        let theComputerGroupName = "\(String(describing: theComputerGroup["name"]!))"
+                //                                        let theComputerGroupID = theComputerGroup["id"]
+                //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+                                        self.masterObjectDict["computerGroups"]!["\(theComputerGroupName)"]?["used"] = "true"
+                                    }
+                                    // check exclusions - start
+                //                    let computer_groupExcl = computerGroupList["exclusions"] as! [String:AnyObject]
+                                    let computer_groupExcl = policyScope["exclusions"] as! [String:AnyObject]
+                                    let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
+                                    for theComputerGroupExcl in computer_groupListExcl {
+                                        let theComputerGroupName = theComputerGroupExcl["name"]
+                                        self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
+                                    }
                                 }
-                                // check exclusions - start
-            //                    let computer_groupExcl = computerGroupList["exclusions"] as! [String:AnyObject]
-                                let computer_groupExcl = policyScope["exclusions"] as! [String:AnyObject]
-                                let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
-                                for theComputerGroupExcl in computer_groupListExcl {
-                                    let theComputerGroupName = theComputerGroupExcl["name"]
-                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
-                                }
+                                
                                 // check exclusions - end
                                 // check of used computergroups - end
                                 
