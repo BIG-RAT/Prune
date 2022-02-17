@@ -617,7 +617,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                         }
                     } else {
                         // skip \(msgText)
-                        WriteToLog().message(theString: "[processItems] skipping \(msgText) - \(nextObject)")
+                        WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
                         waitFor.mobiledeviceobject = false
                         DispatchQueue.main.async {
                             self.processItems(type: nextObject)
@@ -626,7 +626,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                 
                 case "patchsoftwaretitles":
                     // look for packages used in patch policies
-                    WriteToLog().message(theString: "[processItems] patchpolicies_packages")
+                    WriteToLog().message(theString: "[processItems] patchsoftwaretitles")
             //        let nextObject = "patchsoftwaretitles"
                     let nextObject = "patchpolicies"
 //                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
@@ -665,7 +665,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                    self.process_TextField.stringValue = "Scanning Patch Policies for packages..."
                                }
                             
-                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                               WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
                                waitFor.policy = true
                                self.backgroundQ.async {
@@ -690,7 +690,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                            }
                        }   //         Json().getRecord - patchpolicies - end
                     } else {
-                       WriteToLog().message(theString: "[processItems] skipping patch policies - call patchsoftwaretitles")
+                       WriteToLog().message(theString: "[processItems] skipping patch policies - call \(nextObject)")
                        DispatchQueue.main.async {
                            self.processItems(type: nextObject)
                        }
@@ -1193,12 +1193,12 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                 if "\(theEndpoint)" == "patchsoftwaretitles" {
                                     // check of used packages - start
                                     let packageVersionArray = parsedXmlData.patch_software_title.versions.version
-        //                            print("[patchPolicy] package name: \(packageVersionArray)")
+//                                    print("[patchPolicy] package name: \(packageVersionArray)")
                                     
                                     
                                     for thePackageInfo in packageVersionArray {
                                         if thePackageInfo.package.Name.text != nil {
-    //                                        print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
+//                                            print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
                                             self.masterObjectDict["packages"]!["\(thePackageInfo.package.Name.text!)"]?["used"] = "true"
                                         }
 
