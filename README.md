@@ -77,9 +77,7 @@ This application deletes stuff, use with caution!  It is recommended you have a 
 <br><br><hr><br>
 
 ### History:
-2022-02-15 - Resolve crash that could occur if computer groups was not scanned, issue #15.
-
-2022-02-13 - Add token authentication to the classic API for Jamf Pro 10.35+.  Add feedback while items are being deleted from the Jamf Pro server.  Resolved removal warning always showing 0 items (#13) and items not getting deleted when importing files (#14).
+2022-02-17 - Add token authentication to the classic API for Jamf Pro 10.35+. Add feedback while items are being deleted from the Jamf Pro server. Resolved removal warning always showing 0 items (#13 ) and items not getting deleted when importing files (#14 ). Resolve crash that could occur if computer groups was not scanned, issue #15 .  Resolve issue #16, packages in patch policies not being picked up.
 
 2022-01-17 - Apologies in advance.  Layout changed as a dedicated login window was added.  Added restricted software as an item to query.  Changed Remove button to Delete.
 
