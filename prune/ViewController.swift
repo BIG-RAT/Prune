@@ -10,7 +10,7 @@ import Cocoa
 import Foundation
 import SwiftyXMLParser
 
-class ViewController: NSViewController, SendingLoginInfoDelegate {
+class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDelegate {
     
     var theGetQ    = OperationQueue() // create operation queue for API POST/PUT calls
     var theDeleteQ = OperationQueue() // queue for delete API calls
@@ -54,6 +54,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
     var jpapiToken      = ""
     var completed       = 0
     var logout          = false
+    var counter         = 0
+    var incrememt       = 0.0
+    var itemsToDelete   = 0
     // define master dictionary of items
     // ex. masterObjectDict["packages"] = [package1Name:["id":id1,"name":name1],package2Name:["id":id2,"name":name2]]
     var masterObjectDict = [String:[String:[String:String]]]()
@@ -638,7 +641,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                         self.masterObjectDict[type] = [String:[String:String]]()
                         var patchPoliciesArray = [[String:Any]]()
                         
-                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
+                        self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
                             (result: (Int,String)) in
                             let (statusCode,returnedXml) = result
 //                            print("[patchsoftwaretitles] patchpolicies GET statusCode: \(statusCode)")
@@ -708,7 +711,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                                 self.masterObjectDict[type] = [String:[String:String]]()
                                 var patchPoliciesArray = [[String:Any]]()
                                 
-                                Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") {
+                                self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") {
                                     (result: (Int,String)) in
                                     let (statusCode,returnedXml) = result
 //                                    print("[processItems] patchpolicies GET statusCode: \(statusCode)")
@@ -871,7 +874,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                    self.masterObjectDict[type] = [String:[String:String]]()
                    var restrictedsoftwareArray = [[String:Any]]()
                    
-                   Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "restrictedsoftware") {
+                    self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "restrictedsoftware") {
                        (result: (Int,String)) in
                        let (statusCode,returnedXml) = result
        //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
@@ -1177,7 +1180,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                         // lookup complete record, XML format
 //                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
                     // search for used packages using patchsoftwaretitles endpoint
-                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
+                self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
 //                            print("[returnedXml] full XML: \(returnedXml)")
@@ -2111,7 +2114,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                         }   // for (key, _) in packagesDict - end
                         policyLogFileOp.seekToEndOfFile()
                         policyLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
-    //                    packageLogFileOp.write("</unusedPackages>".data(using: String.Encoding.utf8)!)
                         policyLogFileOp.closeFile()
                         exportedItems.append("\tUnused Policies")
                     }
@@ -2544,23 +2546,33 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 
         if continueDelete == "OK" {
             theDeleteQ.addOperation {
-                var counter = 0
+                self.counter = 0
                 var completed = false
                 // loop through master list and delete items - start
                 
                 DispatchQueue.main.async {
                     self.process_TextField.isHidden = false
                 }
+                DispatchQueue.main.async {
+                    self.spinner_ProgressIndicator.increment(by: -100.0)
+                    self.spinner_ProgressIndicator.isIndeterminate = false
+                }
                 
                 var deleteCount       = 0
                 var failedDeleteCount = 0
                 var extraMessage      = ""
+                self.itemsToDelete    = masterItemsToDeleteArray.count
+                
                 for item in masterItemsToDeleteArray {
                     // pause on the first record in a category to make sure we have the permissions to delete
                     completed = false
                     for (category, id) in item {
-                        Xml().action(action: "DELETE", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
+//                        DispatchQueue.main.async {
+//                            self.process_TextField.stringValue = "\nProcessed item \(counter+1) of \(masterItemsToDeleteArray.count)"
+//                        }
+                        self.xmlAction(action: "DELETE", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
                             (xmlResult: (Int,String)) in
+//
                             let (statusCode, _) = xmlResult
                             if !(statusCode >= 200 && statusCode <= 299) {
                                 if "\(statusCode)" == "401" {
@@ -2573,24 +2585,29 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                             } else {
                                 deleteCount+=1
                             }
-                            DispatchQueue.main.async {
-                                self.process_TextField.stringValue = "\nRemoved item \(deleteCount) of \(masterItemsToDeleteArray.count)"
-                            }
+                            self.counter += 1
+                            print("removed category \(category) with id: \(id)")
+                            print("Processed item \(deleteCount+failedDeleteCount) of \(masterItemsToDeleteArray.count)")
+                            print("counter: \(self.counter)")
+//                            DispatchQueue.main.async {
+//                                self.process_TextField.stringValue = "\nProcessed item \(counter) of \(masterItemsToDeleteArray.count)"
+//                            }
                             
-                            completed = true
+                            
+                                completed = true
 
-                            WriteToLog().message(theString: "[remove_Action] removed category \(category) with id: \(id)")
-    //                        print("json returned packages: \(result)")
-                            counter += 1
-                            if counter == masterItemsToDeleteArray.count {
-                                self.working(isWorking: false)
-                                self.process_TextField.isHidden = true
+                                WriteToLog().message(theString: "[remove_Action] removed category \(category) with id: \(id)")
+        //                        print("json returned packages: \(result)")
+                            if self.counter == masterItemsToDeleteArray.count {
                                 if failedDeleteCount > 0 {
                                     extraMessage = "\nNote, \(failedDeleteCount) items were not deleted."
                                 }
                                 Alert().display(header: "Congratulations", message: "Removal process complete.\(extraMessage)")
-    //                            self.process_TextField.stringValue = "All removals have been processed."
-    //                            sleep(3)
+                                DispatchQueue.main.async {
+                                    self.spinner_ProgressIndicator.isIndeterminate = true
+                                }
+                                self.working(isWorking: false)
+                                self.process_TextField.isHidden = true
                             }
 
                         }   // Xml().action - end
@@ -2607,7 +2624,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
     }
     // remove objects from the server - end
     
-
     @IBAction func updateViewButton_Action(_ sender: NSButton) {
         var withOptionKey = false
         // check for option key - start
@@ -2655,6 +2671,78 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                 }
             }
         }
+    }
+    
+    func xmlAction(action: String, theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: (Int,String)) -> Void) {
+
+        let getRecordQ = OperationQueue()   //DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
+    
+        URLCache.shared.removeAllCachedResponses()
+        var existingDestUrl = ""
+        
+        existingDestUrl = "\(theServer)/JSSResource/\(theEndpoint)"
+        existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
+        
+//        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
+        WriteToLog().message(theString: "[Xml.\(action.uppercased())] existing endpoints URL: \(existingDestUrl)")
+        let destEncodedURL = URL(string: existingDestUrl)
+        let xmlRequest     = NSMutableURLRequest(url: destEncodedURL! as URL)
+        
+        let semaphore = DispatchSemaphore(value: 1)
+        getRecordQ.maxConcurrentOperationCount = 4
+        getRecordQ.addOperation {
+            
+            xmlRequest.httpMethod = "\(action.uppercased())"
+            let destConf = URLSessionConfiguration.default
+                        
+            switch JamfProServer.authType {
+            case "Basic":
+                destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : appInfo.userAgentHeader]
+            default:
+                destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(JamfProServer.authCreds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : appInfo.userAgentHeader]
+            }
+            let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
+            let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {
+                (data, response, error) -> Void in
+                if let httpResponse = response as? HTTPURLResponse {
+//                    print("[Xml.action] httpResponse: \(String(describing: httpResponse))")
+                    
+                    if action == "DELETE" {
+                        DispatchQueue.main.async {
+                            self.process_TextField.stringValue = "\nProcessed item \(self.counter+1) of \(self.itemsToDelete)"
+                            print("increment by: \(100.0/Double(self.itemsToDelete))")
+                            self.spinner_ProgressIndicator.increment(by: 100.0/Double(self.itemsToDelete))
+                            if (self.counter+1) == self.itemsToDelete {
+                                self.spinner_ProgressIndicator.increment(by: 100.0)
+                            }
+                        }
+                    }
+                    
+                    if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
+                        do {
+                            let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
+
+                            completion((httpResponse.statusCode,returnedXML))
+                        }
+                    } else {
+                        WriteToLog().message(theString: "[Xml.\(action.uppercased())] error HTTP Status Code: \(httpResponse.statusCode)\n")
+                        if action != "DELETE" {
+                            completion((httpResponse.statusCode,""))
+                        } else {
+                            completion((httpResponse.statusCode,""))
+                        }
+                    }
+                } else {
+//                    WriteToLog().message(stringOfText: "[Xml.action] error parsing JSON for \(existingDestUrl)\n")
+                    completion((0,""))
+                }   // if let httpResponse - end
+                semaphore.signal()
+                if error != nil {
+                }
+            })  // let task = destSession - end
+            //print("GET")
+            task.resume()
+        }   // getRecordQ - end
     }
     
     func setAllButtonsState(theState: String) {
@@ -2738,7 +2826,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
 //            print("don't save password")
         }
     }
-    
     
     func working(isWorking: Bool) {
         if isWorking {
@@ -2856,9 +2943,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
         jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
         
         saveCreds = (saveCredsState == 1) ? true:false
-        // check authentication - start
-        JamfPro().getVersion(jpURL: currentServer, basicCreds: jamfBase64Creds) { [self]
-            (result: String) in
+        // check authentication, check version, set auth method - start
             JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) {
                 (result: String) in
                 if result == "success" {
@@ -2885,7 +2970,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate {
                 }
             }
             // check authentication - stop
-        }
     }
     
     override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
@@ -2972,5 +3056,9 @@ extension ViewController: NSTableViewDelegate {
             return cell
         }
         return nil
+    }
+    
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping(  URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }
 }

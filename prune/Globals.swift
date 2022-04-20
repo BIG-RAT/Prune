@@ -23,6 +23,9 @@ struct JamfProServer {
     static var build        = ""
     static var authType     = "Basic"
     static var authCreds    = ""
+    static var base64Creds  = ""        // used if we want to auth with a different account
+    static var validToken   = false
+    static var version      = ""
 }
 
 struct Log {

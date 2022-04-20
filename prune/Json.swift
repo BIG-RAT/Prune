@@ -49,7 +49,7 @@ class Json: NSObject, URLSessionDelegate {
             case "Basic":
                 destConf.httpAdditionalHeaders = ["Authorization" : "\(authType) \(base64Creds)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
             default:
-                destConf.httpAdditionalHeaders = ["Authorization" : "\(authType) \(token.sourceServer)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
+                destConf.httpAdditionalHeaders = ["Authorization" : "\(authType) \(JamfProServer.authCreds)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : appInfo.userAgentHeader]
             }
             
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
