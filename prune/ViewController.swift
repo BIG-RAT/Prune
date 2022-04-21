@@ -2360,6 +2360,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                     case "policies":
                                         if withOptionKey {
                                             self.masterObjectDict["policies"]?.removeValue(forKey: itemName)
+//                                            self.object_TableView.reloadData()
                                         } else {
                                             WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
@@ -2586,17 +2587,10 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 deleteCount+=1
                             }
                             self.counter += 1
-                            print("removed category \(category) with id: \(id)")
-                            print("Processed item \(deleteCount+failedDeleteCount) of \(masterItemsToDeleteArray.count)")
-                            print("counter: \(self.counter)")
-//                            DispatchQueue.main.async {
-//                                self.process_TextField.stringValue = "\nProcessed item \(counter) of \(masterItemsToDeleteArray.count)"
-//                            }
                             
-                            
-                                completed = true
+                            completed = true
 
-                                WriteToLog().message(theString: "[remove_Action] removed category \(category) with id: \(id)")
+                            WriteToLog().message(theString: "[remove_Action] removed category \(category) with id: \(id)")
         //                        print("json returned packages: \(result)")
                             if self.counter == masterItemsToDeleteArray.count {
                                 if failedDeleteCount > 0 {
@@ -2710,7 +2704,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     if action == "DELETE" {
                         DispatchQueue.main.async {
                             self.process_TextField.stringValue = "\nProcessed item \(self.counter+1) of \(self.itemsToDelete)"
-                            print("increment by: \(100.0/Double(self.itemsToDelete))")
                             self.spinner_ProgressIndicator.increment(by: 100.0/Double(self.itemsToDelete))
                             if (self.counter+1) == self.itemsToDelete {
                                 self.spinner_ProgressIndicator.increment(by: 100.0)

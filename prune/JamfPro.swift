@@ -172,6 +172,10 @@ class JamfPro: NSObject, URLSessionDelegate {
                             }
                             // get Jamf Pro version - end
                         } else {
+                            if JamfProServer.authType == "Bearer" {
+                                WriteToLog().message(theString: "[JamfPro.getVersion] call token refresh process for \(serverUrl)")
+                                self.refresh(server: serverUrl, whichServer: whichServer, b64Creds: JamfProServer.base64Creds)
+                            }
                             completion("success")
                             return
                         }
