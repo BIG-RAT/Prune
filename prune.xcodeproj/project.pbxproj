@@ -20,7 +20,6 @@
 		B5B3096623AD3857004BA9DB /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B3096523AD3857004BA9DB /* Alert.swift */; };
 		B5B3096C23B05120004BA9DB /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B3096B23B05120004BA9DB /* Globals.swift */; };
 		B5DF4D6C23A5771A00225468 /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DF4D6B23A5771A00225468 /* Time.swift */; };
-		B5DF4D6E23A7103200225468 /* Xml.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DF4D6D23A7103200225468 /* Xml.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,7 +40,6 @@
 		B5B3096523AD3857004BA9DB /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		B5B3096B23B05120004BA9DB /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		B5DF4D6B23A5771A00225468 /* Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
-		B5DF4D6D23A7103200225468 /* Xml.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xml.swift; sourceTree = "<group>"; };
 		D2FC4023F18644BA239A2BAD /* Pods_Prune.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Prune.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -105,7 +103,6 @@
 				B580FA3E27B8324300E425EC /* JamfPro.swift */,
 				B58A314023A1397E0023EA63 /* ViewController.swift */,
 				B5247030252C53A1006CCFD3 /* WriteToLog.swift */,
-				B5DF4D6D23A7103200225468 /* Xml.swift */,
 				B58A314223A139810023EA63 /* Assets.xcassets */,
 				B58A314423A139810023EA63 /* Main.storyboard */,
 				B58A314723A139810023EA63 /* Info.plist */,
@@ -237,7 +234,6 @@
 				B58981E923B3DAC800CC3C5B /* Credentials2.swift in Sources */,
 				B580FA3F27B8324300E425EC /* JamfPro.swift in Sources */,
 				B5B3096C23B05120004BA9DB /* Globals.swift in Sources */,
-				B5DF4D6E23A7103200225468 /* Xml.swift in Sources */,
 				B580FA4B27BA14AC00E425EC /* LoginViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -388,7 +384,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.2.2;
+				MARKETING_VERSION = 2.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -412,7 +408,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.2.2;
+				MARKETING_VERSION = 2.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
