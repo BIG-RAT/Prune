@@ -2585,18 +2585,18 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 WriteToLog().message(theString: "[remove_Action] failed to removed category \(category) with id: \(id)")
                             } else {
                                 deleteCount+=1
+                                WriteToLog().message(theString: "[remove_Action] removed category \(category) with id: \(id)")
                             }
                             self.counter += 1
                             
                             completed = true
 
-                            WriteToLog().message(theString: "[remove_Action] removed category \(category) with id: \(id)")
         //                        print("json returned packages: \(result)")
                             if self.counter == masterItemsToDeleteArray.count {
                                 if failedDeleteCount > 0 {
                                     extraMessage = "\nNote, \(failedDeleteCount) items were not deleted."
                                 }
-                                Alert().display(header: "Congratulations", message: "Removal process complete.\(extraMessage)")
+                                Alert().display(header: "Removal process complete.\(extraMessage)", message: "")
                                 DispatchQueue.main.async {
                                     self.spinner_ProgressIndicator.isIndeterminate = true
                                 }
