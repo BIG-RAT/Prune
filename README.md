@@ -73,13 +73,15 @@ Once the list of unused items is generated you can edit it within the app.  If y
 <br><br><hr><br>
 
 ### Important:
-This application deletes stuff, use with caution!  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Jamf Migrator](https://github.com/jamf/JamfMigrator) and export the (full) XML of all objects, or do both.
+This application deletes stuff, <b>use with caution!</b>  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Jamf Migrator](https://github.com/jamf/JamfMigrator) and export the (full) XML of all objects, or do both.
 <br><br><hr><br>
 
 ### History:
+2022-04-25 - v2.2.4: Fix crash when scanning only computer (configuration) profiles.  Add keyboard shortcut and menu bar item (View --> Logs Folder) to open logs folder.
+
 2022-04-21 - v2.2.3: Fix some potential authentication issues.  Add deterministic progress wheel to provide current status while deleting items.
 
-2022-02-17 - Add token authentication to the classic API for Jamf Pro 10.35+. Add feedback while items are being deleted from the Jamf Pro server. Resolved removal warning always showing 0 items (#13 ) and items not getting deleted when importing files (#14 ). Resolve crash that could occur if computer groups was not scanned, issue #15 .  Resolve issue #16, packages in patch policies not being picked up.
+2022-02-17 - Add token authentication to the classic API for Jamf Pro 10.35+. Add feedback while items are being deleted from the Jamf Pro server. Resolved removal warning always showing 0 items (#13 ) and items not getting deleted when importing files (#14 ). Resolve crash that could occur if computer groups was not scanned, issue #15.  Resolve issue #16, packages in patch policies not being picked up.
 
 2022-01-17 - Apologies in advance.  Layout changed as a dedicated login window was added.  Added restricted software as an item to query.  Changed Remove button to Delete.
 

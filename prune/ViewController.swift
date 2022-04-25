@@ -2983,6 +2983,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         
         saveCreds = (saveCredsState == 1) ? true:false
         // check authentication, check version, set auth method - start
+        WriteToLog().message(theString: "[ViewController] Running Prune v\(appInfo.version)")
             JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) {
                 (result: String) in
                 if result == "success" {
