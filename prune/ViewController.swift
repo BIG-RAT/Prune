@@ -60,6 +60,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     // define master dictionary of items
     // ex. masterObjectDict["packages"] = [package1Name:["id":id1,"name":name1],package2Name:["id":id2,"name":name2]]
     var masterObjectDict = [String:[String:[String:String]]]()
+    var masterObjects    = ["packages", "osxconfigurationprofiles", "scripts", "ebooks", "classes", "computerGroups", "policies", "restrictedsoftware", "mobileDeviceGroups", "mobiledeviceapplications", "mobiledeviceconfigurationprofiles", "computer-prestages", "patchpolicies", "patchsoftwaretitles"]
 
     var unusedItems_TableArray: [String]?
     var unusedItems_TableDict: [[String:String]]?
@@ -70,6 +71,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     var computerProfilesByIdDict    = [String:String]()
     
     var itemSeperators              = [String]()
+    var isDir: ObjCBool             = true
     
     var packagesButtonState              = "off"
     var scriptsButtonState               = "off"
@@ -132,31 +134,44 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
             object_TableView.reloadData()
         }
         
-        JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) {
+        JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) { [self]
             (result: String) in
             if result == "success" {
-                self.jpapiToken = result
+                jpapiToken = result
                 DispatchQueue.main.async {
-                    self.defaults.set(self.currentServer, forKey: "server")
-                    self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
-                    self.process_TextField.isHidden = false
-                    self.process_TextField.stringValue = "Starting lookups..."
+                    defaults.set(currentServer, forKey: "server")
+                    defaults.set("\(uname_TextField.stringValue)", forKey: "username")
+                    process_TextField.isHidden = false
+                    process_TextField.stringValue = "Starting lookups..."
+                }
+                // initialize masterObjectsDict
+                for theObject in masterObjects {
+                    masterObjectDict[theObject] = [String:[String:String]]()
                 }
                 WriteToLog().message(theString: "[Scan] start scanning...")
-                if self.computerGroupsButtonState == "on" {
-                    self.processItems(type: "computerGroups")
+                if computerGroupsButtonState == "on" {
+                    processItems(type: "computerGroups")
                 } else {
-                    self.processItems(type: "mobileDeviceGroups")
+                    processItems(type: "mobileDeviceGroups")
                 }
-//                self.processItems(type: "packages")
+//                processItems(type: "packages")
             } else {
                 DispatchQueue.main.async {
-                    self.working(isWorking: false)
+                    working(isWorking: false)
                 }
             }
         }
     }
     
+    
+    @IBAction func showLogFolder(_ sender: Any) {
+        isDir = true
+        if (FileManager.default.fileExists(atPath: Log.path!, isDirectory: &isDir)) {
+            NSWorkspace.shared.open(URL(fileURLWithPath: Log.path!))
+        } else {
+            Alert().display(header: "Alert", message: "There are currently no log files to display.")
+        }
+    }
     
     func processItems(type: String) {
         
@@ -167,7 +182,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 
         theGetQ.addOperation {
             
-            self.masterObjectDict[type] = [String:[String:String]]()
+//            self.masterObjectDict[type] = [String:[String:String]]()
             
             switch type {
                 case "computerGroups", "mobileDeviceGroups":
@@ -480,7 +495,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         }
                         Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                             (result: [String:AnyObject]) in
-                            self.masterObjectDict["osxconfigurationprofiles"] = [String:[String:String]]()
+//                            self.masterObjectDict["osxconfigurationprofiles"] = [String:[String:String]]()
                             if let _  = result["os_x_configuration_profiles"] {
                                 let osxconfigurationprofilesArray = result["os_x_configuration_profiles"] as! [Dictionary<String, Any>]
                                 let osxconfigurationprofilesArrayCount = osxconfigurationprofilesArray.count
@@ -576,7 +591,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         }
                         Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                             (result: [String:AnyObject]) in
-                            self.masterObjectDict[type] = [String:[String:String]]()
+//                            self.masterObjectDict[type] = [String:[String:String]]()
                             if let _ = result[xmlTag] {
                                 let mobileDeviceObjectArray = result[xmlTag] as! [Dictionary<String, Any>]
                                 let mobileDeviceObjectArrayCount = mobileDeviceObjectArray.count
@@ -638,7 +653,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                self.process_TextField.stringValue = "Fetching Patch Software Titles..."
                         }
 
-                        self.masterObjectDict[type] = [String:[String:String]]()
+//                        self.masterObjectDict[type] = [String:[String:String]]()
                         var patchPoliciesArray = [[String:Any]]()
                         
                         self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
@@ -708,7 +723,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                        self.process_TextField.stringValue = "Fetching Patch Policies..."
                                 }
 
-                                self.masterObjectDict[type] = [String:[String:String]]()
+//                                self.masterObjectDict[type] = [String:[String:String]]()
                                 var patchPoliciesArray = [[String:Any]]()
                                 
                                 self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") {
@@ -786,7 +801,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             Json().getRecord(theServer: self.currentServer, base64Creds: self.jpapiToken, theEndpoint: type) {
                                 (result: [String:AnyObject]) in
 //                                print("json returned prestages: \(result)")
-                                self.masterObjectDict[type] = [String:[String:String]]()
+//                                self.masterObjectDict[type] = [String:[String:String]]()
                                 if let _ = result[xmlTag] {
                                     let prestageObjectArray = result[xmlTag] as! [[String: Any]]
                                     let prestageObjectArrayCount = prestageObjectArray.count
@@ -871,7 +886,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                           self.process_TextField.stringValue = "Fetching Restricted Software..."
                    }
 
-                   self.masterObjectDict[type] = [String:[String:String]]()
+//                   self.masterObjectDict[type] = [String:[String:String]]()
                    var restrictedsoftwareArray = [[String:Any]]()
                    
                     self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "restrictedsoftware") {
@@ -1168,6 +1183,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         }
                     
         let theObject = objectArray[index]
+        WriteToLog().message(theString: "[recursiveLookup] start parsing \(theObject)")
         if let id = theObject["id"], let name = theObject["name"] {
             WriteToLog().message(theString: "[recursiveLookup] \(index+1) of \(objectArrayCount)\t lookup: name \(name) - id \(id)")
             updateProcessTextfield(currentCount: "\n(\(index+1)/\(objectArrayCount))")
@@ -1180,7 +1196,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         // lookup complete record, XML format
 //                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
                     // search for used packages using patchsoftwaretitles endpoint
-                self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
+                    self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
 //                            print("[returnedXml] full XML: \(returnedXml)")
@@ -1385,22 +1401,26 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 if self.isScoped(scope: profileScope) {
                                     self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"]!["used"] = "true"
                                 }
+//                                if let _ = self.masterObjectDict["computerGroups"] {
+//                                    // we're ok
+//                                } else {
+//                                    self.masterObjectDict["computerGroups"] = [String:[String:String]]()
+//                                }
                                 let computer_groupList = profileScope["computer_groups"] as! [Dictionary<String, Any>]
                                 for theComputerGroup in computer_groupList {
             //                                        print("thePackage: \(thePackage)")
-                                    let theComputerGroupName = theComputerGroup["name"]
+                                    let theComputerGroupName = theComputerGroup["name"] as! String
             //                                        let theComputerGroupID = theComputerGroup["id"]
-            //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName)"]?["used"] = "true"
                                 }
                                 // check exclusions - start
                                 let computer_groupExcl = profileScope["exclusions"] as! [String:AnyObject]
                                 let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [Dictionary<String, Any>]
                                 for theComputerGroupExcl in computer_groupListExcl {
-            //                                        print("thePackage: \(thePackage)")
-                                    let theComputerGroupName = theComputerGroupExcl["name"]
+//                                    print("thePackage: \(thePackage)")
+                                    let theComputerGroupName = theComputerGroupExcl["name"] as! String
             //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
+                                    self.masterObjectDict["computerGroups"]!["\(theComputerGroupName)"]?["used"] = "true"
                                 }
                                 // check exclusions - end
                                 // check of used computergroups - end
@@ -1572,7 +1592,32 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     }   //Json().getRecord - end
             }
             
-        }   // if let id = theObject["id"], let name = theObject["name"] - end
+        } else {   // if let id = theObject["id"], let name = theObject["name"] - end
+            WriteToLog().message(theString: "[recursiveLookup] unable to identify id and/or name of object")
+            if index == objectArrayCount-1 {
+                switch theEndpoint {
+                case "computergroups", "mobiledevicegroups":
+                    waitFor.deviceGroup = false
+//                            case "computerconfigurations":
+//                                waitFor.computerConfiguration = false
+                case "ebooks":
+                    waitFor.ebook = false
+                case "classes":
+                    waitFor.classes = false
+                case "osxconfigurationprofiles":
+                    waitFor.osxconfigurationprofile = false
+                case "policies","patchpolicies","patchsoftwaretitles","restrictedsoftware":
+                    waitFor.policy = false
+                case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
+                    waitFor.mobiledeviceobject = false
+                default:
+                    WriteToLog().message(theString: "[index == objectArrayCount-1] unknown endpoint: \(theEndpoint)")
+                }
+            } else {
+                // check the next item
+                self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
+            }
+        }
     }
 
     func unused(itemDictionary: [[String:Any]]) {
@@ -2698,6 +2743,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
+                destSession.finishTasksAndInvalidate()
                 if let httpResponse = response as? HTTPURLResponse {
 //                    print("[Xml.action] httpResponse: \(String(describing: httpResponse))")
                     

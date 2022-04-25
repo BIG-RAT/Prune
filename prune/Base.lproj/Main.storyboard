@@ -617,6 +617,11 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="hB3-LF-h0Y"/>
+                                        <menuItem title="Logs Folder" keyEquivalent="l" id="Z9G-U9-B08">
+                                            <connections>
+                                                <action selector="showLogFolder:" target="Ady-hI-5gd" id="FNi-AY-8eF"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem title="Show Sidebar" keyEquivalent="s" id="kIP-vf-haE">
                                             <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                             <connections>
@@ -1107,10 +1112,10 @@ DQ
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" imageHugsTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Qaq-HO-yMo">
-                                <rect key="frame" x="29" y="365" width="88" height="32"/>
-                                <buttonCell key="cell" type="push" title="Scan" bezelStyle="rounded" image="magnifyingGlass" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="Guz-jY-sqt">
+                                <rect key="frame" x="29" y="365" width="89" height="32"/>
+                                <buttonCell key="cell" type="push" title="Scan" bezelStyle="rounded" image="radar" imagePosition="left" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Guz-jY-sqt">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system" size="16"/>
+                                    <font key="font" metaFont="system" size="14"/>
                                     <string key="keyEquivalent" base64-UTF8="YES">
 DQ
 </string>
@@ -1160,7 +1165,7 @@ DQ
                                 </buttonCell>
                             </button>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JcO-81-SqS">
-                                <rect key="frame" x="118" y="374" width="407" height="18"/>
+                                <rect key="frame" x="119" y="374" width="407" height="18"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="407" id="1jg-6i-QpM"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="407" id="7Yc-6F-7Ws"/>
@@ -1256,6 +1261,6 @@ DQ
         </scene>
     </scenes>
     <resources>
-        <image name="magnifyingGlass" width="32" height="40"/>
+        <image name="radar" width="36" height="34"/>
     </resources>
 </document>

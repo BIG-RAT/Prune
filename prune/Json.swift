@@ -34,7 +34,6 @@ class Json: NSObject, URLSessionDelegate {
             }
         }
         
-//        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
         WriteToLog().message(theString: "[Json.getRecord] get existing endpoints URL: \(existingDestUrl)")
         let destEncodedURL = URL(string: existingDestUrl)
         let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
@@ -55,16 +54,24 @@ class Json: NSObject, URLSessionDelegate {
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: jsonRequest as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
+                destSession.finishTasksAndInvalidate()
                 if let httpResponse = response as? HTTPURLResponse {
 //                    print("[Json.getRecord] httpResponse: \(String(describing: httpResponse))")
                     if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                         do {
                             let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                             if let endpointJSON = json as? [String:AnyObject] {
-//                                if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] \(endpointJSON)\n") }
+//                                WriteToLog().message(theString: "[Json.getRecord] returned JSON: \(endpointJSON)")
                                 completion(endpointJSON)
                             } else {
-//                                WriteToLog().message(stringOfText: "[Json.getRecord] error parsing JSON for \(existingDestUrl)\n")
+                                WriteToLog().message(theString: "[Json.getRecord] error parsing JSON for \(existingDestUrl)")
+                                if let _ = String(data: data!, encoding: .utf8) {
+                                    let responseData = String(data: data!, encoding: .utf8)!
+                                    WriteToLog().message(theString: "[Json.getRecord] full response from GET:\n\(responseData)")
+            //                        print("create data response: \(responseData)")
+                                } else {
+                                    WriteToLog().message(theString: "[Json.getRecord] No data was returned from post/put")
+                                }
                                 completion([:])
                             }
                         }
@@ -73,11 +80,10 @@ class Json: NSObject, URLSessionDelegate {
                         if "\(httpResponse.statusCode)" == "401" {
                             Alert().display(header: "Alert", message: "Verify username and password.")
                         }
-//                        WriteToLog().message(stringOfText: "[Json.getRecord] error HTTP Status Code: \(httpResponse.statusCode)\n")
                         completion([:])
                     }
                 } else {
-//                    WriteToLog().message(stringOfText: "[Json.getRecord] error parsing JSON for \(existingDestUrl)\n")
+                    WriteToLog().message(theString: "[Json.getRecord] no response for \(existingDestUrl)")
                     completion([:])
                 }   // if let httpResponse - end
                 semaphore.signal()

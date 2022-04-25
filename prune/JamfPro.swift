@@ -113,6 +113,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         let session = Foundation.URLSession(configuration: configuration, delegate: self as URLSessionDelegate, delegateQueue: OperationQueue.main)
         let task = session.dataTask(with: request as URLRequest, completionHandler: {
             (data, response, error) -> Void in
+            session.finishTasksAndInvalidate()
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
