@@ -88,7 +88,6 @@ class JamfPro: NSObject, URLSessionDelegate {
         
     }
     
-//    func get(serverUrl: String, whichServer: String, base64creds: String) {
     func getToken(serverUrl: String, whichServer: String, base64creds: String, completion: @escaping (_ returnedToken: String) -> Void) {
         
 //        print("\(serverUrl.prefix(4))")
