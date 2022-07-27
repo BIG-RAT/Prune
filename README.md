@@ -77,6 +77,7 @@ This application deletes stuff, <b>use with caution!</b>  It is recommended you 
 <br><br><hr><br>
 
 ### History:
+2022-07-27 - v2.2.5: Resolve crash when import  
 2022-04-25 - v2.2.4: Fix crash when scanning only computer (configuration) profiles.  Add keyboard shortcut and menu bar item (View --> Logs Folder) to open logs folder.
 
 2022-04-21 - v2.2.3: Fix some potential authentication issues.  Add deterministic progress wheel to provide current status while deleting items.

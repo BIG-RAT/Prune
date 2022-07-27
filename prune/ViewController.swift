@@ -449,7 +449,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 //                        }
 //                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations") {
 //                            (result: [String:AnyObject]) in
-//                //            print("json returned: \(result)")
+//                            print("json returned: \(result)")
 //                            self.completed = 0
 //                            let computerConfigurationsArray = result["computer_configurations"] as! [Dictionary<String, Any>]
 //                            let computerConfigurationsArrayCount = computerConfigurationsArray.count
@@ -1655,7 +1655,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                 }
                 // case insensitive sort - ascending
                 sortedArray = sortedArray.sorted{$0.localizedCaseInsensitiveCompare($1) == .orderedAscending}
-//                print("\(sortedArray.sorted())")
+//                print("sortedArray: \(sortedArray)")
 //                print("unusedItems_TableArray.count: \(String(describing: unusedItems_TableArray!.count))")
 //                if unusedItems_TableArray?[0] == nil {
                 if unusedItems_TableArray?.count != nil {
@@ -1707,24 +1707,25 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 
     }
     
-    func generateMasterObjectDict(type: String, data: [String:Any], nextItem: String) {
-        let objectsArray = data[type] as! [[String:Any]]
-        let objectsArrayCount = objectsArray.count
-        if objectsArrayCount > 0 {
-            for i in (0..<objectsArrayCount) {
-                if let id = objectsArray[i]["id"], let name = objectsArray[i]["name"] {
-                    if "\(name)" != "" {
-                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                    }
-                }
-            }
-        }
-        
-        WriteToLog().message(theString: "[processItems] scripts complete - call \(nextItem)")
-        DispatchQueue.main.async {
-            self.processItems(type: nextItem)
-        }
-    }
+    // removed 220726
+//    func generateMasterObjectDict(type: String, data: [String:Any], nextItem: String) {
+//        let objectsArray = data[type] as! [[String:Any]]
+//        let objectsArrayCount = objectsArray.count
+//        if objectsArrayCount > 0 {
+//            for i in (0..<objectsArrayCount) {
+//                if let id = objectsArray[i]["id"], let name = objectsArray[i]["name"] {
+//                    if "\(name)" != "" {
+//                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+//                    }
+//                }
+//            }
+//        }
+//
+//        WriteToLog().message(theString: "[processItems] scripts complete - call \(nextItem)")
+//        DispatchQueue.main.async {
+//            self.processItems(type: nextItem)
+//        }
+//    }
     
     
     // used when importing files
@@ -1740,7 +1741,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         case "unusedScripts":
             category = "scripts"
         case "unusedComputerGroups":
-            category = "computergroups"
+            category = "computerGroups"
         case "unusedComputerProfiles":
             category = "osxconfigurationprofiles"
         case "unusedPolicies":
@@ -1748,7 +1749,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         case "unusedRestrictedsoftware":
             category = "restrictedsoftware"
         case "unusedMobileDeviceGroups":
-            category = "mobiledevicegroups"
+            category = "mobileDeviceGroups"
         case "unusedMobileDeviceApps":
             category = "mobiledeviceapplications"
         case "unusedMobileDeviceConfigurationProfiles":
@@ -1856,26 +1857,37 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             switch key {
                             case "unusedPackages":
                                 packages_Button.state = NSControl.StateValue(rawValue: 1)
+                                packagesButtonState = "on"
                             case "unusedScripts":
                                 scripts_Button.state = NSControl.StateValue(rawValue: 1)
+                                scriptsButtonState = "on"
                             case "unusedComputerGroups":
                                 computerGroups_Button.state = NSControl.StateValue(rawValue: 1)
+                                computerGroupsButtonState = "on"
                             case "unusedComputerProfiles":
                                 computerProfiles_Button.state = NSControl.StateValue(rawValue: 1)
+                                computerProfilesButtonState = "on"
                             case "unusedPolicies":
                                 policies_Button.state = NSControl.StateValue(rawValue: 1)
+                                policiesButtonState = "on"
                             case "unusedRestrictedSoftware":
                                 restrictedSoftware_Button.state = NSControl.StateValue(rawValue: 1)
+                                restrictedSoftwareButtonState = "on"
                             case "unusedMobileDeviceGroups":
                                 mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: 1)
+                                mobileDeviceGrpsButtonState = "on"
                             case "unusedMobileDeviceApps":
                                 mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: 1)
+                                mobileDeviceAppsButtonState = "on"
                             case "unusedMobileDeviceConfigurationProfiles":
                                 configurationProfiles_Button.state = NSControl.StateValue(rawValue: 1)
+                                configurationProfilesButtonState = "on"
                             case "unusedClasses":
                                 classes_Button.state = NSControl.StateValue(rawValue: 1)
+                                classesButtonState = "on"
                             case "unusedEbooks":
                                 ebooks_Button.state = NSControl.StateValue(rawValue: 1)
+                                ebooksButtonState = "on"
                             default:
                                 break
                             }
@@ -2639,7 +2651,8 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         //                        print("json returned packages: \(result)")
                             if self.counter == masterItemsToDeleteArray.count {
                                 if failedDeleteCount > 0 {
-                                    extraMessage = "\nNote, \(failedDeleteCount) items were not deleted."
+                                    let item = (failedDeleteCount == 1) ? "item was":"items were"
+                                    extraMessage = "\nNote, \(failedDeleteCount) \(item) not deleted."
                                 }
                                 Alert().display(header: "Removal process complete.\(extraMessage)", message: "")
                                 DispatchQueue.main.async {
@@ -2686,10 +2699,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                 packagesButtonState = "\(state)"
             case "Scripts":
                 scriptsButtonState = "\(state)"
-            case "eBooks":
-                ebooksButtonState = "\(state)"
-            case "Classes":
-                classesButtonState = "\(state)"
             case "Computer Groups":
                 computerGroupsButtonState = "\(state)"
             case "Computer Profiles":
@@ -2704,6 +2713,10 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                 mobileDeviceAppsButtonState = "\(state)"
             case "Mobile Device Config. Profiles":
                 configurationProfilesButtonState = "\(state)"
+            case "Classes":
+                classesButtonState = "\(state)"
+            case "eBooks":
+                ebooksButtonState = "\(state)"
             default:
                 if state == "on" {
                     
@@ -3024,8 +3037,8 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        object_TableView.delegate   = self
-        object_TableView.dataSource = self
+        object_TableView.delegate     = self
+        object_TableView.dataSource   = self
         object_TableView.doubleAction = #selector(viewSelectObject)
         
                 
