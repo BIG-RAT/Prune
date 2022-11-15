@@ -73,10 +73,13 @@ Once the list of unused items is generated you can edit it within the app.  If y
 <br><br><hr><br>
 
 ### Important:
-This application deletes stuff, <b>use with caution!</b>  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Jamf Migrator](https://github.com/jamf/JamfMigrator) and export the (full) XML of all objects, or do both.
+* This application deletes stuff, <b>use with caution!</b>  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Jamf Migrator](https://github.com/jamf/JamfMigrator) and export the (full) XML of all objects, or do both.
+* Policies scoped only to users and/or user groups will show as unused due to an issue with the API (it doesn't list the users or user groups).
 <br><br><hr><br>
 
 ### History:
+2022-11-10 - v2.3.0: List policies that are disabled, and still scoped.  The policy will have '    [disabled]' appended to its name.
+
 2022-07-27 - v2.2.5: Resolve crash when import  
 
 2022-04-25 - v2.2.4: Fix crash when scanning only computer (configuration) profiles.  Add keyboard shortcut and menu bar item (View --> Logs Folder) to open logs folder.

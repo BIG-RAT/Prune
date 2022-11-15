@@ -54,4 +54,5 @@ struct waitFor {
     static var mobiledeviceobject      = true
     static var ebook                   = true
     static var classes                 = true
+    static var advancedsearch          = true
 }

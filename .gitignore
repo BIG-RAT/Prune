@@ -1,3 +1,4 @@
 localOnly/
 *.DS_Store
-prune.xcodeproj/
+*.xcuserstate
+*.xcbkptlist

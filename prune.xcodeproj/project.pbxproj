@@ -40,6 +40,7 @@
 		B5B3096523AD3857004BA9DB /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		B5B3096B23B05120004BA9DB /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		B5DF4D6B23A5771A00225468 /* Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
+		CEA5E677291E45FE001E0611 /* Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Notes.md; sourceTree = "<group>"; };
 		D2FC4023F18644BA239A2BAD /* Pods_Prune.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Prune.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -107,6 +108,7 @@
 				B58A314423A139810023EA63 /* Main.storyboard */,
 				B58A314723A139810023EA63 /* Info.plist */,
 				B58A314823A139810023EA63 /* prune.entitlements */,
+				CEA5E677291E45FE001E0611 /* Notes.md */,
 			);
 			path = prune;
 			sourceTree = "<group>";
@@ -376,15 +378,17 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = PS2F6S478M;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = prune/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.2.5;
+				MARKETING_VERSION = 2.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -400,15 +404,17 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = PS2F6S478M;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = prune/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 2.2.5;
+				MARKETING_VERSION = 2.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
