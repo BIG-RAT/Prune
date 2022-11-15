@@ -84,7 +84,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     var policiesButtonState              = "off"
     var restrictedSoftwareButtonState    = "off"
     var computerEAsButtonState           = "off"
-    var mobileDeviceGroupsButtonState      = "off"
+    var mobileDeviceGroupsButtonState    = "off"
     var mobileDeviceAppsButtonState      = "off"
     var configurationProfilesButtonState = "off"
     var mobileDeviceEAsButtonState       = "off"
@@ -97,14 +97,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     let backgroundQ = DispatchQueue(label: "com.jamf.prune.backgroundQ", qos: DispatchQoS.background)
     
     @IBAction func logout_Action(_ sender: Any) {
-//        let url  = URL(fileURLWithPath: Bundle.main.resourcePath!)
-//        let path = url.deletingLastPathComponent().deletingLastPathComponent().absoluteString
-//        let task = Process()
-//        task.launchPath = "/usr/bin/open"
-//        task.arguments  = [path]
-//        task.launch()
-//        exit(0)
-        
         performSegue(withIdentifier: "loginView", sender: nil)
     }
     
@@ -124,8 +116,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         waitFor.advancedsearch          = true
         
         computerGroupsScanned           = false
-        
-        view_PopUpButton.isEnabled = false
+        view_PopUpButton.isEnabled      = false
         setViewButton(setOn: true)
         view_PopUpButton.selectItem(at: 0)
 
@@ -1974,6 +1965,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     }
 
     func unused(itemDictionary: [[String:Any]]) {
+        print("[\(#line)-unused] itemDictionary: \(itemDictionary)")
         DispatchQueue.main.async { [self] in
             var unusedCount = 0
             var sortedArray = [String]()
@@ -2032,6 +2024,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     for theObject in sortedArray {
                         unusedItems_TableDict?.append([theObject:type])
                     }
+                    print("[\(#line)-unused] unusedItems_TableDict: \(String(describing: unusedItems_TableDict))")
     //                print("unusedItems_TableArray: \(String(describing: unusedItems_TableArray))")
 //                    DispatchQueue.main.async { [self] in
                         object_TableView.reloadData()
@@ -2104,12 +2097,18 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
             category = "policies"
         case "unusedRestrictedsoftware":
             category = "restrictedsoftware"
+        case "unusedComputerEAs":
+            category = "computerextensionattributes"
         case "unusedMobileDeviceGroups":
             category = "mobileDeviceGroups"
         case "unusedMobileDeviceApps":
             category = "mobiledeviceapplications"
         case "unusedMobileDeviceConfigurationProfiles":
             category = "mobiledeviceconfigurationprofiles"
+        case "unusedEbooks":
+            category = "ebooks"
+        case "unusedMobileDeviceEAs":
+            category = "mobiledeviceextensionattributes"
         default:
             category = type
         }
@@ -2122,9 +2121,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                 // change theDict["name"] for disabled policies
                 
                 if type != "unusedComputerGroups" && type != "unusedMobileDeviceGroups" {
-                    print("theDict[\"name\"]: \(String(describing: theDict["name"]!))")
+//                    print("theDict[\"name\"]: \(String(describing: theDict["name"]!))")
                     let theName = (type == "unusedPolicies") ? theDict["name"]!.replacingOccurrences(of: ")    [disabled]", with: ")"):theDict["name"]!
-                    print("theName: \(String(describing: theName))\n")
+//                    print("theName: \(String(describing: theName))\n")
                     unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false"]
                     masterObjectDict["\(category)"]![theName] = ["id":theDict["id"]!, "used":"false"]
 //                    unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false"]
@@ -2160,9 +2159,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         if sender.title == "Scripts" || (sender.title == "All" && scriptsButtonState == "on") {
             reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
         }
-        if sender.title == "eBooks" || (sender.title == "All" && ebooksButtonState == "on") {
-            reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
-        }
         if sender.title == "Classes" || (sender.title == "All" && classesButtonState == "on") {
             reportItems.append(["ebooks":self.masterObjectDict["classes"]!])
         }
@@ -2190,6 +2186,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         if sender.title == "Mobile Device Config. Profiles" || (sender.title == "All" && configurationProfilesButtonState == "on") {
             reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
         }
+        if sender.title == "eBooks" || (sender.title == "All" && ebooksButtonState == "on") {
+            reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
+        }
         if sender.title == "Mobile Device EAs" || (sender.title == "All" && mobileDeviceEAsButtonState == "on") {
             reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
         }
@@ -2210,12 +2209,13 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                 _ = FileManager.default.fileExists(atPath: objPath.path, isDirectory:&isDir)
                 do {
                     setAllButtonsState(theState: "off")
+                    unusedItems_TableDict?.removeAll()
                     let dataFile =  try Data(contentsOf:pathToFile, options: .mappedIfSafe)
                     let objectJSON = try JSONSerialization.jsonObject(with: dataFile, options: .mutableLeaves) as? [String:Any]
                     
 //                    print("objectJSON: \(String(describing: objectJSON!))")
                     for (key, value) in objectJSON! {
-//                        print("key: \(key)")
+                        print("[\(#line)-importAction] key: \(key)")
                         switch key {
                         case "jamfServer":
                             jamfServer_TextField.stringValue = "\(value)"
@@ -2223,7 +2223,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         case "username":
                             uname_TextField.stringValue = "\(value)"
                         default:
-                            unused(itemDictionary: [buildDictionary(type: key, used: "false", data: objectJSON!)])
                             switch key {
                             case "unusedPackages":
                                 packages_Button.state = NSControl.StateValue(rawValue: 1)
@@ -2267,6 +2266,10 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             default:
                                 break
                             }
+//                            if objectEndpoint != "" {
+//                                print("[\(#line)-importAction] objectEndpoint: \(objectEndpoint)")
+                                unused(itemDictionary: [buildDictionary(type: key, used: "false", data: objectJSON!)])
+//                            }
                         }
                     }
 
@@ -3153,6 +3156,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         DispatchQueue.main.async { [self] in
             if (import_Button.url?.path.suffix(5) == ".json") {
                 import_Button.url = import_Button.url?.deletingLastPathComponent()
+                import_Button.url = import_Button.url?.appendingPathComponent("/.")
                 unusedItems_TableArray?.removeAll()
                 object_TableView.reloadData()
             }
@@ -3442,16 +3446,17 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     }
     
     @objc func viewSelectObject() {
-//        print("doubleClicked Row: \(String(object_TableView.clickedRow))")
+        print("[\(#line)] doubleClicked Row: \(String(object_TableView.clickedRow))")
 
         DispatchQueue.main.async {
             let theRow = self.object_TableView.selectedRow
 
             if let displayedName = self.unusedItems_TableArray?[theRow] {
                 let itemName = displayedName.replacingOccurrences(of: ")    [disabled]", with: ")")
-//                print("itemName: \(String(itemName))")
+                print("[\(#line)] itemName: \(String(itemName))")
                 
                 if let itemDict = self.unusedItems_TableDict?[theRow] {
+                    print("[\(#line)] itemDict: \(itemDict)")
                     if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
                         for (_, objectType) in itemDict as [String:String] {
                             
@@ -3466,12 +3471,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 
                                 case "scripts":
                                     if let objectId = self.masterObjectDict["scripts"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/view/settings/computer/scripts/\(objectId)") {
-                                      NSWorkspace.shared.open(objectURL)
-                                        return
-                                    }
-                                    
-                                case "ebooks":
-                                    if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/eBooks.html/?id=\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                         return
                                     }
@@ -3529,6 +3528,12 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
+                                
+                            case "ebooks":
+                                if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/eBooks.html/?id=\(objectId)") {
+                                  NSWorkspace.shared.open(objectURL)
+                                    return
+                                }
                                 
                             case "mobiledeviceextensionattributes":
                                 if let objectId = self.masterObjectDict["mobiledeviceextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/mobileDeviceExtensionAttributes.html?id=\(objectId)&o=r") {
