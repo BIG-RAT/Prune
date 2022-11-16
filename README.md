@@ -11,10 +11,10 @@ Once the list of unused items is generated you can edit it within the app.  If y
 
 ### Usage:
 * Enter the server URL you wish to query along with valid credentials.  To simply generate a list you can use an auditor account.  To remove items an account with delete permissions is required.
-* Select the items you'd like to scan.  You can option-click to select/de-select all the categories; packages, scripts, computer groups...
+* Select the item(s) you'd like to scan.  You can option-click to select/de-select all the categories; packages, scripts, computer groups...
 * Click Scan.
 * Once the processing is complete review/edit the list.
-* Click Remove if you wish to remove the listed items from the server.
+* Click Delete if you wish to delete the listed items from the server.
 * Click Export if you wish to save (to your Downloads folder) the lists of objects to remove for review/editing later.  These lists can then be imported into the application.
  
 <br><hr><br>
@@ -38,7 +38,7 @@ Once the list of unused items is generated you can edit it within the app.  If y
         </tr>
         <tr>
             <td>Computer Groups</td>
-            <td>Check for usage in policies, computer configuration profiles, computer groups, eBooks, restricted software</td>
+            <td>Check for usage in policies, computer configuration profiles, computer groups, eBooks, restricted software, advanced searches, enabled state</td>
         </tr>
         <tr>
             <td>Computer Profiles</td>
@@ -57,6 +57,10 @@ Once the list of unused items is generated you can edit it within the app.  If y
             <td>Check scope for computer groups</td>
         </tr>
         <tr>
+            <td>Computer Extension Attributes</td>
+            <td>Check scope for computer groups, advanced searches, enabled state</td>
+        </tr>
+        <tr>
             <td>Mobile Device Groups</td>
             <td>Check for usage in mobile device apps, mobile device configuration profiles, mobile device groups, eBooks, classes</td>
         </tr>
@@ -66,19 +70,28 @@ Once the list of unused items is generated you can edit it within the app.  If y
         </tr>
         <tr>
             <td>Classes</td>
-            <td>Check scope, only looks for students/student groups/mobile device assignements.</td>
+            <td>Check scope, only looks for students/student groups/mobile device assignements</td>
+        </tr>
+        <tr>
+            <td>Mobile Device Extension Attributes</td>
+            <td>Check scope for mobile device groups, advanced searches</td>
         </tr>
     </tbody>
 </table>
-<br><br><hr><br>
+<br><br>
+<hr><br>
 
 ### Important:
 * This application deletes stuff, <b>use with caution!</b>  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Jamf Migrator](https://github.com/jamf/JamfMigrator) and export the (full) XML of all objects, or do both.
 * Policies scoped only to users and/or user groups will show as unused due to an issue with the API (it doesn't list the users or user groups).
-<br><br><hr><br>
+* Bookmarks are not accessible via the API.  As a result groups that are only used to scope bookmarks will show as unused.
+
+Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Data/Library/Logs/Prune.log```
+
+<br><hr><br>
 
 ### History:
-2022-11-10 - v2.3.0: List policies that are disabled, and still scoped.  The policy will have '    [disabled]' appended to its name.
+2022-11-15 - v2.3.0: List policies that are disabled and still scoped (#27).  List computer extension attributes that are disabled.  The item will have '    [disabled]' appended to its name.  Scan advanced searches (#26) for groups and extension attributes used as criteria.  Adjust URL to view unused scripts based on Jamf Pro version.
 
 2022-07-27 - v2.2.5: Resolve crash when import  
 
