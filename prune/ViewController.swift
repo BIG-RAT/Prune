@@ -2005,7 +2005,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     let currentItem = type
                     let newDict = theDict as! [String:[String:String]]
                     for (key, _) in newDict {
-                        if newDict["\(key)"]?["used"] == "false" {
+                        if newDict["\(key)"]?["used"] == "false" || type == "policies" {
                             if type == "policies" {
                                 if newDict["\(key)"]?["enabled"] == "false" {
                                     sortedArray.append("\(key)    [disabled]")
