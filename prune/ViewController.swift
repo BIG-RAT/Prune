@@ -49,7 +49,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     var username       = ""
     var password       = ""
     
-    var currentServer   = ""
+//    var currentServer   = ""
     var jamfCreds       = ""
     var jamfBase64Creds = ""
     var saveCreds       = false
@@ -97,7 +97,22 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     let backgroundQ = DispatchQueue(label: "com.jamf.prune.backgroundQ", qos: DispatchQoS.background)
     
     @IBAction func logout_Action(_ sender: Any) {
-        performSegue(withIdentifier: "loginView", sender: nil)
+        
+        unusedItems_TableArray?.removeAll()
+        unusedItems_TableDict?.removeAll()
+        object_TableView.reloadData()
+        DispatchQueue.main.async { [self] in
+            if (import_Button.url?.path.suffix(5) == ".json") {
+                import_Button.url = import_Button.url?.deletingLastPathComponent()
+                import_Button.url = import_Button.url?.appendingPathComponent("/.")
+            }
+        }
+        setViewButton(setOn: false)
+        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.authCreds, method: "POST") { [self]
+            (returnedJSON: [String:Any]) in
+            WriteToLog().message(theString: "\(String(describing: returnedJSON["JPAPI_result"]!))")
+            performSegue(withIdentifier: "loginView", sender: nil)
+        }
     }
     
     
@@ -130,7 +145,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(12))
         process_TextField.stringValue = ""
         
-        currentServer       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
+        JamfProServer.source       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
         jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
         let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
         jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
@@ -140,12 +155,12 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
             object_TableView.reloadData()
         }
         
-        JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) { [self]
+        JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) { [self]
             (result: String) in
             if result == "success" {
                 jpapiToken = result
                 DispatchQueue.main.async { [self] in
-                    defaults.set(currentServer, forKey: "server")
+                    defaults.set(JamfProServer.source, forKey: "server")
                     defaults.set("\(uname_TextField.stringValue)", forKey: "username")
                     process_TextField.isHidden = false
                     process_TextField.stringValue = "Starting lookups..."
@@ -218,7 +233,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 
                    var eaArray = [[String:Any]]()
                    
-                    self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                        (result: (Int,String)) in
                         let (statusCode,returnedXml) = result
                         //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
@@ -255,7 +270,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             }
                          
                             WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: eaArray, index: 0)
+                            self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: eaArray, index: 0)
                             waitFor.advancedsearch = true
                             self.backgroundQ.async { [self] in
                                 while true {
@@ -298,7 +313,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     // what if we're doing both computer and mobile device groups/EAs
                     let groupEndpoint = (type == "computerGroups" || (type == "mobileDeviceGroups" && computerEAsButtonState == "on" && !computerGroupsScanned)) ? "computergroups":"mobiledevicegroups"
                    
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint) {
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint) {
                         (result: [String:AnyObject]) in
 //                            print("json returned scripts: \(result)")
                         let computerGroupsArray = (groupEndpoint == "computergroups") ? result["computer_groups"] as! [[String: Any]]:result["mobile_device_groups"] as! [[String: Any]]
@@ -336,7 +351,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 self.process_TextField.stringValue = "Scanning for nested groups and extensions attributes..."
                             }
                             WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint, theData: computerGroupsArray, index: 0)
+                            self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint, theData: computerGroupsArray, index: 0)
                             waitFor.deviceGroup = true
                             self.backgroundQ.async { [self] in
                                 while true {
@@ -385,7 +400,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Packages..."
                     }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
                         (result: [String:AnyObject]) in
 
                         if let _  = result["packages"] {
@@ -420,7 +435,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Scripts..."
                     }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "scripts") {
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "scripts") {
                         (result: [String:AnyObject]) in
                         if let _  = result[type] {
                             let objectsArray = result[type] as! [[String:Any]]
@@ -456,7 +471,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     DispatchQueue.main.async { [self] in
                         self.process_TextField.stringValue = "Fetching \(msgText)..."
                     }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") { [self]
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") { [self]
                         (result: [String:AnyObject]) in
     //                    print("json returned eBooks: \(result)")
                         let ebooksArray = result["ebooks"] as! [[String:Any]]
@@ -471,7 +486,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             }
                             
                             WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: ebooksArray, index: 0)
+                            self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: ebooksArray, index: 0)
                             waitFor.ebook = true
                             self.backgroundQ.async { [self] in
                                 while true {
@@ -507,7 +522,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     DispatchQueue.main.async { [self] in
                         self.process_TextField.stringValue = "Fetching \(msgText)..."
                     }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "classes") { [self]
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "classes") { [self]
                         (result: [String:AnyObject]) in
     //                    print("json returned classes: \(result)")
                         let classesArray = result["classes"] as! [[String: Any]]
@@ -522,7 +537,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             }
                             
                             WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: classesArray, index: 0)
+                            self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: classesArray, index: 0)
                             waitFor.classes = true
                             self.backgroundQ.async { [self] in
                                 while true {
@@ -556,7 +571,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 //                        DispatchQueue.main.async {
 //                            self.process_TextField.stringValue = "Fetching Computer Configurations..."
 //                        }
-//                        Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations") {
+//                        Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations") {
 //                            (result: [String:AnyObject]) in
 //                            print("json returned: \(result)")
 //                            self.completed = 0
@@ -567,7 +582,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 //                                DispatchQueue.main.async {
 //                                    self.process_TextField.stringValue = "Scanning Computer Configurations for packages and scripts..."
 //                                }
-//                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations", theData: computerConfigurationsArray, index: 0)
+//                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations", theData: computerConfigurationsArray, index: 0)
 //                                waitFor.computerConfiguration = true
 //                                self.backgroundQ.async {
 //                                    while true {
@@ -602,7 +617,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Computer Configuration Profiles..."
                     }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                         (result: [String:AnyObject]) in
 //                            self.masterObjectDict["osxconfigurationprofiles"] = [String:[String:String]]()
                         if let _  = result["os_x_configuration_profiles"] {
@@ -618,7 +633,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 }
                                 
                                 WriteToLog().message(theString: "[processItems] call recursiveLookup for osxconfigurationprofiles")
-                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "osxconfigurationprofiles", theData: osxconfigurationprofilesArray, index: 0)
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "osxconfigurationprofiles", theData: osxconfigurationprofilesArray, index: 0)
                                 waitFor.osxconfigurationprofile = true
                                 self.backgroundQ.async {
                                     while true {
@@ -698,7 +713,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             self.process_TextField.stringValue = "Fetching Mobile Device Configuration Profiles..."
                         }
                     }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
 //                            self.masterObjectDict[type] = [String:[String:String]]()
                         if let _ = result[xmlTag] {
@@ -713,7 +728,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 }
 
                                 WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                                self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
                                 waitFor.mobiledeviceobject = true
                                 self.backgroundQ.async { [self] in
                                     while true {
@@ -765,7 +780,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 //                        self.masterObjectDict[type] = [String:[String:String]]()
                     var patchPoliciesArray = [[String:Any]]()
                     
-                    self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
+                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
                         (result: (Int,String)) in
                         let (statusCode,returnedXml) = result
 //                            print("[patchsoftwaretitles] patchpolicies GET statusCode: \(statusCode)")
@@ -793,7 +808,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                            }
                         
                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                           self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
+                           self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
                            waitFor.policy = true
                            self.backgroundQ.async {
                                while true {
@@ -835,7 +850,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 //                                self.masterObjectDict[type] = [String:[String:String]]()
                         var patchPoliciesArray = [[String:Any]]()
                         
-                        self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") {
+                        self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") {
                             (result: (Int,String)) in
                             let (statusCode,returnedXml) = result
 //                                    print("[processItems] patchpolicies GET statusCode: \(statusCode)")
@@ -863,7 +878,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                }
                             
                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                               self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
+                               self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
                                waitFor.policy = true
                                self.backgroundQ.async {
                                    while true {
@@ -907,7 +922,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         xmlTag = "results"
                         self.process_TextField.stringValue = "Fetching Computer Prestages..."
                     }
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jpapiToken, theEndpoint: type) { [self]
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jpapiToken, theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
 //                                print("json returned prestages: \(result)")
 //                                self.masterObjectDict[type] = [String:[String:String]]()
@@ -949,7 +964,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                     self.processItems(type: nextObject)
                                 }
                                 
-//                                        self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
+//                                        self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
 //                                        waitFor.computerPrestage = true
 //                                        self.backgroundQ.async {
 //                                            while true {
@@ -998,7 +1013,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 //                   self.masterObjectDict[type] = [String:[String:String]]()
                var restrictedsoftwareArray = [[String:Any]]()
                
-                self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                    (result: (Int,String)) in
                    let (statusCode,returnedXml) = result
    //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
@@ -1026,7 +1041,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                        }
                     
                        WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                       self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: restrictedsoftwareArray, index: 0)
+                       self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: restrictedsoftwareArray, index: 0)
                        waitFor.policy = true
                        self.backgroundQ.async {
                            while true {
@@ -1068,7 +1083,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     //                   self.masterObjectDict[type] = [String:[String:String]]()
                    var advancedcomputersearchArray = [[String:Any]]()
                    
-                    self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                        (result: (Int,String)) in
                        let (statusCode,returnedXml) = result
        //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
@@ -1096,7 +1111,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                            }
                         
                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                           self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: advancedcomputersearchArray, index: 0)
+                           self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: advancedcomputersearchArray, index: 0)
                            waitFor.advancedsearch = true
                            self.backgroundQ.async {
                                while true {
@@ -1139,7 +1154,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     //                   self.masterObjectDict[type] = [String:[String:String]]()
                    var advancedsearchArray = [[String:Any]]()
                    
-                    self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                        (result: (Int,String)) in
                        let (statusCode,returnedXml) = result
        //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
@@ -1167,7 +1182,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                            }
                         
                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                           self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: advancedsearchArray, index: 0)
+                           self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: advancedsearchArray, index: 0)
                            waitFor.advancedsearch = true
                            self.backgroundQ.async {
                                while true {
@@ -1205,7 +1220,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         self.process_TextField.stringValue = "Fetching Policies..."
                     }
                     var policiesArray = [[String:Any]]()
-                    Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "policies") {
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "policies") {
                         (result: [String:AnyObject]) in
             //            print("json returned: \(result)")
                         self.completed = 0
@@ -1232,7 +1247,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             }
                         
                             WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                            self.recursiveLookup(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "policies", theData: policiesArray, index: 0)
+                            self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "policies", theData: policiesArray, index: 0)
                             waitFor.policy = true
                             self.backgroundQ.async {
                                 while true {
@@ -1467,9 +1482,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     // lookup patch software titles, loop through each by id
                     
                         // lookup complete record, XML format
-//                        Xml().action(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
+//                        Xml().action(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
                     // search for used packages using patchsoftwaretitles endpoint
-                    self.xmlAction(action: "GET", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
+                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
 //                            print("[returnedXml] full XML: \(returnedXml)")
@@ -1531,7 +1546,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
        
                 default:
                     // lookup complete record, JSON format
-                Json().getRecord(theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
+                Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
                         (result: [String:AnyObject]) in
                         if result.count != 0 {
                             var xmlTag = ""
@@ -1965,7 +1980,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     }
 
     func unused(itemDictionary: [[String:Any]]) {
-        print("[\(#line)-unused] itemDictionary: \(itemDictionary)")
+//        print("[\(#line)-unused] itemDictionary: \(itemDictionary)")
         DispatchQueue.main.async { [self] in
             var unusedCount = 0
             var sortedArray = [String]()
@@ -2024,7 +2039,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     for theObject in sortedArray {
                         unusedItems_TableDict?.append([theObject:type])
                     }
-                    print("[\(#line)-unused] unusedItems_TableDict: \(String(describing: unusedItems_TableDict))")
+//                    print("[\(#line)-unused] unusedItems_TableDict: \(String(describing: unusedItems_TableDict))")
     //                print("unusedItems_TableArray: \(String(describing: unusedItems_TableArray))")
 //                    DispatchQueue.main.async { [self] in
                         object_TableView.reloadData()
@@ -2215,11 +2230,11 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     
 //                    print("objectJSON: \(String(describing: objectJSON!))")
                     for (key, value) in objectJSON! {
-                        print("[\(#line)-importAction] key: \(key)")
+//                        print("[\(#line)-importAction] key: \(key)")
                         switch key {
                         case "jamfServer":
                             jamfServer_TextField.stringValue = "\(value)"
-                            currentServer = "\(value)"
+                            JamfProServer.source = "\(value)"
                         case "username":
                             uname_TextField.stringValue = "\(value)"
                         default:
@@ -2299,7 +2314,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         let timeStamp = Time().getCurrent()
         let exportQ = DispatchQueue(label: "com.jamf.prune.exportQ", qos: DispatchQoS.background)
         working(isWorking: true)
-        let header = "\"jamfServer\": \"\(currentServer)\",\n \"username\": \"\(uname_TextField.stringValue)\""
+        let header = "\"jamfServer\": \"\(JamfProServer.source)\",\n \"username\": \"\(uname_TextField.stringValue)\""
         exportQ.sync {
             if self.packagesButtonState == "on" {
                 var firstPackage = true
@@ -2945,7 +2960,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         
         working(isWorking: true)
         
-        currentServer       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
+        JamfProServer.source       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
         jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
         let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
         jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
@@ -3097,7 +3112,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 //                        DispatchQueue.main.async {
 //                            self.process_TextField.stringValue = "\nProcessed item \(counter+1) of \(masterItemsToDeleteArray.count)"
 //                        }
-                        self.xmlAction(action: "DELETE", theServer: self.currentServer, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
+                        self.xmlAction(action: "DELETE", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
                             (xmlResult: (Int,String)) in
 //
                             let (statusCode, _) = xmlResult
@@ -3153,11 +3168,13 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         }
         // check for option key - end
         
+        
         DispatchQueue.main.async { [self] in
             if (import_Button.url?.path.suffix(5) == ".json") {
                 import_Button.url = import_Button.url?.deletingLastPathComponent()
                 import_Button.url = import_Button.url?.appendingPathComponent("/.")
                 unusedItems_TableArray?.removeAll()
+                unusedItems_TableDict?.removeAll()
                 object_TableView.reloadData()
             }
         }
@@ -3446,17 +3463,17 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     }
     
     @objc func viewSelectObject() {
-        print("[\(#line)] doubleClicked Row: \(String(object_TableView.clickedRow))")
+//        print("[\(#line)] doubleClicked Row: \(String(object_TableView.clickedRow))")
 
         DispatchQueue.main.async {
             let theRow = self.object_TableView.selectedRow
 
             if let displayedName = self.unusedItems_TableArray?[theRow] {
                 let itemName = displayedName.replacingOccurrences(of: ")    [disabled]", with: ")")
-                print("[\(#line)] itemName: \(String(itemName))")
+//                print("[\(#line)] itemName: \(String(itemName))")
                 
                 if let itemDict = self.unusedItems_TableDict?[theRow] {
-                    print("[\(#line)] itemDict: \(itemDict)")
+//                    print("[\(#line)] itemDict: \(itemDict)")
                     if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
                         for (_, objectType) in itemDict as [String:String] {
                             
@@ -3464,79 +3481,80 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             
                             switch objectType {
                                 case "packages":
-                                    if let objectId = self.masterObjectDict["packages"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/packages.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["packages"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/packages.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                 
                                 case "scripts":
-                                    if let objectId = self.masterObjectDict["scripts"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/view/settings/computer/scripts/\(objectId)") {
+                                let scriptPath = (JamfProServer.majorVersion == 10 && JamfProServer.minorVersion > 39) ? "computer-management":"computer"
+                                    if let objectId = self.masterObjectDict["scripts"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/view/settings/\(scriptPath)/scripts/\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                         return
                                     }
-                                        
+                                
                                 case "classes":
-                                    if let objectId = self.masterObjectDict["classes"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/classes.html/?id=\(objectId)") {
+                                    if let objectId = self.masterObjectDict["classes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/classes.html/?id=\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                 
                                 case "computergroups":
-                                      if let objectId = self.masterObjectDict["computerGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["computerGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
+                                      if let objectId = self.masterObjectDict["computerGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["computerGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(JamfProServer.source)/\(groupType)s.html/?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                           return
                                       }
                                 
                                 case "osxconfigurationprofiles":
-                                      if let objectId = self.masterObjectDict["osxconfigurationprofiles"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/OSXConfigurationProfiles.html?id=\(objectId)&o=r") {
+                                      if let objectId = self.masterObjectDict["osxconfigurationprofiles"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/OSXConfigurationProfiles.html?id=\(objectId)&o=r") {
                                           NSWorkspace.shared.open(objectURL)
                                           return
                                       }
                                 
                                 case "policies":
-                                    if let objectId = self.masterObjectDict["policies"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/policies.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["policies"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/policies.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                 
                                 case "restrictedsoftware":
-                                    if let objectId = self.masterObjectDict["restrictedsoftware"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/restrictedSoftware.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["restrictedsoftware"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/restrictedSoftware.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                 
                             case "computerextensionattributes":
-                                if let objectId = self.masterObjectDict["computerextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/computerExtensionAttributes.html?id=\(objectId)&o=r") {
+                                if let objectId = self.masterObjectDict["computerextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/computerExtensionAttributes.html?id=\(objectId)&o=r") {
                                     NSWorkspace.shared.open(objectURL)
                                     return
                                 }
 
                                 case "mobiledevicegroups":
-                                    if let objectId = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(self.currentServer)/\(groupType)s.html/?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(JamfProServer.source)/\(groupType)s.html/?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
 
                                 case "mobiledeviceapplications":
-                                    if let objectId = self.masterObjectDict["mobiledeviceapplications"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/mobileDeviceApps.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["mobiledeviceapplications"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/mobileDeviceApps.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                 
                                 case "mobiledeviceconfigurationprofiles":
-                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/iOSConfigurationProfiles.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/iOSConfigurationProfiles.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                 
                             case "ebooks":
-                                if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/eBooks.html/?id=\(objectId)") {
+                                if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/eBooks.html/?id=\(objectId)") {
                                   NSWorkspace.shared.open(objectURL)
                                     return
                                 }
                                 
                             case "mobiledeviceextensionattributes":
-                                if let objectId = self.masterObjectDict["mobiledeviceextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(self.currentServer)/mobileDeviceExtensionAttributes.html?id=\(objectId)&o=r") {
+                                if let objectId = self.masterObjectDict["mobiledeviceextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/mobileDeviceExtensionAttributes.html?id=\(objectId)&o=r") {
                                     NSWorkspace.shared.open(objectURL)
                                     return
                                 }
@@ -3556,15 +3574,15 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     func sendLoginInfo(loginInfo: (String,String,String,Int)) {
         var saveCredsState: Int?
         (jamfServer_TextField.stringValue,uname_TextField.stringValue,passwd_TextField.stringValue,saveCredsState) = loginInfo
-        currentServer = jamfServer_TextField.stringValue
-        jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
-        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
-        jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
+        JamfProServer.source = jamfServer_TextField.stringValue
+        jamfCreds            = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
+        let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
+        jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
         
         saveCreds = (saveCredsState == 1) ? true:false
         // check authentication, check version, set auth method - start
         WriteToLog().message(theString: "[ViewController] Running Prune v\(appInfo.version)")
-            JamfPro().getToken(serverUrl: currentServer, whichServer: "source", base64creds: jamfBase64Creds) {
+            JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) {
                 (result: String) in
                 if result == "success" {
                     self.jpapiToken = result
@@ -3572,14 +3590,14 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         // save password if checked - start
                     let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
                         if self.saveCreds {
-                            let credKey = regexKey.stringByReplacingMatches(in: self.currentServer, options: [], range: NSRange(0..<self.currentServer.utf16.count), withTemplate: "")
+                            let credKey = regexKey.stringByReplacingMatches(in: JamfProServer.source, options: [], range: NSRange(0..<JamfProServer.source.utf16.count), withTemplate: "")
                             Credentials2().save(service: "prune - "+credKey, account: self.uname_TextField.stringValue, data: self.passwd_TextField.stringValue)
                         }
                         
-                        self.defaults.set(self.currentServer, forKey: "server")
+                        self.defaults.set(JamfProServer.source, forKey: "server")
                         self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
                         self.logout = false
-                        WriteToLog().message(theString: "[ViewController] successfully authenticated to \(self.currentServer)")
+                        WriteToLog().message(theString: "[ViewController] successfully authenticated to \(JamfProServer.source)")
                         // save password if checked - end
                     }
                 } else {
@@ -3623,6 +3641,10 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         }
     }
 
+    override func viewDidDisappear() {
+        AppDelegate().QuitNow(sender: self)
+    }
+    
     override var representedObject: Any? {
         didSet {
         // Update the view, if already loaded.

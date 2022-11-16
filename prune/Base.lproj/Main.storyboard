@@ -50,7 +50,7 @@
                                         <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
                                         <menuItem title="Quit Prune" keyEquivalent="q" id="4sb-4s-VLi">
                                             <connections>
-                                                <action selector="terminate:" target="Ady-hI-5gd" id="Te7-pn-YzF"/>
+                                                <action selector="QuitNowWithSender:" target="Ady-hI-5gd" id="zgt-IH-6NZ"/>
                                             </connections>
                                         </menuItem>
                                     </items>

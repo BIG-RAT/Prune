@@ -25,7 +25,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         var path = ""
 
         switch endpoint {
-        case  "buildings", "csa/token", "icon", "jamf-pro-version":
+        case  "buildings", "csa/token", "icon", "jamf-pro-version", "auth/invalidate-token":
             path = "v1/\(endpoint)"
         default:
             path = "v2/\(endpoint)"
@@ -68,11 +68,15 @@ class JamfPro: NSObject, URLSessionDelegate {
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                    if let endpointJSON = json! as? [String:Any] {
+                    if let endpointJSON = json as? [String:Any] {
                         completion(endpointJSON)
                         return
                     } else {    // if let endpointJSON error
-                        completion(["JPAPI_result":"failed", "JPAPI_response":httpResponse.statusCode])
+                        if httpResponse.statusCode == 204 && endpoint == "auth/invalidate-token" {
+                            completion(["JPAPI_result":"token terminated", "JPAPI_response":httpResponse.statusCode])
+                        } else {
+                            completion(["JPAPI_result":"failed", "JPAPI_response":httpResponse.statusCode])
+                        }
                         return
                     }
                 } else {    // if httpResponse.statusCode <200 or >299
@@ -117,7 +121,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                 if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                     if let endpointJSON = json! as? [String: Any], let _ = endpointJSON["token"], let _ = endpointJSON["expires"] {
-                        JamfProServer.validToken  = true
+                        token.isValid             = true
                         JamfProServer.base64Creds = base64creds
                         JamfProServer.authCreds   = endpointJSON["token"] as! String
                         token.sourceExpires       = "\(endpointJSON["expires"] ?? "")"
@@ -202,7 +206,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         renewQ.async { [self] in
 //        sleep(1200) // 20 minutes
             sleep(token.refreshInterval)
-            JamfProServer.validToken = false
+            token.isValid = false
             getToken(serverUrl: server, whichServer: whichServer, base64creds: b64Creds) {
                 (result: String) in
 //                print("[JamfPro.refresh] returned: \(result)")

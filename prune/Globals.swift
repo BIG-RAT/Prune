@@ -24,6 +24,7 @@ struct JamfProServer {
     static var authType     = "Basic"
     static var authCreds    = ""
     static var base64Creds  = ""        // used if we want to auth with a different account
+    static var source       = ""
     static var validToken   = false
     static var version      = ""
 }
@@ -43,6 +44,7 @@ struct token {
     static var refreshInterval:UInt32 = 20*60  // 20 minutes
     static var sourceServer  = ""
     static var sourceExpires = ""
+    static var isValid       = false
 }
 
 struct waitFor {
