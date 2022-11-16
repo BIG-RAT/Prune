@@ -2010,7 +2010,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 if newDict["\(key)"]?["enabled"] == "false" {
                                     sortedArray.append("\(key)    [disabled]")
                                 } else {
-                                    sortedArray.append("\(key)")
+                                    if newDict["\(key)"]?["used"] == "false" {
+                                        sortedArray.append("\(key)")
+                                    }
                                 }
                             } else {
                                 sortedArray.append("\(key)")
