@@ -91,6 +91,8 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
+2022-11-15 - v2.3.0: Fix issue where policies that are disabled and scoped were not showing up as unused (#27).
+
 2022-11-15 - v2.3.0: List policies that are disabled and still scoped (#27).  List computer extension attributes that are disabled.  The item will have '    [disabled]' appended to its name.  Scan advanced searches (#26) for groups and extension attributes used as criteria.  Adjust URL to view unused scripts based on Jamf Pro version.
 
 2022-07-27 - v2.2.5: Resolve crash when import  
