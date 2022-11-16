@@ -2228,7 +2228,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     let dataFile =  try Data(contentsOf:pathToFile, options: .mappedIfSafe)
                     let objectJSON = try JSONSerialization.jsonObject(with: dataFile, options: .mutableLeaves) as? [String:Any]
                     
-//                    print("objectJSON: \(String(describing: objectJSON!))")
                     for (key, value) in objectJSON! {
 //                        print("[\(#line)-importAction] key: \(key)")
                         switch key {
