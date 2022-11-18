@@ -1544,18 +1544,17 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                         switch (name as! String) {
                                         case "Computer Group":
                                             self.masterObjectDict["computerGroups"]!["\(value)"]?["used"] = "true"
-//                                            self.masterObjectDict["computerGroups"]!["\(value)"] = ["used":"true"]
                                         case "Mobile Device Group":
                                             self.masterObjectDict["mobileDeviceGroups"]!["\(value)"]?["used"] = "true"
                                         default:
                                             if computerEAsButtonState == "on" {
                                                 if self.masterObjectDict["computerextensionattributes"]!["\(name)"] != nil {
-                                                    self.masterObjectDict["computerextensionattributes"]!["\(name)"]?["used"] = "true"
+                                                    self.masterObjectDict["computerextensionattributes"]!["\(name)"]!["used"] = "true"
                                                 }
                                             }
                                             if mobileDeviceEAsButtonState == "on" {
                                                 if self.masterObjectDict["mobiledeviceextensionattributes"]!["\(name)"] != nil {
-                                                    self.masterObjectDict["mobiledeviceextensionattributes"]!["\(name)"]?["used"] = "true"
+                                                    self.masterObjectDict["mobiledeviceextensionattributes"]!["\(name)"]!["used"] = "true"
                                                 }
                                             }
                                             break

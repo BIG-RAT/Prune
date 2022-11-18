@@ -91,6 +91,8 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
+2022-11-18 - v2.3.3: Fix issue where extension attributes used as creteria in smart groups were listed as unused.
+
 2022-11-18 - v2.3.2: Fix computer/mobile device extension attributes not deleting (#29).
 
 2022-11-16 - v2.3.1: Fix issue where policies that are disabled and scoped were not showing up as unused (#27).
