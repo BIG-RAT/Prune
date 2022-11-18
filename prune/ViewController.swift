@@ -251,7 +251,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
 //                                if type == "computerextensionattributes" {
                                 let enabled = eaInfo.enabled.bool ?? true
 //                                }
-                                WriteToLog().message(theString: "\(deviceText.lowercased()) extension attribute title id: \(eaInfo.id.text!) \t name: \(eaInfo.Name.text!) \t enabled: \(enabled)")
+                                WriteToLog().message(theString: "\(deviceText.lowercased()) extension attribute title id: \(eaInfo.id.text!)      name: \(eaInfo.Name.text!)      enabled: \(enabled)")
                                 let eaDisplayName = enabled ? name:"\(name)    [disabled]"
                                eaArray.append(["id": "\(id)", "name": "\(eaDisplayName)"])
                                // mark advanced search title as unused (reporting only)
@@ -262,39 +262,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         DispatchQueue.main.async { [self] in
                             self.processItems(type: nextObject)
                         }
-                       /*
-                        let eaArrayCount = eaArray.count
-                        if eaArrayCount > 0 {
-                            DispatchQueue.main.async {
-                                self.process_TextField.stringValue = "Scanning Advanced Computer Searches for groups..."
-                            }
-                         
-                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                            self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: eaArray, index: 0)
-                            waitFor.advancedsearch = true
-                            self.backgroundQ.async { [self] in
-                                while true {
-                                    usleep(10)
-                                    if !waitFor.advancedsearch {
-                                        WriteToLog().message(theString: "[processItems] advanced computer searches complete - call \(nextObject)")
-                                        DispatchQueue.main.async { [self] in
-                                            self.processItems(type: nextObject)
-                                        }
-                                        break
-                                    }
-                                }
-                            }
-                         
-                        } else {
-                            // no restricted software configurations exist
-                            WriteToLog().message(theString: "[processItems] no advanced computer searches - call \(nextObject)")
-                            DispatchQueue.main.async {
-                                self.processItems(type: nextObject)
-                            }
-                        }
-
-                        */
-                        
                     }
                 } else {
                     // skip EAs
@@ -929,7 +896,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         if let _ = result[xmlTag] {
                             let prestageObjectArray = result[xmlTag] as! [[String: Any]]
                             let prestageObjectArrayCount = prestageObjectArray.count
-//                                    print("found \(prestageObjectArrayCount) prestages.")
+                            WriteToLog().message(theString: "[processItems] found \(prestageObjectArrayCount) prestages.")
                             if prestageObjectArrayCount > 0 {
                                 WriteToLog().message(theString: "[processItems] scanning computer prestages for packages and computer profiles.")
                                 for i in (0..<prestageObjectArrayCount) {
@@ -937,10 +904,10 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                     if let id = prestageObjectArray[i]["id"], let displayName = prestageObjectArray[i]["displayName"] {
                                         self.masterObjectDict[type]!["\(displayName)"] = ["id":"\(id)", "used":"false"]
                                         // mark used packages
-                                        let customPackageIds  = prestageObjectArray[i]["customPackageIds"] as! [String]
+                                        let customPackageIds  = prestageObjectArray[i]["customPackageIds"] as? [String]
 //                                                print("prestage \(displayName) has the following package ids \(customPackageIds)")
                                         if self.packagesButtonState == "on" {
-                                            for prestagePackageId in customPackageIds {
+                                            for prestagePackageId in customPackageIds! {
 //                                                        print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
                                                 self.masterObjectDict["packages"]!["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
                                             }
@@ -1027,7 +994,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                        if let id = rsPolicy.id.text, let name = rsPolicy.Name.text {
 
 //                               print("restricted software title id: \(rsPolicy.id.text!) \t name: \(rsPolicy.Name.text!)")
-                           WriteToLog().message(theString: "restricted software title id: \(rsPolicy.id.text!) \t name: \(rsPolicy.Name.text!)")
+                           WriteToLog().message(theString: "restricted software title id: \(rsPolicy.id.text!)      name: \(rsPolicy.Name.text!)")
                            restrictedsoftwareArray.append(["id": "\(rsPolicy.id.text!)", "name": "\(rsPolicy.Name.text!)"])
                            // mark restricted software title as unused (reporting only)
                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -1097,7 +1064,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                            if let id = acsPolicy.id.text, let name = acsPolicy.Name.text {
 
     //                               print("restricted software title id: \(acsPolicy.id.text!) \t name: \(acsPolicy.Name.text!)")
-                               WriteToLog().message(theString: "advanced computer search title id: \(acsPolicy.id.text!) \t name: \(acsPolicy.Name.text!)")
+                               WriteToLog().message(theString: "advanced computer search title id: \(acsPolicy.id.text!)      name: \(acsPolicy.Name.text!)")
                                advancedcomputersearchArray.append(["id": "\(acsPolicy.id.text!)", "name": "\(acsPolicy.Name.text!)"])
                                // mark advanced computer search title as unused (reporting only)
                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -1168,7 +1135,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                            if let id = amds.id.text, let name = amds.Name.text {
 
     //                               print("restricted software title id: \(acsPolicy.id.text!) \t name: \(acsPolicy.Name.text!)")
-                               WriteToLog().message(theString: "advanced mobile device search title id: \(id) \t name: \(name)")
+                               WriteToLog().message(theString: "advanced mobile device search title id: \(id)      name: \(name)")
                                advancedsearchArray.append(["id": "\(id)", "name": "\(name)"])
                                // mark advanced computer search title as unused (reporting only)
                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -3041,6 +3008,16 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                 }
             }
         }
+        
+        if (viewing == "All" && computerEAs_Button.state.rawValue == 1) || viewing == "Computer EAs" {
+            for (key, _) in masterObjectDict["computerextensionattributes"]! {
+                if masterObjectDict["computerextensionattributes"]?[key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["computerextensionattributes"]![key]!["id"]!))"
+                    WriteToLog().message(theString: "[remove_Action] remove computer extension attribute with id: \(id)")
+                    masterItemsToDeleteArray.append(["computerextensionattributes":id])
+                }
+            }
+        }
 
         if (viewing == "All" && mobileDeviceGroups_Button.state.rawValue == 1) || viewing == "Mobile Device Groups" {
             for (key, _) in masterObjectDict["mobileDeviceGroups"]! {
@@ -3078,6 +3055,16 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     let id = "\(String(describing: masterObjectDict["classes"]![key]!["id"]!))"
                     WriteToLog().message(theString: "[remove_Action] remove class with id: \(id)")
                     masterItemsToDeleteArray.append(["classes":id])
+                }
+            }
+        }
+        
+        if (viewing == "All" && mobileDeviceEAs_Button.state.rawValue == 1) || viewing == "Mobile Device EAs" {
+            for (key, _) in masterObjectDict["mobiledeviceextensionattributes"]! {
+                if masterObjectDict["mobiledeviceextensionattributes"]?[key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]!["id"]!))"
+                    WriteToLog().message(theString: "[remove_Action] remove mobile device extension attribute with id: \(id)")
+                    masterItemsToDeleteArray.append(["mobiledeviceextensionattributes":id])
                 }
             }
         }
@@ -3283,7 +3270,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     
                     if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                         do {
-                            WriteToLog().message(theString: "[Xml.\(action.uppercased())] successfully retrieved: \(theEndpoint)\n")
+                            WriteToLog().message(theString: "[Xml.\(action.uppercased())] successfully retrieved: \(theEndpoint)")
                             let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
 
                             completion((httpResponse.statusCode,returnedXML))
@@ -3642,9 +3629,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         }
     }
 
-    override func viewDidDisappear() {
-        AppDelegate().QuitNow(sender: self)
-    }
+//    override func viewDidDisappear() {
+//        AppDelegate().QuitNow(sender: self)
+//    }
     
     override var representedObject: Any? {
         didSet {

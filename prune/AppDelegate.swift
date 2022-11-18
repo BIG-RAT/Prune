@@ -27,9 +27,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // quit the app if the window is closed
-//    func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool {
-//        return true
-//    }
+    func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool {
+        QuitNow(sender: self)
+        return false
+    }
 
 }
 
