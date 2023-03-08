@@ -2264,6 +2264,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     }
     
     func sortedArrayFromDict(theDict: [String:[String:String]]) -> [String] {
+        print("theDict: \(theDict)")
         var sortedArray = [String]()
         for (key, _) in theDict {
             sortedArray.append(key)
