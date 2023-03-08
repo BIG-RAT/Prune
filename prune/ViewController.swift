@@ -28,6 +28,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     @IBOutlet weak var classes_Button: NSButton!
     @IBOutlet weak var computerGroups_Button: NSButton!
     @IBOutlet weak var computerProfiles_Button: NSButton!
+    @IBOutlet weak var macApps_Button: NSButton!
     @IBOutlet weak var policies_Button: NSButton!
     @IBOutlet weak var restrictedSoftware_Button: NSButton!
     @IBOutlet weak var computerEAs_Button: NSButton!
@@ -62,7 +63,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     // define master dictionary of items
     // ex. masterObjectDict["packages"] = [package1Name:["id":id1,"name":name1],package2Name:["id":id2,"name":name2]]
     var masterObjectDict = [String:[String:[String:String]]]()
-    var masterObjects    = ["advancedcomputersearches", "advancedmobiledevicesearches", "packages", "osxconfigurationprofiles", "scripts", "ebooks", "classes", "computerGroups", "policies", "restrictedsoftware", "computerextensionattributes", "mobileDeviceGroups", "mobiledeviceapplications", "mobiledeviceconfigurationprofiles", "computer-prestages", "patchpolicies", "patchsoftwaretitles", "mobiledeviceextensionattributes"]
+    var masterObjects    = ["advancedcomputersearches", "advancedmobiledevicesearches", "packages", "osxconfigurationprofiles", "scripts", "ebooks", "classes", "computerGroups", "macapplications", "policies", "restrictedsoftware", "computerextensionattributes", "mobileDeviceGroups", "mobiledeviceapplications", "mobiledeviceconfigurationprofiles", "computer-prestages", "patchpolicies", "patchsoftwaretitles", "mobiledeviceextensionattributes"]
 
     var unusedItems_TableArray: [String]?
     var unusedItems_TableDict: [[String:String]]?
@@ -81,6 +82,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     var classesButtonState               = "off"
     var computerGroupsButtonState        = "off"
     var computerProfilesButtonState      = "off"
+    var macAppsButtonState               = "off"
     var policiesButtonState              = "off"
     var restrictedSoftwareButtonState    = "off"
     var computerEAsButtonState           = "off"
@@ -1112,7 +1114,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                 
             case "advancedmobiledevicesearches":
                 WriteToLog().message(theString: "[processItems] \(type)")
-                let nextObject = "policies"
+                let nextObject = "macapplications"
                 if self.mobileDeviceGroupsButtonState == "on" || self.mobileDeviceEAsButtonState == "on" {
                    DispatchQueue.main.async {
                           self.process_TextField.stringValue = "Fetching Advanced Mobile Device Searches..."
@@ -1180,6 +1182,69 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                         self.processItems(type: nextObject)
                     }
                 }
+                
+            case "macapplications":
+                msgText    = "Mac Apps"
+                nextObject = "policies"
+                
+                if self.macAppsButtonState == "on" || self.computerGroupsButtonState == "on" {
+                    DispatchQueue.main.async {
+                        self.process_TextField.stringValue = "Fetching Mac Apps..."
+                    }
+                    
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
+                        (result: [String:AnyObject]) in
+//                            self.masterObjectDict[type] = [String:[String:String]]()
+                        if let _ = result["mac_applications"] {
+                            let macAppsArray = result["mac_applications"] as! [[String: Any]]
+                            let macAppsArrayCount = macAppsArray.count
+                            if macAppsArrayCount > 0 {
+                                for i in (0..<macAppsArrayCount) {
+//                                    print("macAppsArray[i]: \(macAppsArray[i])")
+                                    if let id = macAppsArray[i]["id"] as? Int, let name = macAppsArray[i]["name"] as? String {
+                                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    }
+                                }
+
+                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: macAppsArray, index: 0)
+                                waitFor.macApps = true
+                                self.backgroundQ.async { [self] in
+                                    while true {
+                                        usleep(10)
+                                        if !waitFor.macApps {
+                                            WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                            DispatchQueue.main.async { [self] in
+                                                self.processItems(type: nextObject)
+                                            }
+                                            break
+                                        }
+                                    }
+                                }
+                            } else {
+                                // no computer configurations exist
+                                WriteToLog().message(theString: "[processItems] \(msgText) complete - \(nextObject)")
+                                DispatchQueue.main.async { [self] in
+                                    self.processItems(type: nextObject)
+                                }
+                            }
+                        } else {
+                            WriteToLog().message(theString: "[processItems] unable to read \(msgText) - \(nextObject)")
+                            waitFor.macApps = false
+                            DispatchQueue.main.async { [self] in
+                                self.processItems(type: nextObject)
+                            }
+                        }
+                    }
+                } else {
+                    // skip \(msgText)
+                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
+                    waitFor.macApps = false
+                    DispatchQueue.main.async { [self] in
+                        self.processItems(type: nextObject)
+                    }
+                }
+                 
                       
             case "policies":
                 if self.policiesButtonState == "on" || self.packagesButtonState == "on" || self.scriptsButtonState == "on" || self.computerGroupsButtonState == "on" {
@@ -1240,6 +1305,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                         if self.computerProfilesButtonState == "on" {
                                             reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
                                         }
+                                        if self.macAppsButtonState == "on" {
+                                            reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
+                                        }
                                         if self.policiesButtonState == "on" {
                                             reportItems.append(["policies":self.masterObjectDict["policies"]!])
                                         }
@@ -1298,6 +1366,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                         if self.computerProfilesButtonState == "on" {
                                             reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
                                         }
+                                        if self.macAppsButtonState == "on" {
+                                            reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
+                                        }
                                         if self.policiesButtonState == "on" {
                                             reportItems.append(["policies":self.masterObjectDict["policies"]!])
                                         }
@@ -1355,6 +1426,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 }
                                 if self.computerProfilesButtonState == "on" {
                                     reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
+                                }
+                                if self.macAppsButtonState == "on" {
+                                    reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
                                 }
                                 if self.policiesButtonState == "on" {
                                     reportItems.append(["policies":self.masterObjectDict["policies"]!])
@@ -1418,6 +1492,8 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
             objectEndpoint = "ebooks/id"
         case "classes":
             objectEndpoint = "classes/id"
+        case "macapplications":
+            objectEndpoint = "macapplications/id"
         case "policies":
             objectEndpoint = "policies/id"
         case "patchpolicies":
@@ -1707,6 +1783,38 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 
                                 // look up each computer profile and check scope/limitations - end
                                 
+                            case "macapplications":
+                                // enabled/disabled state of Mac Apps is not visible in the api
+                                WriteToLog().message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
+                                
+                                let macAppsXml = result["mac_application"] as! [String:AnyObject]
+                                
+                                // check for used mobiledevicegroups - start
+                                let macAppScope = macAppsXml["scope"] as! [String:AnyObject]
+            //
+                                if self.isScoped(scope: macAppScope) {
+                                    self.masterObjectDict[theEndpoint]!["\(name)"]!["used"] = "true"
+                                }
+
+                                // check for used computergroups - start
+                                let computer_groupList = macAppScope["computer_groups"] as! [[String:Any]]
+
+                                if self.masterObjectDict["computerGroups"]?.count ?? 0 > 0 {
+                                    for theComputerGroup in computer_groupList {
+                                        let theComputerGroupName = "\(String(describing: theComputerGroup["name"]!))"
+                                        self.masterObjectDict["computerGroups"]!["\(theComputerGroupName)"]?["used"] = "true"
+                                    }
+                                    // check exclusions - start (limitations are for user/network objects)
+                                    let computer_groupExcl = macAppScope["exclusions"] as! [String:AnyObject]
+                                    let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [[String: Any]]
+                                    for theComputerGroupExcl in computer_groupListExcl {
+                                        let theComputerGroupName = theComputerGroupExcl["name"]
+                                        self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
+                                    }
+                                }
+                                // check exclusions - end
+                                // check of used computergroups - end
+                                
                             case "policies":
             //                    self.policiesDict["\(id)"] = "\(name)"
                                 
@@ -1903,6 +2011,8 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                                 waitFor.classes = false
                             case "osxconfigurationprofiles":
                                 waitFor.osxconfigurationprofile = false
+                            case "macapplications":
+                                waitFor.macApps = false
                             case "policies","patchpolicies","patchsoftwaretitles","restrictedsoftware":
                                 waitFor.policy = false
                             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
@@ -2151,6 +2261,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         if sender.title == "Computer Profiles" || (sender.title == "All" && computerProfilesButtonState == "on") {
             reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
         }
+        if sender.title == "Mac Apps" || (sender.title == "All" && macAppsButtonState == "on") {
+            reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
+        }
         if sender.title == "Policies" || (sender.title == "All" && policiesButtonState == "on") {
             reportItems.append(["policies":self.masterObjectDict["policies"]!])
         }
@@ -2218,6 +2331,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             case "unusedComputerProfiles":
                                 computerProfiles_Button.state = NSControl.StateValue(rawValue: 1)
                                 computerProfilesButtonState = "on"
+                            case "unusedMacApps":
+                                macApps_Button.state = NSControl.StateValue(rawValue: 1)
+                                macAppsButtonState = "on"
                             case "unusedPolicies":
                                 policies_Button.state = NSControl.StateValue(rawValue: 1)
                                 policiesButtonState = "on"
@@ -2502,7 +2618,48 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     WriteToLog().message(theString: "failed to write the following: <unusedComputerProfiles>")
                 }
             }   // if self.computerGroupsButtonState == "on" - end
+            
+            
+            
+            if self.macAppsButtonState == "on" {
+                var firstMacApp = true
+                let macAppLogFile = "pruneMacApps_\(timeStamp).json"
 
+                let exportURL = getDownloadDirectory().appendingPathComponent(macAppLogFile)
+
+                do {
+                    try "{\(header),\n \"unusedMacApps\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+//                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let macAppLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["macapplications"]!) {
+    //                   for (key, _) in policiesDict {
+                            if masterObjectDict["macapplications"]![key]?["used"]! == "false" {
+                                macAppLogFileOp.seekToEndOfFile()
+//                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+                                let displayName = key
+                                if firstMacApp {
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["macapplications"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                    firstMacApp = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["macapplications"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                }
+    //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
+    //                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
+    //                            let text = "\t<id>\(key)</id><name>\(String(describing: packagesDict[key]!["name"]!))</name>\n"
+                                macAppLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in packagesDict - end
+                        macAppLogFileOp.seekToEndOfFile()
+                        macAppLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+                        macAppLogFileOp.closeFile()
+                        exportedItems.append("\tUnused Mac Apps")
+                    }
+                } catch {
+                    WriteToLog().message(theString: "failed to write the following: <unusedMacApps>")
+                }
+            }
+            
             if self.policiesButtonState == "on" {
                 var firstPolicy = true
                 let policyLogFile = "prunePolicies_\(timeStamp).json"
@@ -3197,6 +3354,8 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                 computerGroupsButtonState = "\(state)"
             case "Computer Profiles":
                 computerProfilesButtonState = "\(state)"
+            case "Mac Apps":
+                macAppsButtonState = "\(state)"
             case "Policies":
                 policiesButtonState = "\(state)"
             case "Restricted Software":
@@ -3329,6 +3488,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         classesButtonState               = "\(theState)"
         computerGroupsButtonState        = "\(theState)"
         computerProfilesButtonState      = "\(theState)"
+        macAppsButtonState               = "\(theState)"
         policiesButtonState              = "\(theState)"
         restrictedSoftwareButtonState    = "\(theState)"
         computerEAsButtonState           = "\(theState)"
@@ -3357,6 +3517,9 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
             }
             if computerProfilesButtonState == "on" {
                 view_PopUpButton.addItem(withTitle: "Computer Profiles")
+            }
+            if macAppsButtonState == "on" {
+                view_PopUpButton.addItem(withTitle: "Mac Apps")
             }
             if policiesButtonState == "on" {
                 view_PopUpButton.addItem(withTitle: "Policies")

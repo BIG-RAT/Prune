@@ -1206,6 +1206,17 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="phb-eJ-jn2"/>
                                 </connections>
                             </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yhh-9W-VQU">
+                                <rect key="frame" x="191" y="280" width="87" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="check" title="Mac Apps" bezelStyle="regularSquare" imagePosition="left" inset="2" id="py3-Es-i1h">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="Igf-HA-gyD"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="gaw-sp-OyP" firstAttribute="top" secondItem="IPy-ls-na8" secondAttribute="bottom" constant="15" id="0L8-jI-9FZ"/>
@@ -1272,6 +1283,7 @@ DQ
                         <outlet property="ebooks_Button" destination="J3O-WP-1zj" id="6ii-UG-rfO"/>
                         <outlet property="import_Button" destination="6dX-JG-2TQ" id="qRD-Qd-41T"/>
                         <outlet property="jamfServer_TextField" destination="JcO-81-SqS" id="C72-wt-wHs"/>
+                        <outlet property="macApps_Button" destination="Yhh-9W-VQU" id="TBC-Qv-em0"/>
                         <outlet property="mobileDeviceApps_Button" destination="U1z-r5-Qn3" id="htH-pR-5uZ"/>
                         <outlet property="mobileDeviceEAs_Button" destination="dQt-a4-axV" id="0oa-aO-gsO"/>
                         <outlet property="mobileDeviceGroups_Button" destination="1KQ-oR-uJ5" id="fjP-Mp-xI1"/>
