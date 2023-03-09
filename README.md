@@ -53,6 +53,10 @@ Once the list of unused items is generated you can edit it within the app.  If y
             <td>Check scope</td>
         </tr>
         <tr>
+            <td>Mac Apps</td>
+            <td>Check scope.  <b>Important:</b> enabled/disabled state for Mac Apps is not available via the API.</td>
+        </tr>
+        <tr>
             <td>Restricted Software</td>
             <td>Check scope for computer groups</td>
         </tr>
@@ -91,6 +95,8 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
+2023-03-08 - v2.4.0: Add scanning of Mac Apps.
+
 2022-11-18 - v2.3.3: Fix issue where extension attributes used as creteria in smart groups were listed as unused.
 
 2022-11-18 - v2.3.2: Fix computer/mobile device extension attributes not deleting (#29).

@@ -3464,6 +3464,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         classes_Button.state = NSControl.StateValue(rawValue: state)
         computerGroups_Button.state = NSControl.StateValue(rawValue: state)
         computerProfiles_Button.state = NSControl.StateValue(rawValue: state)
+        macApps_Button.state = NSControl.StateValue(rawValue: state)
         policies_Button.state = NSControl.StateValue(rawValue: state)
         restrictedSoftware_Button.state = NSControl.StateValue(rawValue: state)
         computerEAs_Button.state = NSControl.StateValue(rawValue: state)
@@ -3473,7 +3474,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         mobileDeviceEAs_Button.state = NSControl.StateValue(rawValue: state)
         
         if theState == "on" {
-            let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Policies", "Restricted Software", "Computer EAs", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles", "Mobile Device EAs"]
+            let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Mac Apps", "Policies", "Restricted Software", "Computer EAs", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles", "Mobile Device EAs"]
             for theButton in availableButtons {
                 view_PopUpButton.addItem(withTitle: "\(theButton)")
             }
