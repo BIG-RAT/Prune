@@ -2392,10 +2392,56 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     
     @IBAction func export_Action(_ sender: Any) {
         
+        let timeStamp = Time().getCurrent()
+        
+        if NSEvent.modifierFlags.contains(.option) {
+            
+            let exportedReport = "pruneReport_\(JamfProServer.source.fqdnFromUrl)_\(timeStamp).json"
+            let exportURL = getDownloadDirectory().appendingPathComponent(exportedReport)
+            
+            var selectedObjects = [String]()
+            let buttonArray:[NSButton] = [packages_Button,scripts_Button,computerGroups_Button,computerProfiles_Button,policies_Button,restrictedSoftware_Button,computerEAs_Button,macApps_Button,mobileDeviceGroups_Button,mobileDeviceApps_Button,configurationProfiles_Button,classes_Button,ebooks_Button,mobileDeviceEAs_Button]
+            for theButton in buttonArray {
+                if theButton.state.rawValue == 1 {
+                    selectedObjects.append("\(theButton.identifier?.rawValue ?? "")")
+                }
+            }
+//            print("selectedObjects: \(selectedObjects)")
+//            print("create report")
+//            let header = "jamfServer\t\(JamfProServer.source)"
+            var unusedObjects = ""
+            for (key, value) in masterObjectDict {
+                let dictOfObjects:[String:[String:String]] = value
+                if selectedObjects.firstIndex(of: key) != nil {
+                    for (theObject, objectInfo) in dictOfObjects {
+                        if theObject == "policies" {
+                            if objectInfo["used"] == "false" || objectInfo["enabled"] == "false" {
+                                //                            print("\(key)\t\(theObject)")
+                                unusedObjects.append("\(key)\t\(theObject)\n")
+                            }
+                        } else {
+                            if objectInfo["used"] == "false" {
+                                //                            print("\(key)\t\(theObject)")
+                                unusedObjects.append("\(key)\t\(theObject)\n")
+                            }
+                        }
+                    }
+                }
+            }
+//            print("\(unusedObjects)")
+//            withOptionKey = true
+            
+            do {
+                try unusedObjects.write(to: exportURL, atomically: true, encoding: .utf8)
+            } catch {
+                print("failed to export")
+            }
+            return
+        }
+        
         var text = ""
         var exportedItems:[String] = ["Exported Items"]
         let failedExported:[String] = ["Failed Exported Items"]
-        let timeStamp = Time().getCurrent()
         let exportQ = DispatchQueue(label: "com.jamf.prune.exportQ", qos: DispatchQoS.background)
         working(isWorking: true)
         let header = "\"jamfServer\": \"\(JamfProServer.source)\",\n \"username\": \"\(uname_TextField.stringValue)\""
@@ -3853,5 +3899,27 @@ extension ViewController: NSTableViewDelegate {
     
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping(  URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+    }
+}
+
+extension String {
+    var fqdnFromUrl: String {
+        get {
+            var fqdn = ""
+            let nameArray = self.components(separatedBy: "://")
+            if nameArray.count > 1 {
+                fqdn = nameArray[1]
+            } else {
+                fqdn =  self
+            }
+            if fqdn.contains(":") {
+                let fqdnArray = fqdn.components(separatedBy: ":")
+                fqdn = fqdnArray[0]
+            }
+            if fqdn.last == "/" {
+                fqdn = String(fqdn.dropLast())
+            }
+            return fqdn
+        }
     }
 }

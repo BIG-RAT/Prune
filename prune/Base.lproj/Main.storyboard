@@ -922,7 +922,7 @@ DQ
                                     <action selector="export_Action:" target="XfG-lQ-9wD" id="fI2-Tx-HzJ"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DX4-YY-TMA">
+                            <button identifier="packages" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DX4-YY-TMA">
                                 <rect key="frame" x="22" y="346" width="85" height="18"/>
                                 <buttonCell key="cell" type="check" title="Packages" bezelStyle="regularSquare" imagePosition="left" inset="2" id="9tP-Ye-Cdv">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -932,7 +932,7 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="gZw-Mv-tYs"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="CHT-iK-owq">
+                            <button identifier="scripts" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="CHT-iK-owq">
                                 <rect key="frame" x="22" y="324" width="69" height="18"/>
                                 <buttonCell key="cell" type="check" title="Scripts" bezelStyle="regularSquare" imagePosition="left" inset="2" id="GLs-of-Gxj">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -942,7 +942,7 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="AYC-cm-r6W"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3Ur-1I-4K7">
+                            <button identifier="computergroups" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3Ur-1I-4K7">
                                 <rect key="frame" x="22" y="302" width="134" height="18"/>
                                 <buttonCell key="cell" type="check" title="Computer Groups" bezelStyle="regularSquare" imagePosition="left" inset="2" id="GT8-mE-kJr">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1053,7 +1053,7 @@ DQ
                             <progressIndicator wantsLayer="YES" maxValue="100" displayedWhenStopped="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="cnQ-TA-ZNH">
                                 <rect key="frame" x="356" y="187" width="32" height="32"/>
                             </progressIndicator>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iIu-PQ-eWL">
+                            <button identifier="osxconfigurationprofiles" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iIu-PQ-eWL">
                                 <rect key="frame" x="22" y="280" width="136" height="18"/>
                                 <buttonCell key="cell" type="check" title="Computer Profiles" bezelStyle="regularSquare" imagePosition="left" inset="2" id="rst-7m-NXV">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1063,7 +1063,7 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="lHj-Ea-3Is"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="U1z-r5-Qn3">
+                            <button identifier="mobiledeviceapplications" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="U1z-r5-Qn3">
                                 <rect key="frame" x="355" y="324" width="147" height="18"/>
                                 <buttonCell key="cell" type="check" title="Mobile Device Apps" bezelStyle="regularSquare" imagePosition="left" inset="2" id="SLJ-Mg-8Ys">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1073,7 +1073,7 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="0f1-jt-nVT"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="AJ3-ix-IV2">
+                            <button identifier="mobiledeviceconfigurationprofiles" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="AJ3-ix-IV2">
                                 <rect key="frame" x="355" y="302" width="208" height="18"/>
                                 <buttonCell key="cell" type="check" title="Mobile Device Config. Profiles" bezelStyle="regularSquare" imagePosition="left" inset="2" id="2XT-QI-s27">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1083,7 +1083,7 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="hYZ-Tj-yR2"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dlw-9C-Dvf">
+                            <button identifier="policies" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dlw-9C-Dvf">
                                 <rect key="frame" x="191" y="346" width="73" height="18"/>
                                 <buttonCell key="cell" type="check" title="Policies" bezelStyle="regularSquare" imagePosition="left" inset="2" id="5xJ-yv-hWu">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1101,7 +1101,7 @@ DQ
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1KQ-oR-uJ5">
+                            <button identifier="mobiledevicegroups" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1KQ-oR-uJ5">
                                 <rect key="frame" x="355" y="346" width="159" height="18"/>
                                 <buttonCell key="cell" type="check" title="Mobile Device Groups" bezelStyle="regularSquare" imagePosition="left" inset="2" id="x3P-Hy-Mkr">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1124,7 +1124,7 @@ DQ
                                     <action selector="go_action:" target="XfG-lQ-9wD" id="duc-T8-XLM"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fOf-HA-C5s">
+                            <button identifier="classes" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fOf-HA-C5s">
                                 <rect key="frame" x="582" y="346" width="73" height="18"/>
                                 <buttonCell key="cell" type="check" title="Classes" bezelStyle="regularSquare" imagePosition="left" inset="2" id="PGK-yM-lA2">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1134,7 +1134,7 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="ZPC-57-mZs"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dGD-4U-MeH">
+                            <button identifier="restrictedsoftware" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dGD-4U-MeH">
                                 <rect key="frame" x="191" y="324" width="146" height="18"/>
                                 <buttonCell key="cell" type="check" title="Restricted Software" bezelStyle="regularSquare" imagePosition="left" inset="2" id="zP7-Hf-DAf">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1144,7 +1144,7 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="uoN-df-3ms"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="J3O-WP-1zj">
+                            <button identifier="ebooks" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="J3O-WP-1zj">
                                 <rect key="frame" x="582" y="324" width="71" height="18"/>
                                 <buttonCell key="cell" type="check" title="eBooks" bezelStyle="regularSquare" imagePosition="left" inset="2" id="fcz-VY-zGI">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1178,7 +1178,7 @@ DQ
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qlD-45-RoB">
+                            <button identifier="computerextensionattributes" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qlD-45-RoB">
                                 <rect key="frame" x="191" y="302" width="113" height="18"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="111" id="2t4-Nx-6e4"/>
@@ -1192,7 +1192,7 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="rdd-Qp-vc5"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dQt-a4-axV">
+                            <button identifier="mobiledeviceextensionattributes" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dQt-a4-axV">
                                 <rect key="frame" x="582" y="302" width="138" height="18"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="16" id="QVt-es-mmP"/>
@@ -1206,7 +1206,7 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="phb-eJ-jn2"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yhh-9W-VQU">
+                            <button identifier="macapplications" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yhh-9W-VQU">
                                 <rect key="frame" x="191" y="280" width="87" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="Mac Apps" bezelStyle="regularSquare" imagePosition="left" inset="2" id="py3-Es-i1h">
