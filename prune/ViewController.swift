@@ -6,11 +6,14 @@
 //  Copyright © 2019 Leslie Helou. All rights reserved.
 //
 
+import AppKit
 import Cocoa
 import Foundation
 import SwiftyXMLParser
 
-class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDelegate {
+class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDelegate, URLSessionDelegate {
+    
+    @IBOutlet weak var importLayer: ImportView!
     
     var theGetQ    = OperationQueue() // create operation queue for API POST/PUT calls
     var theDeleteQ = OperationQueue() // queue for delete API calls
@@ -41,7 +44,15 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
     
     @IBOutlet weak var spinner_ProgressIndicator: NSProgressIndicator!
     
-    @IBOutlet weak var import_Button: NSPathControl!
+//    @IBOutlet weak var import_Button: NSPathControl!
+    @IBOutlet weak var import_Button2: NSButton!
+//
+//    @IBAction func import_Button2(_ sender: Any) {
+//        let pasteboard = NSPasteboardItem()
+//        print("drag registered")
+//    }
+    
+    
     
     @IBOutlet weak var process_TextField: NSTextField!
     
@@ -103,12 +114,12 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         unusedItems_TableArray?.removeAll()
         unusedItems_TableDict?.removeAll()
         object_TableView.reloadData()
-        DispatchQueue.main.async { [self] in
-            if (import_Button.url?.path.suffix(5) == ".json") {
-                import_Button.url = import_Button.url?.deletingLastPathComponent()
-                import_Button.url = import_Button.url?.appendingPathComponent("/.")
-            }
-        }
+//        DispatchQueue.main.async { [self] in
+//            if (import_Button.url?.path.suffix(5) == ".json") {
+//                import_Button.url = import_Button.url?.deletingLastPathComponent()
+//                import_Button.url = import_Button.url?.appendingPathComponent("/.")
+//            }
+//        }
         setViewButton(setOn: false)
         JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.authCreds, method: "POST") { [self]
             (returnedJSON: [String:Any]) in
@@ -144,7 +155,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         unusedItems_TableDict?.removeAll()
         
 //        process_TextField.textColor   = NSColor.blue
-        process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(12))
+        process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(16))
         process_TextField.stringValue = ""
         
         JamfProServer.source       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
@@ -1200,7 +1211,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                             let macAppsArrayCount = macAppsArray.count
                             if macAppsArrayCount > 0 {
                                 for i in (0..<macAppsArrayCount) {
-//                                    print("macAppsArray[i]: \(macAppsArray[i])")
                                     if let id = macAppsArray[i]["id"] as? Int, let name = macAppsArray[i]["name"] as? String {
                                         self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
                                     }
@@ -2186,6 +2196,8 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
             category = "computerGroups"
         case "unusedComputerProfiles":
             category = "osxconfigurationprofiles"
+        case "unusedMacApps":
+            category = "macapplications"
         case "unusedPolicies":
             category = "policies"
         case "unusedRestrictedsoftware":
@@ -2262,7 +2274,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
             reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
         }
         if sender.title == "Mac Apps" || (sender.title == "All" && macAppsButtonState == "on") {
-            reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
+             reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
         }
         if sender.title == "Policies" || (sender.title == "All" && policiesButtonState == "on") {
             reportItems.append(["policies":self.masterObjectDict["policies"]!])
@@ -2291,22 +2303,62 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         self.unused(itemDictionary: reportItems)
     }
     
-    @IBAction func import_Action(_ sender: Any) {
+    @IBAction func importButton_Action(_ sender: Any) {
+        var objPath: URL! = nil
+        
+        if let pathToFile = sender as? URL, pathToFile.path != "" {
+            print("path to file: \(pathToFile)")
+            objPath = pathToFile
+            importFile(fileURL: objPath)
+//            return
+        } else {
+            print("present open dialog")
+            // filetypes that are selectable
+            let fileTypeArray: Array = ["json"]
+
+            objPath = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
+            DispatchQueue.main.async {
+                let importDialog: NSOpenPanel        = NSOpenPanel()
+                importDialog.canChooseDirectories    = false
+                importDialog.allowsMultipleSelection = false
+                importDialog.resolvesAliases         = true
+                importDialog.allowedFileTypes        = fileTypeArray
+                importDialog.directoryURL            = objPath
                 
-        if let pathToFile = import_Button.url {
-            let objPath: URL!
-            if let pathOrDirectory = import_Button.url {
+                importDialog.begin { [self] result in
+                    if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
+                        objPath = importDialog.url!
+                        importFile(fileURL: objPath)
+                    } else {
+                        return
+                    }
+                }
+            }
+        }
+        
+        print("objPath: \(String(describing: objPath))")
+    }
+    
+    func importFile(fileURL: URL) {
+    
+        if (fileURL.path.suffix(5) != ".json") {
+            Alert().display(header: "Alert", message: "Import file type must be json")
+            return
+        }
+        
+//        if let pathToFile = import_Button.url {
+//            if let pathOrDirectory = import_Button.url {
 //                print("fileOrPath: \(pathOrDirectory)")
                 
-                objPath = URL(string: "\(pathOrDirectory)")!
+//                objPath = URL(string: "\(pathOrDirectory)")!
                 var isDir : ObjCBool = false
 
                 sleep(1)
-                _ = FileManager.default.fileExists(atPath: objPath.path, isDirectory:&isDir)
+                _ = FileManager.default.fileExists(atPath: fileURL.path, isDirectory:&isDir)
                 do {
                     setAllButtonsState(theState: "off")
                     unusedItems_TableDict?.removeAll()
-                    let dataFile =  try Data(contentsOf:pathToFile, options: .mappedIfSafe)
+                    let dataFile =  try Data(contentsOf:fileURL, options: .mappedIfSafe)
                     let objectJSON = try JSONSerialization.jsonObject(with: dataFile, options: .mutableLeaves) as? [String:Any]
                     
                     for (key, value) in objectJSON! {
@@ -2375,8 +2427,8 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     WriteToLog().message(theString: "file read error")
                     return
                 }
-            }
-        }
+//            }
+//        }
     }
     
     func sortedArrayFromDict(theDict: [String:[String:String]]) -> [String] {
@@ -2396,7 +2448,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         
         if NSEvent.modifierFlags.contains(.option) {
             
-            let exportedReport = "pruneReport_\(JamfProServer.source.fqdnFromUrl)_\(timeStamp).json"
+            let exportedReport = "pruneReport_\(JamfProServer.source.fqdnFromUrl)_\(timeStamp).csv"
             let exportURL = getDownloadDirectory().appendingPathComponent(exportedReport)
             
             var selectedObjects = [String]()
@@ -2407,8 +2459,6 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                 }
             }
 //            print("selectedObjects: \(selectedObjects)")
-//            print("create report")
-//            let header = "jamfServer\t\(JamfProServer.source)"
             var unusedObjects = ""
             for (key, value) in masterObjectDict {
                 let dictOfObjects:[String:[String:String]] = value
@@ -2416,25 +2466,21 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
                     for (theObject, objectInfo) in dictOfObjects {
                         if theObject == "policies" {
                             if objectInfo["used"] == "false" || objectInfo["enabled"] == "false" {
-                                //                            print("\(key)\t\(theObject)")
-                                unusedObjects.append("\(key)\t\(theObject)\n")
+                                unusedObjects.append("\"\(key)\",\"\(theObject)\"\n")
                             }
                         } else {
                             if objectInfo["used"] == "false" {
-                                //                            print("\(key)\t\(theObject)")
-                                unusedObjects.append("\(key)\t\(theObject)\n")
+                                unusedObjects.append("\"\(key)\",\"\(theObject)\"\n")
                             }
                         }
                     }
                 }
             }
-//            print("\(unusedObjects)")
-//            withOptionKey = true
-            
             do {
                 try unusedObjects.write(to: exportURL, atomically: true, encoding: .utf8)
+                Alert().summary(header: "Export Summary", message: "Report of unused itmes has been saved to ~/Downloads")
             } catch {
-                print("failed to export")
+                Alert().summary(header: "Export Summary", message: "Report of unused itmes failed to save to ~/Downloads")
             }
             return
         }
@@ -3360,15 +3406,15 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         // check for option key - end
         
         
-        DispatchQueue.main.async { [self] in
-            if (import_Button.url?.path.suffix(5) == ".json") {
-                import_Button.url = import_Button.url?.deletingLastPathComponent()
-                import_Button.url = import_Button.url?.appendingPathComponent("/.")
-                unusedItems_TableArray?.removeAll()
-                unusedItems_TableDict?.removeAll()
-                object_TableView.reloadData()
-            }
-        }
+//        DispatchQueue.main.async { [self] in
+//            if (import_Button.url?.path.suffix(5) == ".json") {
+//                import_Button.url = import_Button.url?.deletingLastPathComponent()
+//                import_Button.url = import_Button.url?.appendingPathComponent("/.")
+//                unusedItems_TableArray?.removeAll()
+//                unusedItems_TableDict?.removeAll()
+//                object_TableView.reloadData()
+//            }
+//        }
         
         if view_PopUpButton.itemArray.count > 1 {
             setViewButton(setOn: false)
@@ -3768,7 +3814,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         }   // dispatchQueue.main.async - end
     }   // func viewSelectObject - end
     
-    // Delegate Method
+    // Delegate Methods - start
     func sendLoginInfo(loginInfo: (String,String,String,Int)) {
         var saveCredsState: Int?
         (jamfServer_TextField.stringValue,uname_TextField.stringValue,passwd_TextField.stringValue,saveCredsState) = loginInfo
@@ -3808,6 +3854,11 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
             // check authentication - stop
     }
     
+    func selectedFile(fileURL: URL) {
+        print("[ViewController] fileURL: \(fileURL)")
+    }
+    // Delegate Methods - end
+    
     override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
         if segue.identifier == "loginView" {
             let loginVC: LoginViewController = segue.destinationController as! LoginViewController
@@ -3823,10 +3874,7 @@ class ViewController: NSViewController, SendingLoginInfoDelegate, URLSessionDele
         object_TableView.dataSource   = self
         object_TableView.doubleAction = #selector(viewSelectObject)
         
-                
-        // configure import button
-        import_Button.url          = getDownloadDirectory().appendingPathComponent("/.")
-        import_Button.allowedTypes = ["json"]
+        importLayer.importDelegate    = self
         
     }
 
