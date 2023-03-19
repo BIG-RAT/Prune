@@ -44,15 +44,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     
     @IBOutlet weak var spinner_ProgressIndicator: NSProgressIndicator!
     
-//    @IBOutlet weak var import_Button: NSPathControl!
-    @IBOutlet weak var import_Button2: NSButton!
-//
-//    @IBAction func import_Button2(_ sender: Any) {
-//        let pasteboard = NSPasteboardItem()
-//        print("drag registered")
-//    }
-    
-    
+    @IBOutlet weak var import_Button: NSButton!
     
     @IBOutlet weak var process_TextField: NSTextField!
     
@@ -114,12 +106,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         unusedItems_TableArray?.removeAll()
         unusedItems_TableDict?.removeAll()
         object_TableView.reloadData()
-//        DispatchQueue.main.async { [self] in
-//            if (import_Button.url?.path.suffix(5) == ".json") {
-//                import_Button.url = import_Button.url?.deletingLastPathComponent()
-//                import_Button.url = import_Button.url?.appendingPathComponent("/.")
-//            }
-//        }
+        
         setViewButton(setOn: false)
         JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.authCreds, method: "POST") { [self]
             (returnedJSON: [String:Any]) in
@@ -2345,90 +2332,84 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             Alert().display(header: "Alert", message: "Import file type must be json")
             return
         }
-        
-//        if let pathToFile = import_Button.url {
-//            if let pathOrDirectory = import_Button.url {
-//                print("fileOrPath: \(pathOrDirectory)")
-                
-//                objPath = URL(string: "\(pathOrDirectory)")!
-                var isDir : ObjCBool = false
+        var isDir : ObjCBool = false
 
-                sleep(1)
-                _ = FileManager.default.fileExists(atPath: fileURL.path, isDirectory:&isDir)
-                do {
-                    setAllButtonsState(theState: "off")
-                    unusedItems_TableDict?.removeAll()
-                    let dataFile =  try Data(contentsOf:fileURL, options: .mappedIfSafe)
-                    let objectJSON = try JSONSerialization.jsonObject(with: dataFile, options: .mutableLeaves) as? [String:Any]
-                    
-                    for (key, value) in objectJSON! {
-//                        print("[\(#line)-importAction] key: \(key)")
-                        switch key {
-                        case "jamfServer":
-                            jamfServer_TextField.stringValue = "\(value)"
-                            JamfProServer.source = "\(value)"
-                        case "username":
-                            uname_TextField.stringValue = "\(value)"
-                        default:
-                            switch key {
-                            case "unusedPackages":
-                                packages_Button.state = NSControl.StateValue(rawValue: 1)
-                                packagesButtonState = "on"
-                            case "unusedScripts":
-                                scripts_Button.state = NSControl.StateValue(rawValue: 1)
-                                scriptsButtonState = "on"
-                            case "unusedComputerGroups":
-                                computerGroups_Button.state = NSControl.StateValue(rawValue: 1)
-                                computerGroupsButtonState = "on"
-                            case "unusedComputerProfiles":
-                                computerProfiles_Button.state = NSControl.StateValue(rawValue: 1)
-                                computerProfilesButtonState = "on"
-                            case "unusedMacApps":
-                                macApps_Button.state = NSControl.StateValue(rawValue: 1)
-                                macAppsButtonState = "on"
-                            case "unusedPolicies":
-                                policies_Button.state = NSControl.StateValue(rawValue: 1)
-                                policiesButtonState = "on"
-                            case "unusedRestrictedSoftware":
-                                restrictedSoftware_Button.state = NSControl.StateValue(rawValue: 1)
-                                restrictedSoftwareButtonState = "on"
-                            case "unusedComputerEAs":
-                                computerEAs_Button.state = NSControl.StateValue(rawValue: 1)
-                                computerEAsButtonState = "on"
-                            case "unusedMobileDeviceGroups":
-                                mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: 1)
-                                mobileDeviceGroupsButtonState = "on"
-                            case "unusedMobileDeviceApps":
-                                mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: 1)
-                                mobileDeviceAppsButtonState = "on"
-                            case "unusedMobileDeviceConfigurationProfiles":
-                                configurationProfiles_Button.state = NSControl.StateValue(rawValue: 1)
-                                configurationProfilesButtonState = "on"
-                            case "unusedClasses":
-                                classes_Button.state = NSControl.StateValue(rawValue: 1)
-                                classesButtonState = "on"
-                            case "unusedEbooks":
-                                ebooks_Button.state = NSControl.StateValue(rawValue: 1)
-                                ebooksButtonState = "on"
-                            case "unusedMobileDeviceEAs":
-                                mobileDeviceEAs_Button.state = NSControl.StateValue(rawValue: 1)
-                                mobileDeviceEAsButtonState = "on"
-                            default:
-                                break
-                            }
-//                            if objectEndpoint != "" {
-//                                print("[\(#line)-importAction] objectEndpoint: \(objectEndpoint)")
-                                unused(itemDictionary: [buildDictionary(type: key, used: "false", data: objectJSON!)])
-//                            }
-                        }
+        sleep(1)
+        _ = FileManager.default.fileExists(atPath: fileURL.path, isDirectory:&isDir)
+        do {
+            setAllButtonsState(theState: "off")
+            unusedItems_TableDict?.removeAll()
+            let dataFile =  try Data(contentsOf:fileURL, options: .mappedIfSafe)
+            let objectJSON = try JSONSerialization.jsonObject(with: dataFile, options: .mutableLeaves) as? [String:Any]
+            
+            if objectJSON?["jamfServer"] as? String == nil || objectJSON?["username"] as? String == nil {
+                let theFile = fileURL.lastPathComponent
+                Alert().display(header: "Alert:", message: "\(theFile) does not appear to be a Prune file")
+                return
+            }
+            
+            for (key, value) in objectJSON! {
+                switch key {
+                case "jamfServer":
+                    jamfServer_TextField.stringValue = "\(value)"
+                    JamfProServer.source = "\(value)"
+                case "username":
+                    uname_TextField.stringValue = "\(value)"
+                default:
+                    switch key {
+                    case "unusedPackages":
+                        packages_Button.state = NSControl.StateValue(rawValue: 1)
+                        packagesButtonState = "on"
+                    case "unusedScripts":
+                        scripts_Button.state = NSControl.StateValue(rawValue: 1)
+                        scriptsButtonState = "on"
+                    case "unusedComputerGroups":
+                        computerGroups_Button.state = NSControl.StateValue(rawValue: 1)
+                        computerGroupsButtonState = "on"
+                    case "unusedComputerProfiles":
+                        computerProfiles_Button.state = NSControl.StateValue(rawValue: 1)
+                        computerProfilesButtonState = "on"
+                    case "unusedMacApps":
+                        macApps_Button.state = NSControl.StateValue(rawValue: 1)
+                        macAppsButtonState = "on"
+                    case "unusedPolicies":
+                        policies_Button.state = NSControl.StateValue(rawValue: 1)
+                        policiesButtonState = "on"
+                    case "unusedRestrictedSoftware":
+                        restrictedSoftware_Button.state = NSControl.StateValue(rawValue: 1)
+                        restrictedSoftwareButtonState = "on"
+                    case "unusedComputerEAs":
+                        computerEAs_Button.state = NSControl.StateValue(rawValue: 1)
+                        computerEAsButtonState = "on"
+                    case "unusedMobileDeviceGroups":
+                        mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: 1)
+                        mobileDeviceGroupsButtonState = "on"
+                    case "unusedMobileDeviceApps":
+                        mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: 1)
+                        mobileDeviceAppsButtonState = "on"
+                    case "unusedMobileDeviceConfigurationProfiles":
+                        configurationProfiles_Button.state = NSControl.StateValue(rawValue: 1)
+                        configurationProfilesButtonState = "on"
+                    case "unusedClasses":
+                        classes_Button.state = NSControl.StateValue(rawValue: 1)
+                        classesButtonState = "on"
+                    case "unusedEbooks":
+                        ebooks_Button.state = NSControl.StateValue(rawValue: 1)
+                        ebooksButtonState = "on"
+                    case "unusedMobileDeviceEAs":
+                        mobileDeviceEAs_Button.state = NSControl.StateValue(rawValue: 1)
+                        mobileDeviceEAsButtonState = "on"
+                    default:
+                        break
                     }
-
-                } catch {
-                    WriteToLog().message(theString: "file read error")
-                    return
+                    unused(itemDictionary: [buildDictionary(type: key, used: "false", data: objectJSON!)])
                 }
-//            }
-//        }
+            }
+
+        } catch {
+            WriteToLog().message(theString: "file read error")
+            return
+        }
     }
     
     func sortedArrayFromDict(theDict: [String:[String:String]]) -> [String] {
@@ -3405,17 +3386,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         }
         // check for option key - end
         
-        
-//        DispatchQueue.main.async { [self] in
-//            if (import_Button.url?.path.suffix(5) == ".json") {
-//                import_Button.url = import_Button.url?.deletingLastPathComponent()
-//                import_Button.url = import_Button.url?.appendingPathComponent("/.")
-//                unusedItems_TableArray?.removeAll()
-//                unusedItems_TableDict?.removeAll()
-//                object_TableView.reloadData()
-//            }
-//        }
-        
         if view_PopUpButton.itemArray.count > 1 {
             setViewButton(setOn: false)
 //            view_PopUpButton.removeAllItems()
@@ -3886,10 +3856,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             LoginWindow.show = false
         }
     }
-
-//    override func viewDidDisappear() {
-//        AppDelegate().QuitNow(sender: self)
-//    }
     
     override var representedObject: Any? {
         didSet {

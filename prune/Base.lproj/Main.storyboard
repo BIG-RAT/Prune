@@ -1321,7 +1321,7 @@ DQ
                         <outlet property="configurationProfiles_Button" destination="AJ3-ix-IV2" id="KeT-nN-tuL"/>
                         <outlet property="ebooks_Button" destination="J3O-WP-1zj" id="6ii-UG-rfO"/>
                         <outlet property="importLayer" destination="nuI-YM-8hF" id="N2d-qi-mP2"/>
-                        <outlet property="import_Button2" destination="4Xq-8k-hj4" id="nxJ-tq-5ry"/>
+                        <outlet property="import_Button" destination="4Xq-8k-hj4" id="nxJ-tq-5ry"/>
                         <outlet property="jamfServer_TextField" destination="JcO-81-SqS" id="C72-wt-wHs"/>
                         <outlet property="macApps_Button" destination="Yhh-9W-VQU" id="TBC-Qv-em0"/>
                         <outlet property="mobileDeviceApps_Button" destination="U1z-r5-Qn3" id="htH-pR-5uZ"/>

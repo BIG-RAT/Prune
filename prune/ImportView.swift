@@ -1,5 +1,5 @@
 //
-//  MainViewDelegate.swift
+//  ImportView.swift
 //  Prune
 //
 //  Created by Leslie Helou on 3/18/23.
@@ -44,20 +44,10 @@ class ImportView: NSView {
 //    }
     
     func shouldAllowDrag(_ draggingInfo: NSDraggingInfo) -> Bool {
-        print("shouldAllowDrag")
-        
         var canAccept = true
-//        var canAccept = false
-      
-      //2.
-      let pasteBoard = draggingInfo.draggingPasteboard
-      
-      //3.
-//      if pasteBoard.canReadObject(forClasses: [NSURL.self], options: convertToOptionalNSPasteboardReadingOptionKeyDictionary(filteringOptions)) {
-//        canAccept = true
-//      }
-      return canAccept
-      
+
+        let pasteBoard = draggingInfo.draggingPasteboard
+        return canAccept
     }
     
     var isReceivingDrag = false {
@@ -65,34 +55,28 @@ class ImportView: NSView {
         needsDisplay = true
       }
     }
-    //2.
+
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-        print("draggingEntered")
       let allow = shouldAllowDrag(sender)
       isReceivingDrag = allow
       return allow ? .copy : NSDragOperation()
     }
     
     override func draggingExited(_ sender: NSDraggingInfo?) {
-        print("draggingExited")
       isReceivingDrag = false
     }
     
     override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        print("prepareForDragOperation")
       let allow = shouldAllowDrag(sender)
       return allow
     }
     
     
     override func performDragOperation(_ draggingInfo: NSDraggingInfo) -> Bool {
-        print("performDragOperation")
-      
-      //1.
+        
         isReceivingDrag = false
         let pasteBoard = draggingInfo.draggingPasteboard
         let urls = pasteBoard.readObjects(forClasses: [NSURL.self], options: [:]) as? [URL]
-        print("[ImportView] file URLs: \(String(describing: urls))")
 
         NSApplication.shared.activate(ignoringOtherApps: true)
         importDelegate?.importFile(fileURL: urls![0])
