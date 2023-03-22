@@ -5,17 +5,19 @@ As your Jamf server ages it often accumulates more and more unused items, such a
 
 ![alt text](./images/pruneApp.png "Prune")
 
-Once the list of unused items is generated you can edit it within the app.  If you see an object you wish to keep, say some policy, simply option+click the item in the list.  The item will be removed from the list, and hence not removed from the server.  Perhaps you'd like to review the item on the server before deleting, not a problem, just double click the item and you'll be taken to it on the Jamf server (may need to authenticate first).
+Once the list of unused items is generated you can edit it within the app.  If you see an object you wish to keep, say some policy, simply option-click the item in the list.  The item will be removed from the list, and hence not removed from the server.  Perhaps you'd like to review the item on the server before deleting, not a problem, just double click the item and you'll be taken to it on the Jamf server (may need to authenticate first).
 
 ![alt text](./images/edit.png "modify/review")
 
 ### Usage:
-* Enter the server URL you wish to query along with valid credentials.  To simply generate a list you can use an auditor account.  To remove items an account with delete permissions is required.
-* Select the item(s) you'd like to scan.  You can option-click to select/de-select all the categories; packages, scripts, computer groups...
+* Enter the server URL you wish to query along with valid credentials.  To simply generate a list you can use an auditor account.  To remove items an account with delete permissions is also required.
+* Select the item(s) you'd like to scan.  You can option-click to select/de-select all the object types; packages, scripts, computer groups...
 * Click Scan.
 * Once the processing is complete review/edit the list.
 * Click Delete if you wish to delete the listed items from the server.
-* Click Export if you wish to save (to your Downloads folder) the lists of objects to remove for review/editing later.  These lists can then be imported into the application.
+* To delete one specific object type after scanning multiple object types change the View option to the desired object type then click Delete.
+* Click Export if you wish to save (to your Downloads folder) the lists of objects, one file per object type, to remove for review/editing later.  These lists can then be imported into the application by either clicking the import button or dragging the file onto the button.
+* Option-click Export to export all items to a single CSV in your downloads folder.
  
 <br><hr><br>
 ### Usage Calculations<br>
@@ -45,16 +47,12 @@ Once the list of unused items is generated you can edit it within the app.  If y
             <td>Check scope, computer prestages</td>
         </tr>
         <tr>
-            <td>eBooks</td>
-            <td>Check scope</td>
-        </tr>
-        <tr>
             <td>Policies</td>
             <td>Check scope</td>
         </tr>
         <tr>
             <td>Mac Apps</td>
-            <td>Check scope.  <b>Important:</b> enabled/disabled state for Mac Apps is not available via the API.</td>
+            <td>Check scope</td>
         </tr>
         <tr>
             <td>Restricted Software</td>
@@ -63,6 +61,10 @@ Once the list of unused items is generated you can edit it within the app.  If y
         <tr>
             <td>Computer Extension Attributes</td>
             <td>Check scope for computer groups, advanced searches, enabled state</td>
+        </tr>
+        <tr>
+            <td>eBooks</td>
+            <td>Check scope</td>
         </tr>
         <tr>
             <td>Mobile Device Groups</td>
@@ -87,14 +89,17 @@ Once the list of unused items is generated you can edit it within the app.  If y
 
 ### Important:
 * This application deletes stuff, <b>use with caution!</b>  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Jamf Migrator](https://github.com/jamf/JamfMigrator) and export the (full) XML of all objects, or do both.
-* Policies scoped only to users and/or user groups will show as unused due to an issue with the API (it doesn't list the users or user groups).
-* Bookmarks are not accessible via the API.  As a result groups that are only used to scope bookmarks will show as unused.
+* **Policies** scoped only to users and/or user groups will show as unused due to an issue with the API (it doesn't list the users or user groups).
+* **Mac App** enabled/disabled state is not available via the API and thus not used to determine usage.
+* **Bookmarks** are not accessible via the API.  As a result groups that are only used to scope bookmarks will show as unused.
 
 Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Data/Library/Logs/Prune.log```
 
 <br><hr><br>
 
 ### History:
+2023-03-21 - v3.0.0: Updated UI.  Add ability to export results to a CSV (option-Export).
+
 2023-03-08 - v2.4.0: Add scanning of Mac Apps.
 
 2022-11-18 - v2.3.3: Fix issue where extension attributes used as creteria in smart groups were listed as unused.

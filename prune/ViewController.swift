@@ -2431,7 +2431,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             
             let exportedReport = "pruneReport_\(JamfProServer.source.fqdnFromUrl)_\(timeStamp).csv"
             let exportURL = getDownloadDirectory().appendingPathComponent(exportedReport)
-            
+//            print("masterObjectDict: \(masterObjectDict)")
             var selectedObjects = [String]()
             let buttonArray:[NSButton] = [packages_Button,scripts_Button,computerGroups_Button,computerProfiles_Button,policies_Button,restrictedSoftware_Button,computerEAs_Button,macApps_Button,mobileDeviceGroups_Button,mobileDeviceApps_Button,configurationProfiles_Button,classes_Button,ebooks_Button,mobileDeviceEAs_Button]
             for theButton in buttonArray {
@@ -2443,7 +2443,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             var unusedObjects = ""
             for (key, value) in masterObjectDict {
                 let dictOfObjects:[String:[String:String]] = value
-                if selectedObjects.firstIndex(of: key) != nil {
+                if selectedObjects.firstIndex(of: key.lowercased()) != nil {
+//                    print("export \(key)")
+                    WriteToLog().message(theString: "exporting \(key)")
                     for (theObject, objectInfo) in dictOfObjects {
                         if theObject == "policies" {
                             if objectInfo["used"] == "false" || objectInfo["enabled"] == "false" {

@@ -839,12 +839,12 @@ DQ
         <scene sceneID="hIz-AP-VOD">
             <objects>
                 <viewController title="Prune" storyboardIdentifier="appView" id="XfG-lQ-9wD" customClass="ViewController" customModule="Prune" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="865" height="490"/>
+                    <view key="view" misplaced="YES" id="m2S-Jp-Qdl">
+                        <rect key="frame" x="0.0" y="0.0" width="866" height="490"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <userGuides>
                             <userLayoutGuide location="722" affinity="minX"/>
-                            <userLayoutGuide location="456" affinity="minY"/>
+                            <userLayoutGuide location="475" affinity="minY"/>
                         </userGuides>
                         <subviews>
                             <textField hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n9P-7I-G9h">
@@ -869,13 +869,13 @@ DQ
                                 </secureTextFieldCell>
                             </secureTextField>
                             <popUpButton translatesAutoresizingMaskIntoConstraints="NO" id="gaw-sp-OyP" userLabel="All">
-                                <rect key="frame" x="686" y="308" width="35" height="23"/>
+                                <rect key="frame" x="693" y="308" width="35" height="23"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="23" id="QqX-16-mou"/>
                                 </constraints>
                                 <popUpButtonCell key="cell" type="square" title="All" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" selectedItem="75M-gL-dkb" id="40h-Mk-xvL">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" metaFont="menu"/>
                                     <menu key="menu" id="gEn-UG-r9M">
                                         <items>
                                             <menuItem title="All" state="on" id="75M-gL-dkb" userLabel="All"/>
@@ -926,13 +926,13 @@ DQ
                                 </connections>
                             </button>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="25" horizontalPageScroll="10" verticalLineScroll="25" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IPy-ls-na8">
-                                <rect key="frame" x="21" y="21" width="702" height="280"/>
+                                <rect key="frame" x="21" y="21" width="709" height="280"/>
                                 <clipView key="contentView" id="di4-5m-VBd">
-                                    <rect key="frame" x="1" y="1" width="700" height="278"/>
+                                    <rect key="frame" x="1" y="1" width="707" height="278"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="LhO-qp-1s9">
-                                            <rect key="frame" x="0.0" y="0.0" width="700" height="278"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="707" height="278"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="8"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -954,9 +954,11 @@ DQ
                                                             <rect key="frame" x="1" y="4" width="639" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HHG-dq-qU7">
+                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HHG-dq-qU7">
                                                                     <rect key="frame" x="0.0" y="-7" width="638" height="26"/>
-                                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                    <constraints>
+                                                                        <constraint firstAttribute="height" constant="26" id="pJ2-Tv-Wtz"/>
+                                                                    </constraints>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="dSj-xD-giD">
                                                                         <font key="font" metaFont="system" size="16"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -964,6 +966,11 @@ DQ
                                                                     </textFieldCell>
                                                                 </textField>
                                                             </subviews>
+                                                            <constraints>
+                                                                <constraint firstItem="HHG-dq-qU7" firstAttribute="top" secondItem="HsG-u6-Ddp" secondAttribute="top" constant="-2" id="PgB-57-YLB"/>
+                                                                <constraint firstAttribute="trailing" secondItem="HHG-dq-qU7" secondAttribute="trailing" constant="3" id="R8r-Uu-EPi"/>
+                                                                <constraint firstItem="HHG-dq-qU7" firstAttribute="centerX" secondItem="HsG-u6-Ddp" secondAttribute="centerX" id="dMZ-O0-0AR"/>
+                                                            </constraints>
                                                             <connections>
                                                                 <outlet property="textField" destination="HHG-dq-qU7" id="30o-2c-gXx"/>
                                                             </connections>
@@ -991,7 +998,7 @@ DQ
                                 </scroller>
                             </scrollView>
                             <progressIndicator wantsLayer="YES" maxValue="100" displayedWhenStopped="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="cnQ-TA-ZNH">
-                                <rect key="frame" x="356" y="145" width="32" height="32"/>
+                                <rect key="frame" x="360" y="145" width="32" height="32"/>
                             </progressIndicator>
                             <button identifier="osxconfigurationprofiles" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iIu-PQ-eWL">
                                 <rect key="frame" x="22" y="315" width="160" height="22"/>
@@ -1046,7 +1053,7 @@ DQ
                                 </connections>
                             </button>
                             <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wAV-VD-ITG">
-                                <rect key="frame" x="65" y="247" width="617" height="48"/>
+                                <rect key="frame" x="65" y="247" width="624" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="HFa-zM-8Dl"/>
                                 </constraints>
@@ -1125,9 +1132,10 @@ DQ
                                 </connections>
                             </button>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JcO-81-SqS">
-                                <rect key="frame" x="118" y="445" width="227" height="22"/>
+                                <rect key="frame" x="118" y="445" width="579" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="22" id="73L-18-8qL"/>
+                                    <constraint firstAttribute="width" constant="575" id="Tc2-jz-zWG"/>
                                 </constraints>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" placeholderString="https://your.jamf.server:port" id="0kg-mZ-OaS">
                                     <font key="font" metaFont="system" size="18"/>
@@ -1175,7 +1183,7 @@ DQ
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oNR-de-zKD">
-                                <rect key="frame" x="745" y="67" width="97" height="28"/>
+                                <rect key="frame" x="752" y="67" width="97" height="28"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="97" id="RP2-Xv-k75"/>
                                     <constraint firstAttribute="height" constant="28" id="pU5-ik-9GL"/>
@@ -1189,7 +1197,7 @@ DQ
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kcG-Eg-S6o">
-                                <rect key="frame" x="745" y="23" width="97" height="28"/>
+                                <rect key="frame" x="752" y="23" width="97" height="28"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="97" id="0nJ-ra-H5Q"/>
                                     <constraint firstAttribute="height" constant="28" id="a7y-Mn-GWd"/>
@@ -1203,7 +1211,7 @@ DQ
                                 </connections>
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nEi-ky-DQi">
-                                <rect key="frame" x="637" y="310" width="44" height="19"/>
+                                <rect key="frame" x="644" y="310" width="44" height="19"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="19" id="Qho-hc-nMn"/>
                                     <constraint firstAttribute="height" constant="19" id="g7h-iE-21K"/>
@@ -1216,7 +1224,7 @@ DQ
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4Xq-8k-hj4">
-                                <rect key="frame" x="745" y="109" width="97" height="28"/>
+                                <rect key="frame" x="752" y="109" width="97" height="28"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="28" id="En5-IB-b3B"/>
                                     <constraint firstAttribute="width" constant="97" id="JkR-yl-T5V"/>
@@ -1230,14 +1238,14 @@ DQ
                                 </connections>
                             </button>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="nuI-YM-8hF" customClass="ImportView" customModule="Prune" customModuleProvider="target">
-                                <rect key="frame" x="745" y="109" width="97" height="28"/>
+                                <rect key="frame" x="752" y="109" width="97" height="28"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="97" id="PaF-43-eza"/>
                                     <constraint firstAttribute="height" constant="28" id="qCk-YY-tqH"/>
                                 </constraints>
                             </customView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hTd-Q8-3Is">
-                                <rect key="frame" x="745" y="442" width="97" height="28"/>
+                                <rect key="frame" x="752" y="442" width="97" height="28"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="97" id="VNF-Or-HaV"/>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="28" id="c5h-4G-SZg"/>
@@ -1343,7 +1351,7 @@ DQ
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="624.5" y="625"/>
+            <point key="canvasLocation" x="624" y="625"/>
         </scene>
     </scenes>
     <resources>
