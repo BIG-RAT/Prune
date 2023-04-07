@@ -55,20 +55,20 @@ class WriteToLog {
             // remove old log files
             if logCount > Log.maxFiles {
                 for i in (0..<logCount-Log.maxFiles) {
-                    Logger.jamfstatus.info("Deleting log file: \(logArray[i], privacy: .public)")
+                    Logger.prune.info("Deleting log file: \(logArray[i], privacy: .public)")
                     
                     do {
                         try fm.removeItem(atPath: logArray[i])
                     }
                     catch let error as NSError {
-                        Logger.jamfstatus.info("Error deleting log file: \(logArray[i], privacy: .public) \n\(error, privacy: .public)")
+                        Logger.prune.info("Error deleting log file: \(logArray[i], privacy: .public) \n\(error, privacy: .public)")
                     }
                 }
             }
             // zip current log if it's over 5MB
             let dateTmpArray = getCurrentTime().split(separator: "_")
             let dateStamp    = dateTmpArray[0]
-            zipIt(args: "/usr/bin/zip -rm -jj -o \(Log.path!)jamfStatus_\(dateStamp) \(Log.path!)\(Log.file)") {
+            zipIt(args: "/usr/bin/zip -rm -jj -o \(Log.path!)prune_\(dateStamp) \(Log.path!)\(Log.file)") {
                 (result: String) in
                 print("zipIt result: \(result)")
                 self.createLogFile()
@@ -172,5 +172,5 @@ extension Logger {
     private static var subsystem = Bundle.main.bundleIdentifier!
 
     //Categories
-    static let jamfstatus = Logger(subsystem: subsystem, category: "jamfstatus")
+    static let prune = Logger(subsystem: subsystem, category: "prune")
 }
