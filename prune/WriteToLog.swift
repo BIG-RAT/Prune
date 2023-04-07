@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import os.log
+
 class WriteToLog {
     
     let logFileW    = FileHandle(forUpdatingAtPath: Log.path! + Log.file)
@@ -21,54 +23,64 @@ class WriteToLog {
     
     // func logCleanup - start
     func logCleanup(completionHandler: @escaping (_ result: String) -> Void) {
-            var logArray: [String] = []
-            var logCount: Int = 0
-            do {
-                let logFiles = try fm.contentsOfDirectory(atPath: Log.path!)
-                
-                for logFile in logFiles {
-                    if logFile.contains(".zip") {
-                        let filePath: String = Log.path! + logFile
-                        logArray.append(filePath)
-                    }
-                }
-                logArray.sort()
-                logCount = logArray.count
-                // remove old log files
-                if logCount > Log.maxFiles {
-                    for i in (0..<logCount-Log.maxFiles) {
-                        WriteToLog().message(theString: "Deleting log file: " + logArray[i] + "\n")
-                        
-                        do {
-                            try fm.removeItem(atPath: logArray[i])
-                        }
-                        catch let error as NSError {
-                            WriteToLog().message(theString: "Error deleting log file:\n    " + logArray[i] + "\n    \(error)\n")
-                        }
-                    }
-                }
-                // zip current log if it's over 5MB
-                do {
-                    let fileAttributes = try fm.attributesOfItem(atPath: Log.path! + Log.file)
-                    let logSize = fileAttributes[.size] as? Int
-                    if Int("\(logSize ?? 0)")! > Log.maxSize {
-                        let dateTmpArray = getCurrentTime().split(separator: "_")
-                        let dateStamp    = dateTmpArray[0]
-                        zipIt(args: "/usr/bin/zip -rm -jj -o \(Log.path!)Prune_\(dateStamp) \(Log.path!)\(Log.file)") {
-                            (result: String) in
-//                            print("zipIt result: \(result)")
-                            self.createLogFile()
-                            completionHandler(result)
-                            return
-                        }
-                    }
-                }
-            } catch {
-//                print("no history")
+        
+        // check if log is over 5MB
+        do {
+            let fileAttributes = try fm.attributesOfItem(atPath: Log.path! + Log.file)
+            let logSize = fileAttributes[.size] as? Int
+            if Int("\(logSize ?? 0)") ?? 0 < Log.maxSize {
                 completionHandler("")
                 return
             }
+        } catch {
+            print("no history")
             completionHandler("")
+            return
+        }
+        
+        var logArray: [String] = []
+        var logCount: Int = 0
+        do {
+            let logFiles = try fm.contentsOfDirectory(atPath: Log.path!)
+            
+            for logFile in logFiles {
+                if logFile.contains(".zip") {
+                    let filePath: String = Log.path! + logFile
+                    logArray.append(filePath)
+                }
+            }
+            logArray.sort()
+            logCount = logArray.count
+                            
+            // remove old log files
+            if logCount > Log.maxFiles {
+                for i in (0..<logCount-Log.maxFiles) {
+                    Logger.jamfstatus.info("Deleting log file: \(logArray[i], privacy: .public)")
+                    
+                    do {
+                        try fm.removeItem(atPath: logArray[i])
+                    }
+                    catch let error as NSError {
+                        Logger.jamfstatus.info("Error deleting log file: \(logArray[i], privacy: .public) \n\(error, privacy: .public)")
+                    }
+                }
+            }
+            // zip current log if it's over 5MB
+            let dateTmpArray = getCurrentTime().split(separator: "_")
+            let dateStamp    = dateTmpArray[0]
+            zipIt(args: "/usr/bin/zip -rm -jj -o \(Log.path!)jamfStatus_\(dateStamp) \(Log.path!)\(Log.file)") {
+                (result: String) in
+                print("zipIt result: \(result)")
+                self.createLogFile()
+                completionHandler(result)
+                return
+            }
+        } catch {
+            completionHandler("")
+            return
+        }
+    
+        completionHandler("")
     }
     // func logCleanup - end
 
@@ -154,4 +166,11 @@ class WriteToLog {
         completion(status)
     }
 
+}
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+
+    //Categories
+    static let jamfstatus = Logger(subsystem: subsystem, category: "jamfstatus")
 }
