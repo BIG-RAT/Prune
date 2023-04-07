@@ -8,6 +8,7 @@
 
 import Foundation
 import os.log
+import System
 
 class WriteToLog {
     
@@ -15,11 +16,29 @@ class WriteToLog {
     var writeToLogQ = DispatchQueue(label: "com.jamf.writeToLogQ", qos: DispatchQoS.utility)
     let fm          = FileManager()
     
+    func createLogFolder(completionHandler: @escaping (_ result: String) -> Void) {
+        DispatchQueue.main.async { [self] in
+            var attributes = [FileAttributeKey: Any]()
+            attributes[.posixPermissions] = 0o700
+            do {
+                try fm.createDirectory(atPath: Log.path!, withIntermediateDirectories: true, attributes: attributes)
+                completionHandler("log folder created")
+            } catch {
+                completionHandler("log folder not created")
+            }
+        }
+    }
+    
     func createLogFile(completionHandler: @escaping (_ result: String) -> Void) {
         if !fm.fileExists(atPath: Log.path!) {
-            fm.createFile(atPath: Log.path!, contents: nil, attributes: nil)
-        }
-        if !fm.fileExists(atPath: Log.path! + Log.file) {
+            createLogFolder() { [self]
+                (result: String) in
+                print(result)
+
+                fm.createFile(atPath: Log.path! + Log.file, contents: nil, attributes: nil)
+            }
+            
+        } else if !fm.fileExists(atPath: Log.path! + Log.file) {
             fm.createFile(atPath: Log.path! + Log.file, contents: nil, attributes: nil)
         }
         completionHandler("created")
@@ -38,8 +57,11 @@ class WriteToLog {
             }
         } catch {
             print("no history")
-            completionHandler("")
-            return
+            createLogFile() {
+                (result: String) in
+                completionHandler(result)
+                return
+            }
         }
         
         var logArray: [String] = []
@@ -100,17 +122,15 @@ class WriteToLog {
         }
         createLogFile() { [self]
             (result: String) in
-            logCleanup() { [self]
-                (result: String) in
-                //            self.writeToLogQ.sync {
+//            logCleanup() { [self]
+//                (result: String) in
                 let logString = "\(self.logDate()) \(theString)\n"
                 
                 logFileW?.seekToEndOfFile()
                 
                 let logText = (logString as NSString).data(using: String.Encoding.utf8.rawValue)
                 logFileW?.write(logText!)
-                //            }
-            }
+//            }
         }
     }
     

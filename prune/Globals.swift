@@ -8,12 +8,12 @@
 
 import Foundation
 
-struct appInfo {
+struct AppInfo {
     static let dict    = Bundle.main.infoDictionary!
     static let version = dict["CFBundleShortVersionString"] as! String
     static let name    = dict["CFBundleExecutable"] as! String
 
-    static let userAgentHeader = "\(String(describing: name.addingPercentEncoding(withAllowedCharacters: .alphanumerics)!))/\(appInfo.version)"
+    static let userAgentHeader = "\(String(describing: name.addingPercentEncoding(withAllowedCharacters: .alphanumerics)!))/\(AppInfo.version)"
 }
 
 struct JamfProServer {

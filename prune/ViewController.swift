@@ -117,75 +117,78 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     }
     
     
-    @IBAction func go_action(_ sender: Any) {
+    @IBAction func scan_action(_ sender: Any) {
         
-        working(isWorking: true)
-        
-        waitFor.deviceGroup             = true   // used for both computer and mobile device groups
-        waitFor.computerConfiguration   = true
-        waitFor.computerPrestage        = true
-        waitFor.osxconfigurationprofile = true
-        waitFor.policy                  = true
-        waitFor.mobiledeviceobject      = true
-        waitFor.ebook                   = true
-        waitFor.classes                 = true
-        waitFor.advancedsearch          = true
-        
-        computerGroupsScanned           = false
-        view_PopUpButton.isEnabled      = false
-        setViewButton(setOn: true)
-        view_PopUpButton.selectItem(at: 0)
-
-        mobileGroupNameByIdDict.removeAll()
-        masterObjectDict.removeAll()
-        
-        unusedItems_TableArray?.removeAll()
-        unusedItems_TableDict?.removeAll()
-        
-//        process_TextField.textColor   = NSColor.blue
-        process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(16))
-        process_TextField.stringValue = ""
-        
-        JamfProServer.source       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
-        jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
-        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
-        jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
-        completed           = 0
-        
-        if unusedItems_TableArray?.count == 0 {
-            object_TableView.reloadData()
-        }
-        
-        JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) { [self]
+        WriteToLog().logCleanup() { [self]
             (result: String) in
-            if result == "success" {
-                jpapiToken = result
-                DispatchQueue.main.async { [self] in
-                    defaults.set(JamfProServer.source, forKey: "server")
-                    defaults.set("\(uname_TextField.stringValue)", forKey: "username")
-                    process_TextField.isHidden = false
-                    process_TextField.stringValue = "Starting lookups..."
-                }
-                // initialize masterObjectsDict
-                for theObject in masterObjects {
-                    masterObjectDict[theObject] = [String:[String:String]]()
-                }
-                WriteToLog().message(theString: "[Scan] start scanning...")
-                
-                if computerEAsButtonState == "on" {
-                    processItems(type: "computerextensionattributes")
+            working(isWorking: true)
+            
+            waitFor.deviceGroup             = true   // used for both computer and mobile device groups
+            waitFor.computerConfiguration   = true
+            waitFor.computerPrestage        = true
+            waitFor.osxconfigurationprofile = true
+            waitFor.policy                  = true
+            waitFor.mobiledeviceobject      = true
+            waitFor.ebook                   = true
+            waitFor.classes                 = true
+            waitFor.advancedsearch          = true
+            
+            computerGroupsScanned           = false
+            view_PopUpButton.isEnabled      = false
+            setViewButton(setOn: true)
+            view_PopUpButton.selectItem(at: 0)
+            
+            mobileGroupNameByIdDict.removeAll()
+            masterObjectDict.removeAll()
+            
+            unusedItems_TableArray?.removeAll()
+            unusedItems_TableDict?.removeAll()
+            
+            //        process_TextField.textColor   = NSColor.blue
+            process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(16))
+            process_TextField.stringValue = ""
+            
+            JamfProServer.source       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
+            jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
+            let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
+            jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
+            completed           = 0
+            
+            if unusedItems_TableArray?.count == 0 {
+                object_TableView.reloadData()
+            }
+            
+            JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) { [self]
+                (result: String) in
+                if result == "success" {
+                    jpapiToken = result
+                    DispatchQueue.main.async { [self] in
+                        defaults.set(JamfProServer.source, forKey: "server")
+                        defaults.set("\(uname_TextField.stringValue)", forKey: "username")
+                        process_TextField.isHidden = false
+                        process_TextField.stringValue = "Starting lookups..."
+                    }
+                    // initialize masterObjectsDict
+                    for theObject in masterObjects {
+                        masterObjectDict[theObject] = [String:[String:String]]()
+                    }
+                    WriteToLog().message(theString: "[Scan] start scanning...")
+                    
+                    if computerEAsButtonState == "on" {
+                        processItems(type: "computerextensionattributes")
+                    } else {
+                        processItems(type: "mobiledeviceextensionattributes")
+                    }
+                    //                if computerGroupsButtonState == "on" {
+                    //                    processItems(type: "computerGroups")
+                    //                } else {
+                    //                    processItems(type: "mobileDeviceGroups")
+                    //                }
+                    
                 } else {
-                    processItems(type: "mobiledeviceextensionattributes")
-                }
-//                if computerGroupsButtonState == "on" {
-//                    processItems(type: "computerGroups")
-//                } else {
-//                    processItems(type: "mobileDeviceGroups")
-//                }
-
-            } else {
-                DispatchQueue.main.async { [self] in
-                    working(isWorking: false)
+                    DispatchQueue.main.async { [self] in
+                        working(isWorking: false)
+                    }
                 }
             }
         }
@@ -3471,9 +3474,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         
             switch JamfProServer.authType {
             case "Basic":
-                destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : appInfo.userAgentHeader]
+                destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
             default:
-                destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(JamfProServer.authCreds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : appInfo.userAgentHeader]
+                destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(JamfProServer.authCreds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
             }
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {
@@ -3798,7 +3801,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         saveCreds = (saveCredsState == 1) ? true:false
         // check authentication, check version, set auth method - start
-        WriteToLog().message(theString: "[ViewController] Running Prune v\(appInfo.version)")
+        WriteToLog().message(theString: "[ViewController] Running Prune v\(AppInfo.version)")
             JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) {
                 (result: String) in
                 if result == "success" {
@@ -3843,11 +3846,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        object_TableView.delegate     = self
-        object_TableView.dataSource   = self
-        object_TableView.doubleAction = #selector(viewSelectObject)
-        
-        importLayer.importDelegate    = self
+        WriteToLog().logCleanup() { [self]
+            (result: String) in
+            object_TableView.delegate     = self
+            object_TableView.dataSource   = self
+            object_TableView.doubleAction = #selector(viewSelectObject)
+            
+            importLayer.importDelegate    = self
+        }
         
     }
 
