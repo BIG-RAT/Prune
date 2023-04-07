@@ -106,6 +106,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         unusedItems_TableArray?.removeAll()
         unusedItems_TableDict?.removeAll()
         object_TableView.reloadData()
+        setAllButtonsState(theState: "off")
         
         setViewButton(setOn: false)
         JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.authCreds, method: "POST") { [self]

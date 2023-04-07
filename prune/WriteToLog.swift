@@ -15,10 +15,14 @@ class WriteToLog {
     var writeToLogQ = DispatchQueue(label: "com.jamf.writeToLogQ", qos: DispatchQoS.utility)
     let fm          = FileManager()
     
-    func createLogFile() {
-        if !self.fm.fileExists(atPath: Log.path! + Log.file) {
-            self.fm.createFile(atPath: Log.path! + Log.file, contents: nil, attributes: nil)
+    func createLogFile(completionHandler: @escaping (_ result: String) -> Void) {
+        if !fm.fileExists(atPath: Log.path!) {
+            fm.createFile(atPath: Log.path!, contents: nil, attributes: nil)
         }
+        if !fm.fileExists(atPath: Log.path! + Log.file) {
+            fm.createFile(atPath: Log.path! + Log.file, contents: nil, attributes: nil)
+        }
+        completionHandler("created")
     }
     
     // func logCleanup - start
@@ -68,12 +72,14 @@ class WriteToLog {
             // zip current log if it's over 5MB
             let dateTmpArray = getCurrentTime().split(separator: "_")
             let dateStamp    = dateTmpArray[0]
-            zipIt(args: "/usr/bin/zip -rm -jj -o \(Log.path!)prune_\(dateStamp) \(Log.path!)\(Log.file)") {
+            zipIt(args: "/usr/bin/zip -rm -jj -o \(Log.path!)prune_\(dateStamp) \(Log.path!)\(Log.file)") { [self]
                 (result: String) in
                 print("zipIt result: \(result)")
-                self.createLogFile()
-                completionHandler(result)
-                return
+                createLogFile() {
+                    (result: String) in
+                    completionHandler(result)
+                    return
+                }
             }
         } catch {
             completionHandler("")
@@ -92,18 +98,19 @@ class WriteToLog {
                 
             }
         }
-        createLogFile()
-        logCleanup() {
+        createLogFile() { [self]
             (result: String) in
-//            self.writeToLogQ.sync {
-            let logString = "\(self.logDate()) \(theString)\n"
-                    
-                self.logFileW?.seekToEndOfFile()
-                    
+            logCleanup() { [self]
+                (result: String) in
+                //            self.writeToLogQ.sync {
+                let logString = "\(self.logDate()) \(theString)\n"
+                
+                logFileW?.seekToEndOfFile()
+                
                 let logText = (logString as NSString).data(using: String.Encoding.utf8.rawValue)
-                self.logFileW?.write(logText!)
-//                self.logFileW?.closeFile()
-//            }
+                logFileW?.write(logText!)
+                //            }
+            }
         }
     }
     
