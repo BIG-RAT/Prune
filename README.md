@@ -98,6 +98,8 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
+2023-04-07 - v3.0.1: Updated logging to prevent potential looping.
+
 2023-03-21 - v3.0.0: Updated UI.  Add ability to export results to a CSV (option-Export).
 
 2023-03-08 - v2.4.0: Add scanning of Mac Apps.
