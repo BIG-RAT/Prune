@@ -883,8 +883,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             case "computer-prestages":
                 msgText    = "Computer Prestages"
                 nextObject = "restrictedsoftware"
-//                        let nextObject = "policies"
-
                 
                 if (self.packagesButtonState == "on" || self.computerProfilesButtonState == "on") {
                     var xmlTag = ""
@@ -900,6 +898,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         if let _ = result[xmlTag] {
                             let prestageObjectArray = result[xmlTag] as! [[String: Any]]
                             let prestageObjectArrayCount = prestageObjectArray.count
+                            WriteToLog().message(theString: "[processItems] scanning computer prestages for packages and configuration profiles.")
                             WriteToLog().message(theString: "[processItems] found \(prestageObjectArrayCount) prestages.")
                             if prestageObjectArrayCount > 0 {
                                 WriteToLog().message(theString: "[processItems] scanning computer prestages for packages and computer profiles.")
@@ -907,15 +906,27 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     self.updateProcessTextfield(currentCount: "\n(\(i+1)/\(prestageObjectArrayCount))")
                                     if let id = prestageObjectArray[i]["id"], let displayName = prestageObjectArray[i]["displayName"] {
                                         self.masterObjectDict[type]!["\(displayName)"] = ["id":"\(id)", "used":"false"]
+                                        
                                         // mark used packages
-                                        let customPackageIds  = prestageObjectArray[i]["customPackageIds"] as? [String]
-//                                                print("prestage \(displayName) has the following package ids \(customPackageIds)")
-                                        if self.packagesButtonState == "on" {
-                                            for prestagePackageId in customPackageIds! {
-//                                                        print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
-                                                self.masterObjectDict["packages"]!["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
+                                            if self.packagesButtonState == "on" {
+                                                if let customPackageIds = prestageObjectArray[i]["customPackageIds"] as? [String] {
+                                                //                                                print("prestage \(displayName) has the following package ids \(customPackageIds)")
+                                                    WriteToLog().message(theString: "[processItems] prestage \(displayName) has \(customPackageIds.count) packages")
+                                                    
+                                                    for prestagePackageId in customPackageIds {
+        //                                                        print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
+                                                        if self.packagesByIdDict[prestagePackageId] != nil {
+                                                            self.masterObjectDict["packages"]!["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
+                                                        } else {
+                                                            WriteToLog().message(theString: "[processItems] Appears package id \(prestagePackageId) does not exist.")
+                                                        }
+                                                    }
+                                                    
+                                                } else {
+                                                    WriteToLog().message(theString: "[processItems] prestage \(displayName) has no packages")
+                                                }
                                             }
-                                        }
+                                        
                                         if self.computerProfilesButtonState == "on" {
                                             // mark used computer profiles
 
@@ -923,32 +934,17 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                                                    print("computer profile \(displayName) has the following ids \(customProfileIds)")
                                             for prestageProfileId in customProfileIds {
 //                                                        print("mark computer profile \(String(describing: self.computerProfilesByIdDict[prestageProfileId]!)) as used.")
+                                                
                                                 self.masterObjectDict["osxconfigurationprofiles"]!["\(String(describing: self.computerProfilesByIdDict[prestageProfileId]!))"]!["used"] = "true"
 
                                             }
                                         }
-//                                                print("osxconfigurationprofilesDict: \(self.osxconfigurationprofilesDict)")
                                     }
                                 }
                                 WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
                                 DispatchQueue.main.async { [self] in
                                     self.processItems(type: nextObject)
                                 }
-                                
-//                                        self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
-//                                        waitFor.computerPrestage = true
-//                                        self.backgroundQ.async {
-//                                            while true {
-//                                                usleep(10)
-//                                                if !waitFor.computerPrestage {
-//                                                    WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
-//                                                    DispatchQueue.main.async {
-//                                                        self.processItems(type: nextObject)
-//                                                    }
-//                                                    break
-//                                                }
-//                                            }
-//                                        }
                             } else {
                                 // no computer Prestage exist
                                 WriteToLog().message(theString: "[processItems] \(msgText) complete - \(nextObject)")
@@ -1639,6 +1635,25 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
                                 }
                                 // look for nested device groups, groups used in advanced searches - end
+                                
+                                if ["advancedcomputersearches", "advancedmobiledevicesearches"].contains(theEndpoint) {
+                                    // check for extensions attributes used only on the display tab on advanced searches
+                                    if let displayFields = computerGroupInfo["display_fields"] as? [[String: Any]] {
+                                        for theDisplayField in displayFields {
+                                            let displayFieldName = theDisplayField["name"] as! String
+                                            if computerEAsButtonState == "on" {
+                                                if self.masterObjectDict["computerextensionattributes"]!["\(displayFieldName)"] != nil {
+                                                    self.masterObjectDict["computerextensionattributes"]!["\(displayFieldName)"]!["used"] = "true"
+                                                }
+                                            }
+                                            if mobileDeviceEAsButtonState == "on" {
+                                                if self.masterObjectDict["mobiledeviceextensionattributes"]!["\(displayFieldName)"] != nil {
+                                                    self.masterObjectDict["mobiledeviceextensionattributes"]!["\(displayFieldName)"]!["used"] = "true"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             
                             
                             case "ebooks":

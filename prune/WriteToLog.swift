@@ -8,12 +8,10 @@
 
 import Foundation
 import os.log
-import System
 
 class WriteToLog {
     
     let logFileW    = FileHandle(forUpdatingAtPath: Log.path! + Log.file)
-    var writeToLogQ = DispatchQueue(label: "com.jamf.writeToLogQ", qos: DispatchQoS.utility)
     let fm          = FileManager()
     
     func createLogFolder(completionHandler: @escaping (_ result: String) -> Void) {
