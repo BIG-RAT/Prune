@@ -17,6 +17,7 @@
 		B58A314323A139810023EA63 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B58A314223A139810023EA63 /* Assets.xcassets */; };
 		B58A314623A139810023EA63 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B58A314423A139810023EA63 /* Main.storyboard */; };
 		B58A314F23A13CF30023EA63 /* Json.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A314E23A13CF30023EA63 /* Json.swift */; };
+		B5AE193D2A5740D300F75694 /* XmlParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AE193C2A5740D300F75694 /* XmlParser.swift */; };
 		B5B3096623AD3857004BA9DB /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B3096523AD3857004BA9DB /* Alert.swift */; };
 		B5B3096C23B05120004BA9DB /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B3096B23B05120004BA9DB /* Globals.swift */; };
 		B5BB0D8C29C656350020363A /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BB0D8B29C64ECD0020363A /* ImportView.swift */; };
@@ -38,6 +39,7 @@
 		B58A314723A139810023EA63 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B58A314823A139810023EA63 /* prune.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = prune.entitlements; sourceTree = "<group>"; };
 		B58A314E23A13CF30023EA63 /* Json.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json.swift; sourceTree = "<group>"; };
+		B5AE193C2A5740D300F75694 /* XmlParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XmlParser.swift; sourceTree = "<group>"; };
 		B5B3096523AD3857004BA9DB /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		B5B3096B23B05120004BA9DB /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		B5BB0D8B29C64ECD0020363A /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 				B5DF4D6B23A5771A00225468 /* Time.swift */,
 				B58A314023A1397E0023EA63 /* ViewController.swift */,
 				B5247030252C53A1006CCFD3 /* WriteToLog.swift */,
+				B5AE193C2A5740D300F75694 /* XmlParser.swift */,
 				B58A314223A139810023EA63 /* Assets.xcassets */,
 				B58A314423A139810023EA63 /* Main.storyboard */,
 				B58A314723A139810023EA63 /* Info.plist */,
@@ -241,7 +244,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "newBuildNumber=$(date -u +%Y%m%d.%H%M%S)\n\n##/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $newBuildNumber\"  \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $newBuildNumber\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Info.plist\"\n";
+			shellScript = "newMajor=\"$(date -u +%Y%m%d)\"\ndate24H=$(date -u +%H%M)\ntmpMinor=$(printf \"%x\\n\" $(echo $date24H | sed 's/^0*//'))\nnewMinor=$(echo $tmpMinor | tr '[:lower:]' '[:upper:]')\nnewBuildNumber=\"$newMajor-$newMinor\"\n\n## create folder to hold exported app\nshortVer=\"v${MARKETING_VERSION}\"\nexeName=\"${EXECUTABLE_NAME}\"\nbuildDir=\"/Users/lesliehelou/Documents/Travel/- Projects/$exeName/$shortVer/\"\n\nif [ ! -d \"$buildDir\" ];then\n    mkdir -p \"$buildDir\"\nfi\n\nshortVer=\"v${MARKETING_VERSION}\"\nexeName=\"${EXECUTABLE_NAME}\"\nbuildDir=\"/Users/lesliehelou/Documents/Travel/- Projects/$exeName/$shortVer/\"\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $newBuildNumber\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Info.plist\"\n\n## remove extended attributes (from added images)\n/usr/bin/xattr -cr \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}/Contents/Resources\"\n\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -258,6 +261,7 @@
 				B58A314123A1397E0023EA63 /* ViewController.swift in Sources */,
 				B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */,
 				B58981E923B3DAC800CC3C5B /* Credentials2.swift in Sources */,
+				B5AE193D2A5740D300F75694 /* XmlParser.swift in Sources */,
 				B580FA3F27B8324300E425EC /* JamfPro.swift in Sources */,
 				B5B3096C23B05120004BA9DB /* Globals.swift in Sources */,
 				B580FA4B27BA14AC00E425EC /* LoginViewController.swift in Sources */,
@@ -416,7 +420,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 3.0.1;
+				MARKETING_VERSION = 3.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -444,7 +448,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 3.0.1;
+				MARKETING_VERSION = 3.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

@@ -60,7 +60,7 @@ Once the list of unused items is generated you can edit it within the app.  If y
         </tr>
         <tr>
             <td>Computer Extension Attributes</td>
-            <td>Check scope for computer groups, advanced searches, enabled state</td>
+            <td>Check scope for computer groups, advanced searches (also checks display tab), enabled state</td>
         </tr>
         <tr>
             <td>eBooks</td>
