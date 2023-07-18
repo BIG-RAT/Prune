@@ -92,12 +92,15 @@ Once the list of unused items is generated you can edit it within the app.  If y
 * **Policies** scoped only to users and/or user groups will show as unused due to an issue with the API (it doesn't list the users or user groups).
 * **Mac App** enabled/disabled state is not available via the API and thus not used to determine usage.
 * **Bookmarks** are not accessible via the API.  As a result groups that are only used to scope bookmarks will show as unused.
+* **App-Installer** are not available through the API.  As a result groups used for scoping may erroneously show as unused.
 
 Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Data/Library/Logs/Prune.log```
 
 <br><hr><br>
 
 ### History:
+2023-07-14 - v3.0.2: Guard against faulty package configurations in computer prestages.  Check for extension attributes used only on the display tab of an advanced search.
+
 2023-04-07 - v3.0.1: Updated logging to prevent potential looping.
 
 2023-03-21 - v3.0.0: Updated UI.  Add ability to export results to a CSV (option-Export).
