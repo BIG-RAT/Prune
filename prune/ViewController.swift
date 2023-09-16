@@ -21,7 +21,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     @IBOutlet weak var jamfServer_TextField: NSTextField!
     @IBOutlet weak var uname_TextField: NSTextField!
     @IBOutlet weak var passwd_TextField: NSSecureTextField!
-    @IBOutlet weak var savePassword_Button: NSButton!
+//    @IBOutlet weak var savePassword_Button: NSButton!
     
     @IBOutlet weak var scan_Button: NSButton!
     @IBOutlet weak var view_PopUpButton: NSPopUpButton!
@@ -47,9 +47,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     @IBOutlet weak var import_Button: NSButton!
     
     @IBOutlet weak var process_TextField: NSTextField!
-    
-    let defaults = UserDefaults.standard
-    
+        
     var username       = ""
     var password       = ""
     
@@ -57,7 +55,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     var jamfCreds       = ""
     var jamfBase64Creds = ""
     var saveCreds       = false
-    var jpapiToken      = ""
     var completed       = 0
     var logout          = false
     var counter         = 0
@@ -109,7 +106,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         setAllButtonsState(theState: "off")
         
         setViewButton(setOn: false)
-        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.authCreds, method: "POST") { [self]
+        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.authCreds["source"] ?? "https://null", method: "POST") { [self]
             (returnedJSON: [String:Any]) in
             WriteToLog().message(theString: "\(String(describing: returnedJSON["JPAPI_result"]!))")
             performSegue(withIdentifier: "loginView", sender: nil)
@@ -148,23 +145,25 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(16))
             process_TextField.stringValue = ""
             
-            JamfProServer.source       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
-            jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
-            let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
-            jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
-            completed           = 0
+            JamfProServer.source = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
+            jamfCreds            = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
+            let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
+            jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
+            completed            = 0
+            
+            sourceServer = ServerInfo(url: jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: ""), username: uname_TextField.stringValue, password: passwd_TextField.stringValue, saveCreds: userDefaults.object(forKey: "saveCreds") as? Int ?? 0, useApiClient: 0)
             
             if unusedItems_TableArray?.count == 0 {
                 object_TableView.reloadData()
             }
             
             JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) { [self]
-                (result: String) in
-                if result == "success" {
-                    jpapiToken = result
+                (result: (Int,String)) in
+                let (statusCode, theResult) = result
+                if theResult == "success" {
                     DispatchQueue.main.async { [self] in
-                        defaults.set(JamfProServer.source, forKey: "server")
-                        defaults.set("\(uname_TextField.stringValue)", forKey: "username")
+                        userDefaults.set(JamfProServer.source, forKey: "server")
+                        userDefaults.set("\(uname_TextField.stringValue)", forKey: "username")
                         process_TextField.isHidden = false
                         process_TextField.stringValue = "Starting lookups..."
                     }
@@ -891,7 +890,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         xmlTag = "results"
                         self.process_TextField.stringValue = "Fetching Computer Prestages..."
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jpapiToken, theEndpoint: type) { [self]
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: JamfProServer.authCreds["source"] ?? "https://null", theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
 //                                print("json returned prestages: \(result)")
 //                                self.masterObjectDict[type] = [String:[String:String]]()
@@ -1261,7 +1260,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 let policyName = "\(name)"
                                 if policyName.range(of:"[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] at", options: .regularExpression) == nil && policyName != "Update Inventory" && policyName != "" {
                                     policiesArray.append(thePolicy)
-                                    // mark the policy as unused
+                                    // mark the policy as unused and disabled
                                     self.masterObjectDict[type]!["\(name) - (\(id))"] = ["id":"\(id)", "used":"false", "enabled":"false"]
                                 }
                             }
@@ -2367,6 +2366,16 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 return
             }
             
+            // ensure the import file came from the server we're logged into
+            let loggedInto = jamfServer_TextField.stringValue.replacingOccurrences(of: "://", with: "/")
+            let tmpArray = loggedInto.components(separatedBy: "/")
+            let serverFromFile = (objectJSON?["jamfServer"] as? String)!.replacingOccurrences(of: "://", with: "/")
+            let tmpArray2 = serverFromFile.components(separatedBy: "/")
+            if tmpArray[1] != tmpArray2[1] {
+                Alert().display(header: "", message: "The import file is not from the server you are currently logged into.  You must log into \n\(objectJSON?["jamfServer"] as! String) \nto use this file.")
+                return
+            }
+            
             for (key, value) in objectJSON! {
                 switch key {
                 case "jamfServer":
@@ -2460,19 +2469,29 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
 //            print("selectedObjects: \(selectedObjects)")
             var unusedObjects = ""
+            
+//            print("masterObjectDict: \(masterObjectDict)")
+            
             for (key, value) in masterObjectDict {
                 let dictOfObjects:[String:[String:String]] = value
+                
+//                print("dictOfObjects: \(dictOfObjects)")
+                
                 if selectedObjects.firstIndex(of: key.lowercased()) != nil {
 //                    print("export \(key)")
                     WriteToLog().message(theString: "exporting \(key)")
                     for (theObject, objectInfo) in dictOfObjects {
-                        if theObject == "policies" {
+                        if key == "policies" {
                             if objectInfo["used"] == "false" || objectInfo["enabled"] == "false" {
                                 unusedObjects.append("\"\(key)\",\"\(theObject)\"\n")
+                                WriteToLog().message(theString: "    \(theObject)")
+                            } else {
+//                                WriteToLog().message(theString: "*** \(objectInfo)\n")
                             }
                         } else {
                             if objectInfo["used"] == "false" {
                                 unusedObjects.append("\"\(key)\",\"\(theObject)\"\n")
+                                WriteToLog().message(theString: "    \(theObject)")
                             }
                         }
                     }
@@ -2486,6 +2505,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
             return
         }
+        
+//        print("masterObjectDict2: \(masterObjectDict)")
         
         var text = ""
         var exportedItems:[String] = ["Exported Items"]
@@ -2509,10 +2530,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             if masterObjectDict["packages"]![key]?["used"]! == "false" {
                                 packageLogFileOp.seekToEndOfFile()
                                 if firstPackage {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstPackage = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
     //                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
@@ -2545,12 +2566,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["scripts"]!) {
                             if masterObjectDict["scripts"]![key]?["used"]! == "false" {
                                 scriptLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstScript {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstScript = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
     //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
@@ -2580,12 +2601,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["ebooks"]!) {
                             if masterObjectDict["ebooks"]![key]?["used"]! == "false" {
                                 ebooksLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstEbook {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstEbook = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
     //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
@@ -2615,12 +2636,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["classes"]!) {
                             if masterObjectDict["classes"]![key]?["used"]! == "false" {
                                 classesLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstClass {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstClass = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
     //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
@@ -2653,12 +2674,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                    for (key, _) in computerGroupsDict {
                             if masterObjectDict["computerGroups"]![key]?["used"]! == "false" {
                                 computerGroupLogFileOp.seekToEndOfFile()
-    //                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"},\n"
+    //                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"},\n"
                                 if firstComputerGroup {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["groupType"]!))\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["groupType"]!))\"}"
                                     firstComputerGroup = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["groupType"]!))\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["groupType"]!))\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
                                 computerGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -2690,12 +2711,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
                             if masterObjectDict["osxconfigurationprofiles"]![key]?["used"]! == "false" {
                                 computerProfileLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstComputerProfile {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstComputerProfile = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
                                 computerProfileLogFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -2730,8 +2751,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   for (key, _) in policiesDict {
                             if masterObjectDict["macapplications"]![key]?["used"]! == "false" {
                                 macAppLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-                                let displayName = key
+//                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+                                let displayName = key.escapeDoubleQuotes
                                 if firstMacApp {
                                     text = "\t{\"id\": \"\(String(describing: masterObjectDict["macapplications"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
                                     firstMacApp = false
@@ -2769,8 +2790,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   for (key, _) in policiesDict {
                             if masterObjectDict["policies"]![key]?["used"]! == "false" || masterObjectDict["policies"]![key]?["enabled"]! == "false" {
                                 policyLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key)\"},\n"
-                                let displayName = (masterObjectDict["policies"]![key]?["enabled"]! == "true") ? key:"\(key)    [disabled]"
+
+                                let displayName = (masterObjectDict["policies"]![key]?["enabled"]! == "true") ? key.escapeDoubleQuotes:"\(key.escapeDoubleQuotes)    [disabled]"
                                 if firstPolicy {
                                     text = "\t{\"id\": \"\(String(describing: masterObjectDict["policies"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
                                     firstPolicy = false
@@ -2808,12 +2829,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   for (key, _) in masterObjectDict["restrictedsoftware"]! {
                             if masterObjectDict["restrictedsoftware"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstTitle {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstTitle = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -2845,12 +2866,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   for (key, _) in masterObjectDict["restrictedsoftware"]! {
                             if masterObjectDict["computerextensionattributes"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstTitle {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["computerextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["computerextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstTitle = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["computerextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["computerextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -2882,12 +2903,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   for (key, _) in mobileDeviceGroupsDict {
                             if masterObjectDict["mobileDeviceGroups"]![key]?["used"]! == "false" {
                                 mobileDeviceGroupLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"},\n"
                                 if firstMobileDeviceGrp {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["groupType"]!))\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["groupType"]!))\"}"
                                     firstMobileDeviceGrp = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))\", \"name\": \"\(key)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["groupType"]!))\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["groupType"]!))\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: mobileDeviceGroupLogFileOp[key]!["id"]!))</id><name>\(key)</name>\n"
                                 mobileDeviceGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -2919,12 +2940,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
                             if masterObjectDict["mobiledeviceapplications"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstMobileDeviceApp {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstMobileDeviceApp = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -2956,12 +2977,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                    for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
                             if masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstConfigurationProfile {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstConfigurationProfile = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -2993,12 +3014,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   for (key, _) in masterObjectDict["restrictedsoftware"]! {
                             if masterObjectDict["mobiledeviceextensionattributes"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstTitle {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstTitle = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
@@ -3487,12 +3508,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             xmlRequest.httpMethod = "\(action.uppercased())"
             let destConf = URLSessionConfiguration.default
                         
-            switch JamfProServer.authType {
-            case "Basic":
-                destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
-            default:
-                destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(JamfProServer.authCreds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
-            }
+            
+//            switch authType {
+//            case "Basic":
+//                destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType["source"] ?? "") \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
+//            default:
+                destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType["source"] ?? "") \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
+//            }
+            
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {
                 (data, response, error) -> Void in
@@ -3673,15 +3696,15 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         return false
     }
     
-    @IBAction func savePassword_Action(_ sender: Any) {
-        if savePassword_Button.state.rawValue == 1 {
-            self.defaults.set(1, forKey: "passwordButton")
-//            print("save password")
-        } else {
-            self.defaults.set(0, forKey: "passwordButton")
-//            print("don't save password")
-        }
-    }
+//    @IBAction func savePassword_Action(_ sender: Any) {
+//        if savePassword_Button.state.rawValue == 1 {
+//            userDefaults.set(1, forKey: "saveCreds")
+////            print("save password")
+//        } else {
+//            userDefaults.set(0, forKey: "saveCreds")
+////            print("don't save password")
+//        }
+//    }
     
     func working(isWorking: Bool) {
         if isWorking {
@@ -3809,6 +3832,18 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     func sendLoginInfo(loginInfo: (String,String,String,Int)) {
         var saveCredsState: Int?
         (jamfServer_TextField.stringValue,uname_TextField.stringValue,passwd_TextField.stringValue,saveCredsState) = loginInfo
+        
+        let enteredServer = jamfServer_TextField.stringValue.replacingOccurrences(of: "://", with: "/")
+        let tmpArray = enteredServer.components(separatedBy: "/")
+        if !(tmpArray.count > 1 && jamfServer_TextField.stringValue.contains("://")) {
+            Alert().display(header: "", message: "Invalid server URL.")
+            DispatchQueue.main.async {
+                self.performSegue(withIdentifier: "loginView", sender: nil)
+                self.working(isWorking: false)
+            }
+        }
+        
+        
         JamfProServer.source = jamfServer_TextField.stringValue
         jamfCreds            = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
         let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
@@ -3817,31 +3852,29 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         saveCreds = (saveCredsState == 1) ? true:false
         // check authentication, check version, set auth method - start
         WriteToLog().message(theString: "[ViewController] Running Prune v\(AppInfo.version)")
-            JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) {
-                (result: String) in
-                if result == "success" {
-                    self.jpapiToken = result
-                    DispatchQueue.main.async {
-                        // save password if checked - start
-                    let regexKey = try! NSRegularExpression(pattern: "http(.*?)://", options:.caseInsensitive)
-                        if self.saveCreds {
-                            let credKey = regexKey.stringByReplacingMatches(in: JamfProServer.source, options: [], range: NSRange(0..<JamfProServer.source.utf16.count), withTemplate: "")
-                            Credentials2().save(service: "prune - "+credKey, account: self.uname_TextField.stringValue, data: self.passwd_TextField.stringValue)
-                        }
-                        
-                        self.defaults.set(JamfProServer.source, forKey: "server")
-                        self.defaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
-                        self.logout = false
-                        WriteToLog().message(theString: "[ViewController] successfully authenticated to \(JamfProServer.source)")
-                        // save password if checked - end
+        JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) {
+            (result: (Int,String)) in
+            let (statusCode, theResult) = result
+            if theResult == "success" {
+                DispatchQueue.main.async {
+                    // save password if checked - start
+                    if self.saveCreds {
+                        Credentials().save(service: JamfProServer.source.fqdnFromUrl, account: self.uname_TextField.stringValue, credential: self.passwd_TextField.stringValue)
                     }
-                } else {
-                    DispatchQueue.main.async {
-                        self.performSegue(withIdentifier: "loginView", sender: nil)
-                        self.working(isWorking: false)
-                    }
+                    
+                    userDefaults.set(JamfProServer.source, forKey: "server")
+                    userDefaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
+                    self.logout = false
+                    WriteToLog().message(theString: "[ViewController] successfully authenticated to \(JamfProServer.source)")
+                    // save password if checked - end
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.performSegue(withIdentifier: "loginView", sender: nil)
+                    self.working(isWorking: false)
                 }
             }
+        }
             // check authentication - stop
     }
     
@@ -3944,9 +3977,9 @@ extension String {
     var fqdnFromUrl: String {
         get {
             var fqdn = ""
-            let nameArray = self.components(separatedBy: "://")
-            if nameArray.count > 1 {
-                fqdn = nameArray[1]
+            let nameArray = self.components(separatedBy: "/")
+            if nameArray.count > 2 {
+                fqdn = nameArray[2]
             } else {
                 fqdn =  self
             }
@@ -3954,10 +3987,13 @@ extension String {
                 let fqdnArray = fqdn.components(separatedBy: ":")
                 fqdn = fqdnArray[0]
             }
-            if fqdn.last == "/" {
-                fqdn = String(fqdn.dropLast())
-            }
             return fqdn
+        }
+    }
+    var escapeDoubleQuotes: String {
+        get {
+            let newString = self.replacingOccurrences(of: "\"", with: "\\\"")
+            return newString
         }
     }
 }

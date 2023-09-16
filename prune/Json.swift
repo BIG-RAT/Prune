@@ -9,9 +9,7 @@
 import Cocoa
 
 class Json: NSObject, URLSessionDelegate {
-    
-    let defaults = UserDefaults.standard
-    
+        
     func getRecord(theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: [String:AnyObject]) -> Void) {
 
         
@@ -29,7 +27,7 @@ class Json: NSObject, URLSessionDelegate {
         default:
             existingDestUrl = "\(theServer)/JSSResource/\(theEndpoint)"
             existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
-            if JamfProServer.authType == "Basic" {
+            if JamfProServer.authType["source"] == "Basic" {
                 authType = "Basic"
             }
         }
@@ -44,12 +42,12 @@ class Json: NSObject, URLSessionDelegate {
             
             jsonRequest.httpMethod = "GET"
             let destConf = URLSessionConfiguration.default
-            switch authType {
-            case "Basic":
-                destConf.httpAdditionalHeaders = ["Authorization" : "\(authType) \(base64Creds)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
-            default:
-                destConf.httpAdditionalHeaders = ["Authorization" : "\(authType) \(JamfProServer.authCreds)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
-            }
+//            switch authType {
+//            case "Basic":
+//                destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType["source"] ?? "") \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
+//            default:
+                destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType["source"] ?? "") \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
+//            }
             
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: jsonRequest as URLRequest, completionHandler: {

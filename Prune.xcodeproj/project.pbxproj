@@ -11,7 +11,7 @@
 		B5247031252C53A1006CCFD3 /* WriteToLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5247030252C53A1006CCFD3 /* WriteToLog.swift */; };
 		B580FA3F27B8324300E425EC /* JamfPro.swift in Sources */ = {isa = PBXBuildFile; fileRef = B580FA3E27B8324300E425EC /* JamfPro.swift */; };
 		B580FA4B27BA14AC00E425EC /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B580FA4A27BA14AB00E425EC /* LoginViewController.swift */; };
-		B58981E923B3DAC800CC3C5B /* Credentials2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58981E823B3DAC700CC3C5B /* Credentials2.swift */; };
+		B58981E923B3DAC800CC3C5B /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58981E823B3DAC700CC3C5B /* Credentials.swift */; };
 		B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A313E23A1397E0023EA63 /* AppDelegate.swift */; };
 		B58A314123A1397E0023EA63 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58A314023A1397E0023EA63 /* ViewController.swift */; };
 		B58A314323A139810023EA63 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B58A314223A139810023EA63 /* Assets.xcassets */; };
@@ -30,7 +30,7 @@
 		B5247030252C53A1006CCFD3 /* WriteToLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
 		B580FA3E27B8324300E425EC /* JamfPro.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JamfPro.swift; sourceTree = "<group>"; };
 		B580FA4A27BA14AB00E425EC /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
-		B58981E823B3DAC700CC3C5B /* Credentials2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials2.swift; sourceTree = "<group>"; };
+		B58981E823B3DAC700CC3C5B /* Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
 		B58A313B23A1397E0023EA63 /* Prune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prune.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B58A313E23A1397E0023EA63 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B58A314023A1397E0023EA63 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -100,7 +100,7 @@
 			children = (
 				B5B3096523AD3857004BA9DB /* Alert.swift */,
 				B58A313E23A1397E0023EA63 /* AppDelegate.swift */,
-				B58981E823B3DAC700CC3C5B /* Credentials2.swift */,
+				B58981E823B3DAC700CC3C5B /* Credentials.swift */,
 				B5B3096B23B05120004BA9DB /* Globals.swift */,
 				B5BB0D8B29C64ECD0020363A /* ImportView.swift */,
 				B580FA3E27B8324300E425EC /* JamfPro.swift */,
@@ -260,7 +260,7 @@
 				B5BB0D8C29C656350020363A /* ImportView.swift in Sources */,
 				B58A314123A1397E0023EA63 /* ViewController.swift in Sources */,
 				B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */,
-				B58981E923B3DAC800CC3C5B /* Credentials2.swift in Sources */,
+				B58981E923B3DAC800CC3C5B /* Credentials.swift in Sources */,
 				B5AE193D2A5740D300F75694 /* XmlParser.swift in Sources */,
 				B580FA3F27B8324300E425EC /* JamfPro.swift in Sources */,
 				B5B3096C23B05120004BA9DB /* Globals.swift in Sources */,
@@ -406,7 +406,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = prune/prune.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -420,9 +419,10 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 3.0.2;
+				MARKETING_VERSION = 3.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -434,7 +434,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = prune/prune.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -448,9 +447,10 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 3.0.2;
+				MARKETING_VERSION = 3.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
