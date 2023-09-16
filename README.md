@@ -99,6 +99,8 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
+2023-09-16 - v3.1.0: Fix issue #39, double quotes in display name.  Better handling of bearer token expiration.  Fix issue export to csv policies.  Enable the sharing of keychain items created with this app to other apps I write.
+
 2023-07-14 - v3.0.2: Guard against faulty package configurations in computer prestages.  Check for extension attributes used only on the display tab of an advanced search.
 
 2023-04-07 - v3.0.1: Updated logging to prevent potential looping.
