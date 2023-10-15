@@ -10,6 +10,7 @@ import Foundation
 
 let httpSuccess   = 200...299
 let userDefaults  = UserDefaults.standard
+var didRun        = false
 
 struct AppInfo {
     static let dict    = Bundle.main.infoDictionary!
@@ -44,9 +45,9 @@ struct JamfProServer {
 
 struct Log {
     static var path: String? = (NSHomeDirectory() + "/Library/Logs/")
-    static var file     = "Prune.log"
-    static var maxFiles = 10
-    static var maxSize  = 5000000 // 5MB
+    static var file     = "prune.log"
+    static var maxFiles = 42
+//    static var maxSize  = 5000000 // 5MB
 }
 
 struct LoginWindow {
@@ -88,6 +89,36 @@ struct waitFor {
     static var ebook                   = true
     static var classes                 = true
     static var advancedsearch          = true
+}
+
+func getCurrentTime(theFormat: String = "log") -> String {
+    var stringDate = ""
+    let current = Date()
+    let localCalendar = Calendar.current
+    let dateObjects: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute, .second]
+    let dateTime = localCalendar.dateComponents(dateObjects, from: current)
+    let currentMonth  = leadingZero(value: dateTime.month!)
+    let currentDay    = leadingZero(value: dateTime.day!)
+    let currentHour   = leadingZero(value: dateTime.hour!)
+    let currentMinute = leadingZero(value: dateTime.minute!)
+    let currentSecond = leadingZero(value: dateTime.second!)
+    switch theFormat {
+    case "info":
+        stringDate = "\(dateTime.year!)-\(currentMonth)-\(currentDay) \(currentHour)\(currentMinute)"
+    default:
+        stringDate = "\(dateTime.year!)\(currentMonth)\(currentDay)_\(currentHour)\(currentMinute)\(currentSecond)"
+    }
+    return stringDate
+}
+// add leading zero to single digit integers
+func leadingZero(value: Int) -> String {
+    var formattedValue = ""
+    if value < 10 {
+        formattedValue = "0\(value)"
+    } else {
+        formattedValue = "\(value)"
+    }
+    return formattedValue
 }
 
 public func timeDiff(startTime: Date) -> (Int, Int, Int, Double) {

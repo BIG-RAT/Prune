@@ -4,3 +4,6 @@ Users and user groups not listed in policy scope. https://jamf.lightning.force.c
     
 enabled/disabled state of Mac Apps is not visible in the api
 
+Fix for cocoapods issue
+https://stackoverflow.com/questions/75977278/intermediatebuildfilespath-uninstalledproducts-iphoneos-fmdb-framework-failed
+

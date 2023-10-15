@@ -115,79 +115,76 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     
     
     @IBAction func scan_action(_ sender: Any) {
+        didRun = true
+        working(isWorking: true)
         
-        WriteToLog().logCleanup() { [self]
-            (result: String) in
-            working(isWorking: true)
-            
-            waitFor.deviceGroup             = true   // used for both computer and mobile device groups
-            waitFor.computerConfiguration   = true
-            waitFor.computerPrestage        = true
-            waitFor.osxconfigurationprofile = true
-            waitFor.policy                  = true
-            waitFor.mobiledeviceobject      = true
-            waitFor.ebook                   = true
-            waitFor.classes                 = true
-            waitFor.advancedsearch          = true
-            
-            computerGroupsScanned           = false
-            view_PopUpButton.isEnabled      = false
-            setViewButton(setOn: true)
-            view_PopUpButton.selectItem(at: 0)
-            
-            mobileGroupNameByIdDict.removeAll()
-            masterObjectDict.removeAll()
-            
-            unusedItems_TableArray?.removeAll()
-            unusedItems_TableDict?.removeAll()
-            
-            //        process_TextField.textColor   = NSColor.blue
-            process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(16))
-            process_TextField.stringValue = ""
-            
-            JamfProServer.source = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
-            jamfCreds            = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
-            let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
-            jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
-            completed            = 0
-            
-            sourceServer = ServerInfo(url: jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: ""), username: uname_TextField.stringValue, password: passwd_TextField.stringValue, saveCreds: userDefaults.object(forKey: "saveCreds") as? Int ?? 0, useApiClient: 0)
-            
-            if unusedItems_TableArray?.count == 0 {
-                object_TableView.reloadData()
-            }
-            
-            JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) { [self]
-                (result: (Int,String)) in
-                let (statusCode, theResult) = result
-                if theResult == "success" {
-                    DispatchQueue.main.async { [self] in
-                        userDefaults.set(JamfProServer.source, forKey: "server")
-                        userDefaults.set("\(uname_TextField.stringValue)", forKey: "username")
-                        process_TextField.isHidden = false
-                        process_TextField.stringValue = "Starting lookups..."
-                    }
-                    // initialize masterObjectsDict
-                    for theObject in masterObjects {
-                        masterObjectDict[theObject] = [String:[String:String]]()
-                    }
-                    WriteToLog().message(theString: "[Scan] start scanning...")
-                    
-                    if computerEAsButtonState == "on" {
-                        processItems(type: "computerextensionattributes")
-                    } else {
-                        processItems(type: "mobiledeviceextensionattributes")
-                    }
-                    //                if computerGroupsButtonState == "on" {
-                    //                    processItems(type: "computerGroups")
-                    //                } else {
-                    //                    processItems(type: "mobileDeviceGroups")
-                    //                }
-                    
+        waitFor.deviceGroup             = true   // used for both computer and mobile device groups
+        waitFor.computerConfiguration   = true
+        waitFor.computerPrestage        = true
+        waitFor.osxconfigurationprofile = true
+        waitFor.policy                  = true
+        waitFor.mobiledeviceobject      = true
+        waitFor.ebook                   = true
+        waitFor.classes                 = true
+        waitFor.advancedsearch          = true
+        
+        computerGroupsScanned           = false
+        view_PopUpButton.isEnabled      = false
+        setViewButton(setOn: true)
+        view_PopUpButton.selectItem(at: 0)
+        
+        mobileGroupNameByIdDict.removeAll()
+        masterObjectDict.removeAll()
+        
+        unusedItems_TableArray?.removeAll()
+        unusedItems_TableDict?.removeAll()
+        
+        //        process_TextField.textColor   = NSColor.blue
+        process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(16))
+        process_TextField.stringValue = ""
+        
+        JamfProServer.source = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
+        jamfCreds            = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
+        let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
+        jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
+        completed            = 0
+        
+        sourceServer = ServerInfo(url: jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: ""), username: uname_TextField.stringValue, password: passwd_TextField.stringValue, saveCreds: userDefaults.object(forKey: "saveCreds") as? Int ?? 0, useApiClient: 0)
+        
+        if unusedItems_TableArray?.count == 0 {
+            object_TableView.reloadData()
+        }
+        
+        JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) { [self]
+            (result: (Int,String)) in
+            let (statusCode, theResult) = result
+            if theResult == "success" {
+                DispatchQueue.main.async { [self] in
+                    userDefaults.set(JamfProServer.source, forKey: "server")
+                    userDefaults.set("\(uname_TextField.stringValue)", forKey: "username")
+                    process_TextField.isHidden = false
+                    process_TextField.stringValue = "Starting lookups..."
+                }
+                // initialize masterObjectsDict
+                for theObject in masterObjects {
+                    masterObjectDict[theObject] = [String:[String:String]]()
+                }
+                WriteToLog().message(theString: "[Scan] start scanning...")
+                
+                if computerEAsButtonState == "on" {
+                    processItems(type: "computerextensionattributes")
                 } else {
-                    DispatchQueue.main.async { [self] in
-                        working(isWorking: false)
-                    }
+                    processItems(type: "mobiledeviceextensionattributes")
+                }
+                //                if computerGroupsButtonState == "on" {
+                //                    processItems(type: "computerGroups")
+                //                } else {
+                //                    processItems(type: "mobileDeviceGroups")
+                //                }
+                
+            } else {
+                DispatchQueue.main.async { [self] in
+                    working(isWorking: false)
                 }
             }
         }
@@ -742,7 +739,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         //        let nextObject = "patchsoftwaretitles"
                 let nextObject = "patchpolicies"
 //                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
-                if self.packagesButtonState == "on" {
+                if packagesButtonState == "on" {
                     DispatchQueue.main.async {
                            self.process_TextField.stringValue = "Fetching Patch Software Titles..."
                     }
@@ -774,7 +771,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                        let patchPoliciesArrayCount = patchPoliciesArray.count
                        if patchPoliciesArrayCount > 0 {
                            DispatchQueue.main.async {
-                               self.process_TextField.stringValue = "Scanning Patch Policies for packages..."
+                               self.process_TextField.stringValue = "Scanning Patch Software Titles for packages..."
                            }
                         
                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
@@ -784,7 +781,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                while true {
                                    usleep(10)
                                    if !waitFor.policy {
-                                       WriteToLog().message(theString: "[processItems] patch policies complete - call \(nextObject)")
+                                       WriteToLog().message(theString: "[processItems] patch software titles complete - call \(nextObject)")
                                        DispatchQueue.main.async {
                                            self.processItems(type: nextObject)
                                        }
@@ -795,14 +792,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                            
                        } else {
                            // no patch policies exist
-                           WriteToLog().message(theString: "[processItems] no patch policies - call \(nextObject)")
+                           WriteToLog().message(theString: "[processItems] no patch software titles - call \(nextObject)")
                            DispatchQueue.main.async {
                                self.processItems(type: nextObject)
                            }
                        }
                    }   //         Json().getRecord - patchpolicies - end
                 } else {
-                   WriteToLog().message(theString: "[processItems] skipping patch policies - call \(nextObject)")
+                   WriteToLog().message(theString: "[processItems] skipping patch software titles - call \(nextObject)")
                    DispatchQueue.main.async {
                        self.processItems(type: nextObject)
                    }
@@ -812,7 +809,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     // look for groups used in patch policies
                     WriteToLog().message(theString: "[processItems] patchpolicies")
                     let nextObject = "computer-prestages"
-                    if self.computerGroupsButtonState == "on" {
+                    if computerGroupsButtonState == "on" {
                         DispatchQueue.main.async {
                                self.process_TextField.stringValue = "Fetching Patch Policies..."
                         }
@@ -2309,6 +2306,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     }
     
     @IBAction func importButton_Action(_ sender: Any) {
+        didRun = true
         var objPath: URL! = nil
         
         if let pathToFile = sender as? URL, pathToFile.path != "" {
@@ -3507,14 +3505,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             
             xmlRequest.httpMethod = "\(action.uppercased())"
             let destConf = URLSessionConfiguration.default
-                        
             
-//            switch authType {
-//            case "Basic":
-//                destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType["source"] ?? "") \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
-//            default:
-                destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType["source"] ?? "") \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
-//            }
+            switch JamfProServer.authType["source"] {
+            case "Basic":
+                destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
+            default:
+                destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
+            }
             
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {
@@ -3830,6 +3827,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     
     // Delegate Methods - start
     func sendLoginInfo(loginInfo: (String,String,String,Int)) {
+        
         var saveCredsState: Int?
         (jamfServer_TextField.stringValue,uname_TextField.stringValue,passwd_TextField.stringValue,saveCredsState) = loginInfo
         
@@ -3850,8 +3848,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
         
         saveCreds = (saveCredsState == 1) ? true:false
-        // check authentication, check version, set auth method - start
-        WriteToLog().message(theString: "[ViewController] Running Prune v\(AppInfo.version)")
+        // check authentication, set auth method - start
         JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) {
             (result: (Int,String)) in
             let (statusCode, theResult) = result
@@ -3894,15 +3891,35 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        WriteToLog().logCleanup() { [self]
-            (result: String) in
-            object_TableView.delegate     = self
-            object_TableView.dataSource   = self
-            object_TableView.doubleAction = #selector(viewSelectObject)
-            
-            importLayer.importDelegate    = self
+        
+        Log.file = getCurrentTime().replacingOccurrences(of: ":", with: "") + "_" + Log.file
+        
+        // create log directory if missing - start
+        if !FileManager.default.fileExists(atPath: Log.path!) {
+            do {
+                try FileManager.default.createDirectory(atPath: Log.path!, withIntermediateDirectories: true, attributes: nil )
+            } catch {
+                Alert().display(header: "Error:", message: "Unable to create log directory:\n\(String(describing: Log.path))\nTry creating it manually.")
+                exit(0)
+            }
+        }
+        // create log directory if missing - end
+        
+        // create log file
+        if !(FileManager.default.fileExists(atPath: Log.path! + Log.file)) {
+            FileManager.default.createFile(atPath: Log.path! + Log.file, contents: nil, attributes: nil)
         }
         
+        let appBuild          = Bundle.main.infoDictionary!["CFBundleVersion"] as! String
+        WriteToLog().message(theString: "-------------------------------------------------------")
+        WriteToLog().message(theString: "-     Prune Version: \(AppInfo.version) Build: \(appBuild )")
+        WriteToLog().message(theString: "-------------------------------------------------------")
+        
+        object_TableView.delegate     = self
+        object_TableView.dataSource   = self
+        object_TableView.doubleAction = #selector(viewSelectObject)
+        
+        importLayer.importDelegate    = self
     }
 
     override func viewDidAppear() {
@@ -3911,6 +3928,19 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         if LoginWindow.show {
             performSegue(withIdentifier: "loginView", sender: nil)
             LoginWindow.show = false
+        }
+    }
+    
+    override func viewWillDisappear() {
+        print("[viewWillDisappear] log file: \(Log.path!)\(Log.file)")
+        if !didRun {
+            if FileManager.default.fileExists(atPath: Log.path! + Log.file) {
+                do {
+                    try FileManager.default.removeItem(atPath: Log.path! + Log.file)
+                } catch {
+                    print("[viewWillDisappear] failed to remove log file: \(Log.path!)\(Log.file)")
+                }
+            }
         }
     }
     

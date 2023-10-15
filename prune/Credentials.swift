@@ -62,21 +62,28 @@ class Credentials {
                             }
                         }
                     } else {
-                        keychainQuery = [kSecClass as String: kSecClassGenericPasswordString,
+                        let keychainQuery1 = [kSecClass as String: kSecClassGenericPasswordString,
                                          kSecAttrService as String: keychainItemName,
                                          kSecAttrAccessGroup as String: accessGroup,
                                          kSecUseDataProtectionKeychain as String: true,
                                          kSecAttrAccount as String: account,
                                          kSecMatchLimit as String: kSecMatchLimitOne,
                                          kSecReturnAttributes as String: true]
-                        var existingAccounts = [String]()
-                        for (username, _) in accountCheck {
-                            existingAccounts.append(username)
+                        
+                        var existingAccounts = [String:String]()
+                        for (username, password) in accountCheck {
+//                            existingAccounts.append(username)
+                            existingAccounts[username] = password
                         }
-                        if let _ = existingAccounts.firstIndex(of: account) {
+//                        if let _ = existingAccounts.firstIndex(of: account) {
+                        if existingAccounts[account] != nil {
                         // credentials already exist, try to update
-                            let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
-                            print("[Credentials.save] updateStatus result: \(updateStatus)")
+                            if existingAccounts[account] != credential {
+                                let updateStatus = SecItemUpdate(keychainQuery1 as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
+                                print("[Credentials.save] updateStatus result: \(updateStatus)")
+                            } else {
+                                print("password for \(account) is up-to-date")
+                            }
                         } else {
                             print("[addStatus] save password for: \(account)")
                             let addStatus = SecItemAdd(keychainQuery as CFDictionary, nil)
