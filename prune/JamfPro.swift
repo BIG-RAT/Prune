@@ -10,8 +10,6 @@ import Foundation
 
 class JamfPro: NSObject, URLSessionDelegate {
     
-//    var renewQ = DispatchQueue(label: "com.jamfpse.token_refreshQ", qos: DispatchQoS.background)   // running background process for refreshing token
-
     var theUapiQ = OperationQueue() // create operation queue for API calls
     
     func jpapiAction(serverUrl: String, endpoint: String, apiData: [String:Any], id: String, token: String, method: String, completion: @escaping (_ returnedJSON: [String: Any]) -> Void) {
@@ -209,7 +207,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                                                         break
                                                     }
                                                 }
-                                                if ( JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34 ) {
+                                                if ( JamfProServer.majorVersion > 10 || (JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34) ) {
                                                     JamfProServer.authType[whichServer] = "Bearer"
                                                     WriteToLog().message(theString: "[JamfPro.getVersion] \(serverUrl) set to use OAuth")
                                                     
@@ -218,9 +216,9 @@ class JamfPro: NSObject, URLSessionDelegate {
                                                     JamfProServer.accessToken[whichServer] = base64creds
                                                     WriteToLog().message(theString: "[JamfPro.getVersion] \(serverUrl) set to use Basic")
                                                 }
-                                                if JamfProServer.authType[whichServer] == "Bearer" {
+//                                                if JamfProServer.authType[whichServer] == "Bearer" {
         //                                                    WriteToLog().message(theString: "[JamfPro.getVersion] call token refresh process for \(serverUrl)")
-                                                }
+//                                                }
                                                 completion((200, "success"))
                                                 return
                                             }
