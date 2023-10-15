@@ -3506,12 +3506,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             xmlRequest.httpMethod = "\(action.uppercased())"
             let destConf = URLSessionConfiguration.default
             
-            switch JamfProServer.authType["source"] {
-            case "Basic":
-                destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
-            default:
-                destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
-            }
+//            switch JamfProServer.authType["source"] {
+//            case "Basic":
+//                destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
+//            default:
+//                destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
+//            }
+            destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType["source"] ?? "") \(JamfProServer.accessToken["source"] ?? "")", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
+            
             
             let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
             let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {

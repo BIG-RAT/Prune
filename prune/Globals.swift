@@ -28,12 +28,20 @@ struct JamfProServer {
     static var source       = ""
     static var destination  = ""
     static var authCreds    = ["source":"", "destination":""]
-    static var authExpires:[String:Double]  = ["source":30.0, "destination":30.0]
+    static var authExpires:[String:Double] = ["source":30.0, "destination":30.0]
     static var authType     = ["source":"Bearer", "destination":"Bearer"]
     static var base64Creds  = ["source":"", "destination":""]               // used if we want to auth with a different account
     static var validToken   = ["source":false, "destination":false]
     static var version      = ["source":"", "destination":""]
     static var tokenCreated = ["source": Date(), "destination": Date()]
+    
+    static var accessToken  = ["source":"", "destination":""]
+    static var currentCred  = ["source":"", "destination":""]               // used if we want to auth with a different account / string used to generate token
+    static var username     = ["source":"", "destination":""]
+    static var password     = ["source":"", "destination":""]
+    static var saveCreds    = ["source":0, "destination":0]
+    static var useApiClient = ["source":0, "destination":0]
+    static var url          = ["source":"", "destination":""]
     
 //    static var authType     = "Basic"
 //    static var authCreds    = ""
