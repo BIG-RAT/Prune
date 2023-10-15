@@ -99,7 +99,7 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
-2023-10-15 - v3.1.1: Fix issue #42.  Updated logging.
+2023-10-15 - v3.1.1: Fix issue #42.  Updated token refresh process to address issue #41 and update logging.
 
 2023-09-16 - v3.1.0: Fix issue #39, double quotes in display name.  Better handling of bearer token expiration.  Fix issue export to csv policies.  Enable the sharing of keychain items created with this app to other apps I write.
 
