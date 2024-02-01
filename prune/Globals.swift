@@ -8,9 +8,11 @@
 
 import Foundation
 
-let httpSuccess   = 200...299
-let userDefaults  = UserDefaults.standard
-var didRun        = false
+let httpSuccess           = 200...299
+let userDefaults          = UserDefaults.standard
+var didRun                = false
+var packageIdFileNameDict = [String:String]()
+var jcds2PackageDict      = [String:AnyObject]()
 
 struct AppInfo {
     static let dict    = Bundle.main.infoDictionary!
@@ -27,28 +29,22 @@ struct JamfProServer {
     static var build        = ""
     static var source       = ""
     static var destination  = ""
-    static var authCreds    = ["source":"", "destination":""]
-    static var authExpires:[String:Double] = ["source":30.0, "destination":30.0]
-    static var authType     = ["source":"Bearer", "destination":"Bearer"]
-    static var base64Creds  = ["source":"", "destination":""]               // used if we want to auth with a different account
-    static var validToken   = ["source":false, "destination":false]
-    static var version      = ["source":"", "destination":""]
-    static var tokenCreated = ["source": Date(), "destination": Date()]
+    static var authCreds    = ""    //["source":"", "destination":""]
+    static var authExpires:Double = 30.0   //["source":30.0, "destination":30.0]
+    static var authType     = ""    //["source":"Bearer", "destination":"Bearer"]
+    static var base64Creds  = ""    //["source":"", "destination":""]               // used if we want to auth with a different account
+    static var validToken   = false //["source":false, "destination":false]
+    static var version      = ""    //["source":"", "destination":""]
+    static var tokenCreated = Date()    //["source": Date(), "destination": Date()]
     
-    static var accessToken  = ["source":"", "destination":""]
-    static var currentCred  = ["source":"", "destination":""]               // used if we want to auth with a different account / string used to generate token
-    static var username     = ["source":"", "destination":""]
-    static var password     = ["source":"", "destination":""]
-    static var saveCreds    = ["source":0, "destination":0]
-    static var useApiClient = ["source":0, "destination":0]
-    static var url          = ["source":"", "destination":""]
+    static var accessToken  = ""    //["source":"", "destination":""]
+    static var currentCred  = ""    //["source":"", "destination":""]               // used if we want to auth with a different account / string used to generate token
+    static var username     = ""    //["source":"", "destination":""]
+    static var password     = ""    //["source":"", "destination":""]
+    static var saveCreds    = 0 //["source":0, "destination":0]
+    static var useApiClient = 0 //["source":0, "destination":0]
+    static var url          = ""    //["source":"", "destination":""]
     
-//    static var authType     = "Basic"
-//    static var authCreds    = ""
-//    static var base64Creds  = ""        // used if we want to auth with a different account
-//    static var source       = ""
-//    static var validToken   = false
-//    static var version      = ""
 }
 
 struct Log {
@@ -92,6 +88,8 @@ struct waitFor {
     static var computerPrestage        = true
     static var osxconfigurationprofile = true
     static var macApps                 = true
+    static var packages                = true
+    static var patchSoftwareTitles     = true
     static var policy                  = true
     static var mobiledeviceobject      = true
     static var ebook                   = true
@@ -128,6 +126,43 @@ func leadingZero(value: Int) -> String {
     }
     return formattedValue
 }
+
+//var deleteQ = OperationQueue() // create operation queue for delete calls
+
+//public func removeFromJcds(fileId: String, completion: @escaping (_ result: String) -> Void) {
+//    deleteQ.maxConcurrentOperationCount = 2
+//    let semaphore = DispatchSemaphore(value: 0)
+//    URLCache.shared.removeAllCachedResponses()
+////    if let encodedFilename = packageIdFileNameDict[fileId]?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)! {
+//    let encodedFilename = packageIdFileNameDict[fileId]?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
+//    if encodedFilename != "" {
+//        deleteQ.addOperation {
+//            var endpointPath = JamfProServer.source + "/api/v1/jcds/files/\(encodedFilename)"
+//            endpointPath = endpointPath.replacingOccurrences(of: "//api", with: "/api")
+//            print("[removeFromJcds] endpointPath: \(endpointPath)")
+//            
+//            let endpointUrl    = URL(string: "\(endpointPath)")
+//            let configuration  = URLSessionConfiguration.ephemeral
+//            var request        = URLRequest(url: endpointUrl!)
+//            request.httpMethod = "DELETE"
+//            configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(String(describing: JamfProServer.accessToken))", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
+//            let session = Foundation.URLSession(configuration: configuration, delegate: nil, delegateQueue: OperationQueue.main)
+//            let task = session.dataTask(with: request as URLRequest, completionHandler: {
+//                (data, response, error) -> Void in
+//                session.finishTasksAndInvalidate()
+//                if let httpResponse = response as? HTTPURLResponse {
+//                    WriteToLog().message(theString: "[removeFromJcds] status code from DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS: \(httpResponse.statusCode)")
+//                    print("[removeFromJcds] statusCode: \(httpResponse.statusCode)")
+//                } else {
+//                    WriteToLog().message(theString: "[removeFromJcds] No response trying to DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS")
+//                }
+//            })
+//            task.resume()
+//            semaphore.wait()
+//        }
+//        
+//    }
+//}
 
 public func timeDiff(startTime: Date) -> (Int, Int, Int, Double) {
     let endTime = Date()

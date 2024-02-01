@@ -106,7 +106,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         setAllButtonsState(theState: "off")
         
         setViewButton(setOn: false)
-        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.authCreds["source"] ?? "https://null", method: "POST") { [self]
+        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.authCreds, method: "POST") { [self]
             (returnedJSON: [String:Any]) in
             WriteToLog().message(theString: "\(String(describing: returnedJSON["JPAPI_result"]!))")
             performSegue(withIdentifier: "loginView", sender: nil)
@@ -122,6 +122,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         waitFor.computerConfiguration   = true
         waitFor.computerPrestage        = true
         waitFor.osxconfigurationprofile = true
+        waitFor.packages                = true
         waitFor.policy                  = true
         waitFor.mobiledeviceobject      = true
         waitFor.ebook                   = true
@@ -367,29 +368,82 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Packages..."
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
+                    // get list of JCDS2 packages
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "jcds2Packages") {
                         (result: [String:AnyObject]) in
+//                        print("[jcds2] result: \(result)")
+                        
+                        Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") { [self]
+                            (result: [String:AnyObject]) in
 
-                        if let _  = result["packages"] {
-                            let packagesArray = result["packages"] as! [[String:Any]]
-                            let packagesArrayCount = packagesArray.count
-                            // loop through all packages and mark as unused
-                            if packagesArrayCount > 0 {
-                                for i in (0..<packagesArrayCount) {
-                                    if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
-                                        if "\(name)" != "" {
-                                            self.masterObjectDict["packages"]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                                            self.packagesByIdDict["\(id)"] = "\(name)"
+                            if let _  = result["packages"] {
+                                let packagesArray = result["packages"] as! [[String:Any]]
+                                let packagesArrayCount = packagesArray.count
+                                // loop through all packages and mark as unused
+                                if packagesArrayCount > 0 {
+                                    for i in (0..<packagesArrayCount) {
+                                        if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
+                                            if "\(name)" != "" {
+                                                self.masterObjectDict["packages"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                                self.packagesByIdDict["\(id)"] = "\(name)"
+                                            }
                                         }
                                     }
+                                    
+                                    WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                    packageIdFileNameDict = [:]
+                                    recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: packagesArray, index: 0)
+                                    waitFor.packages = true
+                                    self.backgroundQ.async { [self] in
+                                        while true {
+                                            usleep(10)
+                                            if !waitFor.packages {
+                                                WriteToLog().message(theString: "[processItems] packages complete - next object: scripts")
+                                                DispatchQueue.main.async { [self] in
+                                                    self.processItems(type: "scripts")
+                                                }
+                                                print("[processItems.packages] id to filename: \(packageIdFileNameDict)")
+                                                break
+                                            }
+                                        }
+                                    }
+                                    
+                                    
+                                }
+                            } else {
+                                WriteToLog().message(theString: "[processItems] call scripts")
+                                DispatchQueue.main.async {
+                                    self.processItems(type: "scripts")
                                 }
                             }
                         }
-                        WriteToLog().message(theString: "[processItems] call scripts")
-                        DispatchQueue.main.async {
-                            self.processItems(type: "scripts")
-                        }
+                        
                     }
+                    
+//                    
+//                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
+//                        (result: [String:AnyObject]) in
+//
+//                        if let _  = result["packages"] {
+//                            let packagesArray = result["packages"] as! [[String:Any]]
+//                            let packagesArrayCount = packagesArray.count
+//                            // loop through all packages and mark as unused
+//                            if packagesArrayCount > 0 {
+//                                for i in (0..<packagesArrayCount) {
+//                                    if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
+//                                        if "\(name)" != "" {
+//                                            self.masterObjectDict["packages"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+//                                            self.packagesByIdDict["\(id)"] = "\(name)"
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        WriteToLog().message(theString: "[processItems] call scripts")
+//                        DispatchQueue.main.async {
+//                            self.processItems(type: "scripts")
+//                        }
+//                    }
                 } else {
                     WriteToLog().message(theString: "[processItems] skipping packages - call scripts")
                     DispatchQueue.main.async {
@@ -599,8 +653,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
                                 }
                                 
-                                WriteToLog().message(theString: "[processItems] call recursiveLookup for osxconfigurationprofiles")
-                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "osxconfigurationprofiles", theData: osxconfigurationprofilesArray, index: 0)
                                 waitFor.osxconfigurationprofile = true
                                 self.backgroundQ.async {
                                     while true {
@@ -620,6 +672,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         }   // if !waitFor.osxconfigurationprofile - end
                                     }
                                 }
+                                WriteToLog().message(theString: "[processItems] call recursiveLookup for osxconfigurationprofiles")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "osxconfigurationprofiles", theData: osxconfigurationprofilesArray, index: 0)
                             } else {
                                 // no computer profiles exist
                                 waitFor.osxconfigurationprofile = false
@@ -694,8 +748,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
                                 }
 
-                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
                                 waitFor.mobiledeviceobject = true
                                 self.backgroundQ.async { [self] in
                                     while true {
@@ -709,6 +761,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         }
                                     }
                                 }
+                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
                             } else {
                                 // no computer configurations exist
                                 WriteToLog().message(theString: "[processItems] \(msgText) complete - \(nextObject)")
@@ -747,56 +801,81 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                        self.masterObjectDict[type] = [String:[String:String]]()
                     var patchPoliciesArray = [[String:Any]]()
                     
-                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
-                        (result: (Int,String)) in
-                        let (statusCode,returnedXml) = result
-//                            print("[patchsoftwaretitles] patchpolicies GET statusCode: \(statusCode)")
-//                            print("[patchsoftwaretitles] patchpolicies GET xml: \(returnedXml)")
-                        var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
-                        nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
-                        let xmlData = nameFixedXml.data(using: .utf8)
-                        let parsedXmlData = XML.parse(xmlData!)
-
-                        for thePolicy in parsedXmlData.patch_software_titles.patch_software_title {
-                            if let id = thePolicy.id.text, let name = thePolicy.Name.text {
-
-                                WriteToLog().message(theString: "patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
-                                patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
-                                // mark patch policies as unused (reporting only) - start
-                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
-                                // mark patch policies as unused (reporting only) - end
+                    JamfPro().apiGetAll(serverUrl: JamfProServer.source, endpoint: "patch-software-title-configurations") {
+                        (result: (String,[[String: Any]])) in
+//                        print("[processItems] patchsoftwaretitles apiGetAll result: \(result)")
+                        if result.0 == "success" {
+                            for patchSoftwareTitleConfig in result.1 {
+                                let id   = "\(patchSoftwareTitleConfig["id"] ?? "")"
+                                let name = "\(patchSoftwareTitleConfig["displayName"] ?? "")"
+                                if id != "" && name != "" {
+                                    WriteToLog().message(theString: "software patch policy id: \(id) \t name: \(name)")
+                                    patchPoliciesArray.append(["id": "\(id)", "name": "\(name)"])
+                                    // mark patch policies as unused (reporting only) - start
+                                    self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    // mark patch policies as unused (reporting only) - end
+                                }
+                            }
+                            
+                            let patchPoliciesArrayCount = patchPoliciesArray.count
+                            if patchPoliciesArrayCount > 0 {
+                                DispatchQueue.main.async {
+                                    self.process_TextField.stringValue = "Scanning Patch Software Titles for packages..."
+                                }
+                             
+                                waitFor.patchSoftwareTitles = true
+                                self.backgroundQ.async {
+                                    while true {
+                                        usleep(10)
+                                        if !waitFor.patchSoftwareTitles {
+                                            WriteToLog().message(theString: "[processItems] patch software titles complete - call \(nextObject)")
+                                            DispatchQueue.main.async {
+                                                self.processItems(type: nextObject)
+                                            }
+                                            break
+                                        }
+                                    }
+                                }    // self.backgroundQ.async - end
+                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
+                                
+                            } else {
+                                // no patch policies exist
+                                WriteToLog().message(theString: "[processItems] no patch software titles - call \(nextObject)")
+                                DispatchQueue.main.async {
+                                    self.processItems(type: nextObject)
+                                }
+                            }
+                        } else {
+                            WriteToLog().message(theString: "[processItems] error reading patch software titles - call \(nextObject)")
+                            DispatchQueue.main.async {
+                                self.processItems(type: nextObject)
                             }
                         }
 
-                       let patchPoliciesArrayCount = patchPoliciesArray.count
-                       if patchPoliciesArrayCount > 0 {
-                           DispatchQueue.main.async {
-                               self.process_TextField.stringValue = "Scanning Patch Software Titles for packages..."
-                           }
-                        
-                           WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                           self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
-                           waitFor.policy = true
-                           self.backgroundQ.async {
-                               while true {
-                                   usleep(10)
-                                   if !waitFor.policy {
-                                       WriteToLog().message(theString: "[processItems] patch software titles complete - call \(nextObject)")
-                                       DispatchQueue.main.async {
-                                           self.processItems(type: nextObject)
-                                       }
-                                       break
-                                   }
-                               }
-                           }    // self.backgroundQ.async - end
-                           
-                       } else {
-                           // no patch policies exist
-                           WriteToLog().message(theString: "[processItems] no patch software titles - call \(nextObject)")
-                           DispatchQueue.main.async {
-                               self.processItems(type: nextObject)
-                           }
-                       }
+//                    }
+//                    
+//                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchsoftwaretitles") {
+//                        (result: (Int,String)) in
+//                        let (statusCode,returnedXml) = result
+////                            print("[patchsoftwaretitles] patchpolicies GET statusCode: \(statusCode)")
+////                            print("[patchsoftwaretitles] patchpolicies GET xml: \(returnedXml)")
+//                        var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
+//                        nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
+//                        let xmlData = nameFixedXml.data(using: .utf8)
+//                        let parsedXmlData = XML.parse(xmlData!)
+//
+//                        for thePolicy in parsedXmlData.patch_software_titles.patch_software_title {
+//                            if let id = thePolicy.id.text, let name = thePolicy.Name.text {
+//
+//                                WriteToLog().message(theString: "patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
+//                                patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
+//                                // mark patch policies as unused (reporting only) - start
+//                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+//                                // mark patch policies as unused (reporting only) - end
+//                            }
+//                        }
+
                    }   //         Json().getRecord - patchpolicies - end
                 } else {
                    WriteToLog().message(theString: "[processItems] skipping patch software titles - call \(nextObject)")
@@ -820,14 +899,15 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") {
                             (result: (Int,String)) in
                             let (statusCode,returnedXml) = result
-//                                    print("[processItems] patchpolicies GET statusCode: \(statusCode)")
-//                                    print("[processItems] patchpolicies GET xml: \(returnedXml)")
+//                            print("[processItems] patchpolicies GET statusCode: \(statusCode)")
+//                            print("[processItems]        patchpolicies GET xml: \(returnedXml)")
                             var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
                             nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
                             let xmlData = nameFixedXml.data(using: .utf8)
                             let parsedXmlData = XML.parse(xmlData!)
 
                             for thePolicy in parsedXmlData.patch_policies.patch_policy {
+//                            for thePolicy in parsedXmlData.patch_policies {
                                 if let id = thePolicy.id.text, let name = thePolicy.Name.text {
 
                                     WriteToLog().message(theString: "patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
@@ -844,8 +924,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                    self.process_TextField.stringValue = "Scanning Patch Policies for groups..."
                                }
                             
-                               WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
-                               self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
                                waitFor.policy = true
                                self.backgroundQ.async {
                                    while true {
@@ -859,6 +937,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                        }
                                    }
                                }
+                               WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                               self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
                                
                            } else {
                                // no patch policies exist
@@ -887,7 +967,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         xmlTag = "results"
                         self.process_TextField.stringValue = "Fetching Computer Prestages..."
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: JamfProServer.authCreds["source"] ?? "https://null", theEndpoint: type) { [self]
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: JamfProServer.authCreds, theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
 //                                print("json returned prestages: \(result)")
 //                                self.masterObjectDict[type] = [String:[String:String]]()
@@ -1487,6 +1567,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             objectEndpoint = "classes/id"
         case "macapplications":
             objectEndpoint = "macapplications/id"
+        case "packages":
+            objectEndpoint = "packages/id"
         case "policies":
             objectEndpoint = "policies/id"
         case "patchpolicies":
@@ -1513,13 +1595,35 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             updateProcessTextfield(currentCount: "\n(\(index+1)/\(objectArrayCount))")
 
             switch theEndpoint {
-                case "patchpolicies", "patchsoftwaretitles":
+                case "patchsoftwaretitles":
+                // search for used packages using api/v2/patch-software-title-configurations/<id> endpoint
+                JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "patch-software-title-configurations", apiData: [:], id: "\(id)", token: JamfProServer.accessToken, method: "GET") {
+                    (result: [String:Any]) in
+                    if let packagesInfo = result["packages"] as? [[String:String]] {
+                        for packageInfo in packagesInfo {
+                            if packageInfo["displayName"] != nil {
+//                                print("packageInfo[\"displayName\"]: \(String(describing: packageInfo["displayName"]))")
+                                self.masterObjectDict["packages"]![packageInfo["displayName"]!]?["used"] = "true"
+                            }
+                        }
+                    }
+                }
+                
+//                print("[patchSoftwareTitles] index: \(index), objectArrayCount: \(objectArrayCount)")
+                if index == objectArrayCount-1 {
+//                    print("[patchSoftwareTitles] done waiting")
+                    waitFor.patchSoftwareTitles = false
+                } else {
+                    // check the next item
+                    self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
+                }
+                
+                case "patchpolicies":
 //                    print("hello \(theEndpoint)")
-                    // lookup patch software titles, loop through each by id
                     
-                        // lookup complete record, XML format
+                        // lookup complete record, XML format looking for groups
 //                        Xml().action(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
-                    // search for used packages using patchsoftwaretitles endpoint
+//                    print("[recursiveLookup] patchpolicies: \(objectEndpoint)/\(id)")
                     self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
@@ -1527,27 +1631,26 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                            print("statusCode: \(statusCode)")
                             if statusCode >= 200 && statusCode < 300 {
                                 let patchPolicyXml = self.nameFixedXml(originalXml: returnedXml)
-    //                            print("[patchpolicy] returnedXml: \(patchPolicyXml)")
+//                                print("[patchpolicy] returnedXml: \(patchPolicyXml)")
 
-        
                                 let xmlData = patchPolicyXml.data(using: .utf8)
                                 let parsedXmlData = XML.parse(xmlData!)
                                 
-                                if "\(theEndpoint)" == "patchsoftwaretitles" {
-                                    // check of used packages - start
-                                    let packageVersionArray = parsedXmlData.patch_software_title.versions.version
-//                                    print("[patchPolicy] package name: \(packageVersionArray)")
-                                    
-                                    
-                                    for thePackageInfo in packageVersionArray {
-                                        if thePackageInfo.package.Name.text != nil {
-//                                            print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
-                                            self.masterObjectDict["packages"]!["\(thePackageInfo.package.Name.text!)"]?["used"] = "true"
-                                        }
-
-                                    }
-                                    // check of used packages - end
-                                } else {
+//                                if "\(theEndpoint)" == "patchsoftwaretitles" {
+//                                    // check of used packages - start
+//                                    let packageVersionArray = parsedXmlData.patch_software_title.versions.version
+////                                    print("[patchPolicy] package name: \(packageVersionArray)")
+//                                    
+//                                    
+//                                    for thePackageInfo in packageVersionArray {
+//                                        if thePackageInfo.package.Name.text != nil {
+////                                            print("thePackageInfo.package.Name.text: \(thePackageInfo.package.Name.text!)")
+//                                            self.masterObjectDict["packages"]!["\(thePackageInfo.package.Name.text!)"]?["used"] = "true"
+//                                        }
+//
+//                                    }
+//                                    // check of used packages - end
+//                                } else {
                                     // check scoped groups
                                     let patchPolicyScopeArray = parsedXmlData.patch_policy.scope.computer_groups.computer_group
                                     for scopedGroup in patchPolicyScopeArray {
@@ -1566,7 +1669,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                             self.masterObjectDict["computerGroups"]!["\(excludedGroup.Name.text!)"] = ["used":"true"]
                                         }
                                     }
-                                }
+//                                }
                             } else {
                                 WriteToLog().message(theString: "[recursiveLookup.patch] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id)")
                             }
@@ -1826,6 +1929,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                                 // check exclusions - end
                                 // check of used computergroups - end
+                            case "packages":
+//                                print("[recursiveLookup.packages] result: \(result)")
+                                let packageInfo = result["package"] as! [String:AnyObject]
+                                let id          = packageInfo["id"] as? Int ?? -1
+                                let filename    = packageInfo["filename"] as? String ?? ""
+                                if id != -1 && filename != "" {
+                                    packageIdFileNameDict["\(id)"] = filename
+                                }
                                 
                             case "policies":
             //                    self.policiesDict["\(id)"] = "\(name)"
@@ -2025,6 +2136,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 waitFor.osxconfigurationprofile = false
                             case "macapplications":
                                 waitFor.macApps = false
+                            case "packages":
+                                waitFor.packages = false
                             case "policies","patchpolicies","patchsoftwaretitles","restrictedsoftware":
                                 waitFor.policy = false
                             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
@@ -2053,6 +2166,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     waitFor.classes = false
                 case "osxconfigurationprofiles":
                     waitFor.osxconfigurationprofile = false
+                case "packages":
+                    waitFor.packages = false
                 case "policies","patchpolicies","patchsoftwaretitles","restrictedsoftware":
                     waitFor.policy = false
                 case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
@@ -3345,7 +3460,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         let continueDelete = Alert().warning(header: "Caution:", message: "You are about to remove \(masterItemsToDeleteArray.count) objects, are you sure you want to continue?")
 
         if continueDelete == "OK" {
-            theDeleteQ.addOperation {
+            theDeleteQ.addOperation { [self] in
                 self.counter = 0
                 var completed = false
                 // loop through master list and delete items - start
@@ -3370,7 +3485,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                        DispatchQueue.main.async {
 //                            self.process_TextField.stringValue = "\nProcessed item \(counter+1) of \(masterItemsToDeleteArray.count)"
 //                        }
-                        self.xmlAction(action: "DELETE", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(category)/id/\(id)") {
+//                        if category == "packages" {
+//                            WriteToLog().message(theString: "[remove_Action] removing \(category) from JCDS")
+//                        }
+                        xmlAction(action: "DELETE", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theCategory: category, theEndpoint: "\(category)/id/\(id)") {
                             (xmlResult: (Int,String)) in
 //
                             let (statusCode, _) = xmlResult
@@ -3484,80 +3602,160 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         }
     }
     
-    func xmlAction(action: String, theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: (Int,String)) -> Void) {
+    func xmlAction(action: String, theServer: String, base64Creds: String, theCategory: String = "", theEndpoint: String, completion: @escaping (_ result: (Int,String)) -> Void) {
 
-        let getRecordQ = OperationQueue()   //DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
-    
-        URLCache.shared.removeAllCachedResponses()
-        var existingDestUrl = ""
-        
-        existingDestUrl = "\(theServer)/JSSResource/\(theEndpoint)"
-        existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
-        
-//        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
-        WriteToLog().message(theString: "[Xml.\(action.uppercased())] existing endpoints URL: \(existingDestUrl)")
-        let destEncodedURL = URL(string: existingDestUrl)
-        let xmlRequest     = NSMutableURLRequest(url: destEncodedURL! as URL)
-        
-        let semaphore = DispatchSemaphore(value: 1)
-        getRecordQ.maxConcurrentOperationCount = 4
-        getRecordQ.addOperation {
+        JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
+            (result: (Int,String)) in
+            let (statusCode, theResult) = result
+//            print("[xmlAction] token check")
+            if theResult == "success" {
+                let getRecordQ = OperationQueue()   //DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
             
-            xmlRequest.httpMethod = "\(action.uppercased())"
-            let destConf = URLSessionConfiguration.default
-            
-//            switch JamfProServer.authType["source"] {
-//            case "Basic":
-//                destConf.httpAdditionalHeaders = ["Authorization" : "Basic \(base64Creds)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
-//            default:
-//                destConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(JamfProServer.authCreds["source"] ?? "")", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
-//            }
-            destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType["source"] ?? "") \(JamfProServer.accessToken["source"] ?? "")", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
-            
-            
-            let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
-            let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: {
-                (data, response, error) -> Void in
-                destSession.finishTasksAndInvalidate()
-                if let httpResponse = response as? HTTPURLResponse {
-//                    print("[Xml.action] httpResponse: \(String(describing: httpResponse))")
+                URLCache.shared.removeAllCachedResponses()
+                var existingDestUrl = ""
+                
+                existingDestUrl = "\(theServer)/JSSResource/\(theEndpoint)"
+                existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
+                
+        //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
+                WriteToLog().message(theString: "[Xml.\(action.uppercased())] existing endpoint URL: \(existingDestUrl)")
+                let destEncodedURL = URL(string: existingDestUrl)
+                let xmlRequest     = NSMutableURLRequest(url: destEncodedURL! as URL)
+                
+                let semaphore = DispatchSemaphore(value: 1)
+                getRecordQ.maxConcurrentOperationCount = 4
+                getRecordQ.addOperation {
                     
-                    if action == "DELETE" {
-                        DispatchQueue.main.async {
-                            self.process_TextField.stringValue = "\nProcessed item \(self.counter+1) of \(self.itemsToDelete)"
-                            self.spinner_ProgressIndicator.increment(by: 100.0/Double(self.itemsToDelete))
-                            if (self.counter+1) == self.itemsToDelete {
-                                self.spinner_ProgressIndicator.increment(by: 100.0)
+                    xmlRequest.httpMethod = "\(action.uppercased())"
+                    let destConf = URLSessionConfiguration.default
+                    
+                    destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.accessToken)", "Content-Type" : "text/xml", "Accept" : "text/xml", "User-Agent" : AppInfo.userAgentHeader]
+                    
+                    
+                    let destSession = Foundation.URLSession(configuration: destConf, delegate: self, delegateQueue: OperationQueue.main)
+                    let task = destSession.dataTask(with: xmlRequest as URLRequest, completionHandler: { [self]
+                        (data, response, error) -> Void in
+                        destSession.finishTasksAndInvalidate()
+                        if let httpResponse = response as? HTTPURLResponse {
+                            
+                            if action == "DELETE" {
+                                DispatchQueue.main.async { [self] in
+                                    process_TextField.stringValue = "\nProcessed item \(counter+1) of \(itemsToDelete)"
+                                    spinner_ProgressIndicator.increment(by: 100.0/Double(itemsToDelete))
+                                    if (counter+1) == self.itemsToDelete {
+                                        spinner_ProgressIndicator.increment(by: 100.0)
+                                    }
+                                }
                             }
+                            
+                            if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
+                                do {
+                                    if action == "DELETE" {
+                                        WriteToLog().message(theString: "[Xml.\(action.uppercased())] successfully removed: \(theEndpoint) from Jamf Pro")
+                                        if theCategory == "packages" {
+                                            let endpointArray = theEndpoint.components(separatedBy: "/")
+                                            if endpointArray.count == 3 {
+                                                WriteToLog().message(theString: "[remove_Action] removing \(String(describing: packageIdFileNameDict[endpointArray[2]])) from JCDS")
+                                                removeFromJcds(fileId: endpointArray[2]) {
+                                                    (result: String) in
+                                                    print("[xmlAction.removeFromJcds] result: \(result)")
+                                                    completion((httpResponse.statusCode,result))
+                                                }
+                                            } else {
+                                                completion((100,"skipped"))
+                                            }
+                                            
+                                        } else {
+                                            let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
+                                            completion((httpResponse.statusCode,returnedXML))
+                                        }
+                                    } else {
+                                        WriteToLog().message(theString: "[Xml.\(action.uppercased())] successfully retrieved: \(theEndpoint)")
+                                        let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
+                                        
+                                        completion((httpResponse.statusCode,returnedXML))
+                                    }
+                                }
+                            } else {
+                                WriteToLog().message(theString: "[Xml.\(action.uppercased())] error HTTP Status Code: \(httpResponse.statusCode)\n")
+                                completion((httpResponse.statusCode,""))
+                            }
+                        } else {
+        //                    WriteToLog().message(stringOfText: "[Xml.action] error parsing JSON for \(existingDestUrl)\n")
+                            completion((0,""))
+                        }   // if let httpResponse - end
+                        semaphore.signal()
+                        if error != nil {
                         }
-                    }
-                    
-                    if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
-                        do {
-                            WriteToLog().message(theString: "[Xml.\(action.uppercased())] successfully retrieved: \(theEndpoint)")
-                            let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
+                    })  // let task = destSession - end
+                    //print("GET")
+                    task.resume()
+                }   // getRecordQ - end
+            }
+        }
+    }
+    
+    var deleteQ = OperationQueue() // create operation queue for delete calls
+    func removeFromJcds(fileId: String, completion: @escaping (_ result: String) -> Void) {
+        if !jcds2PackageDict.contains(where: { $0.key == packageIdFileNameDict[fileId] }) {
+            print("[removeFromJcds] \(String(describing: packageIdFileNameDict[fileId])) does not exist on the JCDS")
+            completion("skipped")
+            return
+        }
+        deleteQ.maxConcurrentOperationCount = 2
+        let semaphore = DispatchSemaphore(value: 0)
+        URLCache.shared.removeAllCachedResponses()
 
-                            completion((httpResponse.statusCode,returnedXML))
-                        }
+        let encodedFilename = packageIdFileNameDict[fileId]?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
+        if encodedFilename != "" {
+            deleteQ.addOperation {
+                var endpointPath = "\(JamfProServer.source)/api/v1/jcds/files/\(encodedFilename)"
+                endpointPath = endpointPath.replacingOccurrences(of: "//api", with: "/api")
+                
+                let endpointUrl    = URL(string: "\(endpointPath)")
+                let configuration  = URLSessionConfiguration.ephemeral
+                var request        = URLRequest(url: endpointUrl!)
+                request.httpMethod = "DELETE"
+                configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(String(describing: JamfProServer.accessToken))", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
+                
+                print("[removeFromJcds] endpointUrl: \(endpointUrl?.absoluteString ?? "unknown")")
+//                print("[removeFromJcds] configuration.httpAdditionalHeaders: \(String(describing: configuration.httpAdditionalHeaders))")
+                
+                let session = Foundation.URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
+                let task = session.dataTask(with: request as URLRequest, completionHandler: {
+                    (data, response, error) -> Void in
+                    session.finishTasksAndInvalidate()
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("[removeFromJcds] httpResponse: \(String(describing: httpResponse))")
+                        WriteToLog().message(theString: "[removeFromJcds] status code from DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS: \(httpResponse.statusCode)")
+                        print("[removeFromJcds] statusCode: \(httpResponse.statusCode)")
                     } else {
-                        WriteToLog().message(theString: "[Xml.\(action.uppercased())] error HTTP Status Code: \(httpResponse.statusCode)\n")
-//                        if action != "DELETE" {
-                            completion((httpResponse.statusCode,""))
-//                        } else {
-//                            completion((httpResponse.statusCode,""))
-//                        }
+                        WriteToLog().message(theString: "[removeFromJcds] No response trying to DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS")
                     }
-                } else {
-//                    WriteToLog().message(stringOfText: "[Xml.action] error parsing JSON for \(existingDestUrl)\n")
-                    completion((0,""))
-                }   // if let httpResponse - end
-                semaphore.signal()
-                if error != nil {
-                }
-            })  // let task = destSession - end
-            //print("GET")
-            task.resume()
-        }   // getRecordQ - end
+                    semaphore.signal()
+                    completion("returned from removeFromJcds")
+                })
+                task.resume()
+                semaphore.wait()
+            }
+        }
+    }
+    
+    func allButtonsEnabledState(theState: Bool) {
+        packages_Button.isEnabled = theState
+        scripts_Button.isEnabled = theState
+        computerGroups_Button.isEnabled = theState
+        computerProfiles_Button.isEnabled = theState
+        policies_Button.isEnabled = theState
+        macApps_Button.isEnabled = theState
+        restrictedSoftware_Button.isEnabled = theState
+        computerEAs_Button.isEnabled = theState
+        mobileDeviceGroups_Button.isEnabled = theState
+        mobileDeviceApps_Button.isEnabled = theState
+        configurationProfiles_Button.isEnabled = theState
+        classes_Button.isEnabled = theState
+        ebooks_Button.isEnabled = theState
+        mobileDeviceEAs_Button.isEnabled = theState
     }
     
     func setAllButtonsState(theState: String) {
@@ -3717,6 +3915,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 self.spinner_ProgressIndicator.stopAnimation(self)
             }
         }
+        allButtonsEnabledState(theState: !isWorking)
     }
     
     @objc func viewSelectObject() {
