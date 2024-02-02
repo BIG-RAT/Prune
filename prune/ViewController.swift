@@ -65,6 +65,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     var masterObjectDict = [String:[String:[String:String]]]()
     var masterObjects    = ["advancedcomputersearches", "advancedmobiledevicesearches", "packages", "osxconfigurationprofiles", "scripts", "ebooks", "classes", "computerGroups", "macapplications", "policies", "restrictedsoftware", "computerextensionattributes", "mobileDeviceGroups", "mobiledeviceapplications", "mobiledeviceconfigurationprofiles", "computer-prestages", "patchpolicies", "patchsoftwaretitles", "mobiledeviceextensionattributes"]
 
+    var failedLookup = [String:[String]]()
+    
     var unusedItems_TableArray: [String]?
     var unusedItems_TableDict: [[String:String]]?
     
@@ -136,6 +138,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         mobileGroupNameByIdDict.removeAll()
         masterObjectDict.removeAll()
+        failedLookup.removeAll()
         
         unusedItems_TableArray?.removeAll()
         unusedItems_TableDict?.removeAll()
@@ -362,12 +365,15 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         }
                     }
                 }   // if self.computerGroupsButtonState == "on" - end
-                            
+                     
+                
             case "packages":
                 if self.packagesButtonState == "on" {
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Packages..."
                     }
+                    
+                    /*
                     // get list of JCDS2 packages
                     Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "jcds2Packages") {
                         (result: [String:AnyObject]) in
@@ -417,33 +423,32 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         }
-                        
                     }
+                    */
                     
-//                    
-//                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
-//                        (result: [String:AnyObject]) in
-//
-//                        if let _  = result["packages"] {
-//                            let packagesArray = result["packages"] as! [[String:Any]]
-//                            let packagesArrayCount = packagesArray.count
-//                            // loop through all packages and mark as unused
-//                            if packagesArrayCount > 0 {
-//                                for i in (0..<packagesArrayCount) {
-//                                    if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
-//                                        if "\(name)" != "" {
-//                                            self.masterObjectDict["packages"]!["\(name)"] = ["id":"\(id)", "used":"false"]
-//                                            self.packagesByIdDict["\(id)"] = "\(name)"
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        WriteToLog().message(theString: "[processItems] call scripts")
-//                        DispatchQueue.main.async {
-//                            self.processItems(type: "scripts")
-//                        }
-//                    }
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
+                        (result: [String:AnyObject]) in
+
+                        if let _  = result["packages"] {
+                            let packagesArray = result["packages"] as! [[String:Any]]
+                            let packagesArrayCount = packagesArray.count
+                            // loop through all packages and mark as unused
+                            if packagesArrayCount > 0 {
+                                for i in (0..<packagesArrayCount) {
+                                    if let id = packagesArray[i]["id"], let name = packagesArray[i]["name"] {
+                                        if "\(name)" != "" {
+                                            self.masterObjectDict["packages"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                            self.packagesByIdDict["\(id)"] = "\(name)"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        WriteToLog().message(theString: "[processItems] call scripts")
+                        DispatchQueue.main.async {
+                            self.processItems(type: "scripts")
+                        }
+                    }
                 } else {
                     WriteToLog().message(theString: "[processItems] skipping packages - call scripts")
                     DispatchQueue.main.async {
@@ -1624,7 +1629,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         // lookup complete record, XML format looking for groups
 //                        Xml().action(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
 //                    print("[recursiveLookup] patchpolicies: \(objectEndpoint)/\(id)")
-                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") {
+                self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
 //                            print("[returnedXml] full XML: \(returnedXml)")
@@ -1672,6 +1677,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                                }
                             } else {
                                 WriteToLog().message(theString: "[recursiveLookup.patch] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id)")
+                                failedLookupDict(theEndpoint: theEndpoint, theId: "\(id)")
                             }
 
                             
@@ -1685,7 +1691,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
        
                 default:
                     // lookup complete record, JSON format
-                Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
                         (result: [String:AnyObject]) in
                         if result.count != 0 {
                             var xmlTag = ""
@@ -2118,6 +2124,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             }
                         } else {
                             WriteToLog().message(theString: "[recursiveLookup] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id)")
+                            failedLookupDict(theEndpoint: theEndpoint, theId: "\(id)")
                         }
                         
                         if index == objectArrayCount-1 {
@@ -2254,11 +2261,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                    }
                 }
             }
-//            DispatchQueue.main.async { [self] in
-                view_PopUpButton.isEnabled = true
-                working(isWorking: false)
-                self.process_TextField.isHidden = true
-//            }
+            view_PopUpButton.isEnabled = true
+            working(isWorking: false)
+            self.process_TextField.isHidden = true
+            if failedLookup.count > 0 {
+                _ = Alert().warning(header: "", message: "Some lookups failed, some items may be incorrectly listed.  Search the log for entries starting with:\n[recursiveLookup] Nothing returned for server:")
+            }
     //        print("unusedItems_TableDict: \(unusedItems_TableDict ?? [[:]])")
         }
     }
@@ -2296,6 +2304,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //        }
 //    }
     
+    func failedLookupDict(theEndpoint: String, theId: String) {
+        if failedLookup[theEndpoint] == nil {
+            failedLookup[theEndpoint] = [theId]
+        } else {
+            failedLookup[theEndpoint]?.append(theId)
+        }
+    }
     
     // used when importing files
     func buildDictionary(type: String, used: String, data: [String:Any]) -> [String:Any] {
@@ -3652,23 +3667,23 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 do {
                                     if action == "DELETE" {
                                         WriteToLog().message(theString: "[Xml.\(action.uppercased())] successfully removed: \(theEndpoint) from Jamf Pro")
-                                        if theCategory == "packages" {
-                                            let endpointArray = theEndpoint.components(separatedBy: "/")
-                                            if endpointArray.count == 3 {
-                                                WriteToLog().message(theString: "[remove_Action] removing \(String(describing: packageIdFileNameDict[endpointArray[2]])) from JCDS")
-                                                removeFromJcds(fileId: endpointArray[2]) {
-                                                    (result: String) in
-                                                    print("[xmlAction.removeFromJcds] result: \(result)")
-                                                    completion((httpResponse.statusCode,result))
-                                                }
-                                            } else {
-                                                completion((100,"skipped"))
-                                            }
-                                            
-                                        } else {
+//                                        if theCategory == "packages" {
+//                                            let endpointArray = theEndpoint.components(separatedBy: "/")
+//                                            if endpointArray.count == 3 {
+//                                                WriteToLog().message(theString: "[remove_Action] removing \(String(describing: packageIdFileNameDict[endpointArray[2]])) from JCDS")
+//                                                removeFromJcds(fileId: endpointArray[2]) {
+//                                                    (result: String) in
+//                                                    print("[xmlAction.removeFromJcds] result: \(result)")
+//                                                    completion((httpResponse.statusCode,result))
+//                                                }
+//                                            } else {
+//                                                completion((100,"skipped"))
+//                                            }
+//                                            
+//                                        } else {
                                             let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
                                             completion((httpResponse.statusCode,returnedXML))
-                                        }
+//                                        }
                                     } else {
                                         WriteToLog().message(theString: "[Xml.\(action.uppercased())] successfully retrieved: \(theEndpoint)")
                                         let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
@@ -3695,67 +3710,67 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         }
     }
     
-    var deleteQ = OperationQueue() // create operation queue for delete calls
-    func removeFromJcds(fileId: String, completion: @escaping (_ result: String) -> Void) {
-        if !jcds2PackageDict.contains(where: { $0.key == packageIdFileNameDict[fileId] }) {
-            print("[removeFromJcds] \(String(describing: packageIdFileNameDict[fileId])) does not exist on the JCDS")
-            completion("skipped")
-            return
-        }
-        deleteQ.maxConcurrentOperationCount = 2
-        let semaphore = DispatchSemaphore(value: 0)
-        URLCache.shared.removeAllCachedResponses()
-
-        let encodedFilename = packageIdFileNameDict[fileId]?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
-        if encodedFilename != "" {
-            deleteQ.addOperation {
-                var endpointPath = "\(JamfProServer.source)/api/v1/jcds/files/\(encodedFilename)"
-                endpointPath = endpointPath.replacingOccurrences(of: "//api", with: "/api")
-                
-                let endpointUrl    = URL(string: "\(endpointPath)")
-                let configuration  = URLSessionConfiguration.ephemeral
-                var request        = URLRequest(url: endpointUrl!)
-                request.httpMethod = "DELETE"
-                configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(String(describing: JamfProServer.accessToken))", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
-                
-                print("[removeFromJcds] endpointUrl: \(endpointUrl?.absoluteString ?? "unknown")")
-//                print("[removeFromJcds] configuration.httpAdditionalHeaders: \(String(describing: configuration.httpAdditionalHeaders))")
-                
-                let session = Foundation.URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
-                let task = session.dataTask(with: request as URLRequest, completionHandler: {
-                    (data, response, error) -> Void in
-                    session.finishTasksAndInvalidate()
-                    if let httpResponse = response as? HTTPURLResponse {
-                        print("[removeFromJcds] httpResponse: \(String(describing: httpResponse))")
-                        WriteToLog().message(theString: "[removeFromJcds] status code from DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS: \(httpResponse.statusCode)")
-                        print("[removeFromJcds] statusCode: \(httpResponse.statusCode)")
-                    } else {
-                        WriteToLog().message(theString: "[removeFromJcds] No response trying to DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS")
-                    }
-                    semaphore.signal()
-                    completion("returned from removeFromJcds")
-                })
-                task.resume()
-                semaphore.wait()
-            }
-        }
-    }
+//    var deleteQ = OperationQueue() // create operation queue for delete calls
+//    func removeFromJcds(fileId: String, completion: @escaping (_ result: String) -> Void) {
+//        if !jcds2PackageDict.contains(where: { $0.key == packageIdFileNameDict[fileId] }) {
+//            print("[removeFromJcds] \(String(describing: packageIdFileNameDict[fileId])) does not exist on the JCDS")
+//            completion("skipped")
+//            return
+//        }
+//        deleteQ.maxConcurrentOperationCount = 2
+//        let semaphore = DispatchSemaphore(value: 0)
+//        URLCache.shared.removeAllCachedResponses()
+//
+//        let encodedFilename = packageIdFileNameDict[fileId]?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
+//        if encodedFilename != "" {
+//            deleteQ.addOperation {
+//                var endpointPath = "\(JamfProServer.source)/api/v1/jcds/files/\(encodedFilename)"
+//                endpointPath = endpointPath.replacingOccurrences(of: "//api", with: "/api")
+//                
+//                let endpointUrl    = URL(string: "\(endpointPath)")
+//                let configuration  = URLSessionConfiguration.ephemeral
+//                var request        = URLRequest(url: endpointUrl!)
+//                request.httpMethod = "DELETE"
+//                configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(String(describing: JamfProServer.accessToken))", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
+//                
+//                print("[removeFromJcds] endpointUrl: \(endpointUrl?.absoluteString ?? "unknown")")
+////                print("[removeFromJcds] configuration.httpAdditionalHeaders: \(String(describing: configuration.httpAdditionalHeaders))")
+//                
+//                let session = Foundation.URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
+//                let task = session.dataTask(with: request as URLRequest, completionHandler: {
+//                    (data, response, error) -> Void in
+//                    session.finishTasksAndInvalidate()
+//                    if let httpResponse = response as? HTTPURLResponse {
+//                        print("[removeFromJcds] httpResponse: \(String(describing: httpResponse))")
+//                        WriteToLog().message(theString: "[removeFromJcds] status code from DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS: \(httpResponse.statusCode)")
+//                        print("[removeFromJcds] statusCode: \(httpResponse.statusCode)")
+//                    } else {
+//                        WriteToLog().message(theString: "[removeFromJcds] No response trying to DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS")
+//                    }
+//                    semaphore.signal()
+//                    completion("returned from removeFromJcds")
+//                })
+//                task.resume()
+//                semaphore.wait()
+//            }
+//        }
+//    }
     
     func allButtonsEnabledState(theState: Bool) {
-        packages_Button.isEnabled = theState
-        scripts_Button.isEnabled = theState
-        computerGroups_Button.isEnabled = theState
-        computerProfiles_Button.isEnabled = theState
-        policies_Button.isEnabled = theState
-        macApps_Button.isEnabled = theState
-        restrictedSoftware_Button.isEnabled = theState
-        computerEAs_Button.isEnabled = theState
-        mobileDeviceGroups_Button.isEnabled = theState
-        mobileDeviceApps_Button.isEnabled = theState
+        packages_Button.isEnabled              = theState
+        scripts_Button.isEnabled               = theState
+        computerGroups_Button.isEnabled        = theState
+        computerProfiles_Button.isEnabled      = theState
+        policies_Button.isEnabled              = theState
+        macApps_Button.isEnabled               = theState
+        restrictedSoftware_Button.isEnabled    = theState
+        computerEAs_Button.isEnabled           = theState
+        mobileDeviceGroups_Button.isEnabled    = theState
+        mobileDeviceApps_Button.isEnabled      = theState
         configurationProfiles_Button.isEnabled = theState
-        classes_Button.isEnabled = theState
-        ebooks_Button.isEnabled = theState
-        mobileDeviceEAs_Button.isEnabled = theState
+        classes_Button.isEnabled               = theState
+        ebooks_Button.isEnabled                = theState
+        mobileDeviceEAs_Button.isEnabled       = theState
     }
     
     func setAllButtonsState(theState: String) {

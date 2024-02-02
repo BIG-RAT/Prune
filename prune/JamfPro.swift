@@ -200,7 +200,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         //        print("[getToken] \(whichServer)  token exipres in: \((JamfProServer.authExpires)*60)")
         //        print("[getToken] JamfProServer.currentCred[\(whichServer)]: \(String(describing: JamfProServer.currentCred))")
 
-        if !( JamfProServer.validToken && tokenAgeInSeconds < (JamfProServer.authExpires)*60 ) || (JamfProServer.currentCred != base64creds) {
+        if !( JamfProServer.validToken && tokenAgeInSeconds < JamfProServer.authExpires ) || (JamfProServer.currentCred != base64creds) {
             WriteToLog().message(theString: "[getToken] \(whichServer) tokenAgeInSeconds: \(tokenAgeInSeconds)")
             WriteToLog().message(theString: "[getToken] Attempting to retrieve token from \(String(describing: tokenUrl))")
             
@@ -234,10 +234,11 @@ class JamfPro: NSObject, URLSessionDelegate {
         //                                print("[getToken] \(whichServer) token: \(String(describing: JamfProServer.authCreds))")
                                 JamfProServer.base64Creds = base64creds
                                 if apiClient {
-                                    JamfProServer.authExpires = 20 //(endpointJSON["expires_in"] as? String ?? "")!
+                                    JamfProServer.authExpires = (endpointJSON["expires_in"] as? Double ?? 60)!
                                 } else {
-                                    JamfProServer.authExpires = (endpointJSON["expires"] as? Double ?? 20)!
+                                    JamfProServer.authExpires = (endpointJSON["expires"] as? Double ?? 20)!*60
                                 }
+                                JamfProServer.authExpires *= 0.75
                                 JamfProServer.tokenCreated = Date()
                                 JamfProServer.validToken   = true
                                 JamfProServer.authType     = "Bearer"
