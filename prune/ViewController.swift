@@ -108,17 +108,27 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         setAllButtonsState(theState: "off")
         
         setViewButton(setOn: false)
-        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.authCreds, method: "POST") { [self]
+        LoginWindow.show = true
+        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.accessToken, method: "POST") { [self]
             (returnedJSON: [String:Any]) in
-            WriteToLog().message(theString: "\(String(describing: returnedJSON["JPAPI_result"]!))")
+            WriteToLog().message(theString: "logging out: \(String(describing: returnedJSON["JPAPI_result"]!))")
             performSegue(withIdentifier: "loginView", sender: nil)
         }
     }
     
+    @objc func logoutNotification(_ notification: Notification) {
+        DistributedNotificationCenter.default.removeObserver(self, name: .logoutNotification, object: nil)
+        spinner_ProgressIndicator.stopAnimation(self)
+        process_TextField.isHidden = true
+        process_TextField.stringValue = ""
+        scan_Button.isEnabled = true
+        allButtonsEnabledState(theState: true)
+    }
     
     @IBAction func scan_action(_ sender: Any) {
         didRun = true
         working(isWorking: true)
+        NotificationCenter.default.addObserver(self, selector: #selector(logoutNotification(_:)), name: .logoutNotification, object: nil)
         
         waitFor.deviceGroup             = true   // used for both computer and mobile device groups
         waitFor.computerConfiguration   = true
@@ -1347,6 +1357,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         }
+                        // for testing
+//                        let fakePolicy = ["name": "fake policy" as Any, "id": "1000000" as Any]
+//                        policiesArray.append(fakePolicy)
+//                        self.masterObjectDict[type]!["dummy - (1000000)"] = ["id":"1000000", "used":"false", "enabled":"false"]
                         // mark policies as unused and filter out policies generated with Jamf/Casper Remote - end
                         
                         let policiesArrayCount = policiesArray.count
@@ -1359,11 +1373,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
                             self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "policies", theData: policiesArray, index: 0)
                             waitFor.policy = true
-                            self.backgroundQ.async {
+                            self.backgroundQ.async { [self] in
                                 while true {
                                     usleep(10)
                                     if !waitFor.policy && !waitFor.osxconfigurationprofile {
                                         WriteToLog().message(theString: "[processItems] policies complete - call unused")
+                                        generateReportItems()
+                                        /*
                                         var reportItems = [[String:[String:[String:String]]]]()
                                         if self.packagesButtonState == "on" {
                                             reportItems.append(["packages":self.masterObjectDict["packages"]!])
@@ -1407,9 +1423,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if self.mobileDeviceEAsButtonState == "on" {
                                             reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
                                         }
-//                                            DispatchQueue.main.async {
-                                            self.unused(itemDictionary: reportItems)
-//                                            }
+                                        self.unused(itemDictionary: reportItems)
+                                        */
                                         
                                         break
                                     }
@@ -1420,11 +1435,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             // no policies found
                             WriteToLog().message(theString: "[processItems] no policies found or policies not searched")
                             waitFor.policy = false
-                            self.backgroundQ.async {
+                            self.backgroundQ.async { [self] in
                                 while true {
                                     usleep(10)
                                     if !waitFor.policy && !waitFor.osxconfigurationprofile {
                                         WriteToLog().message(theString: "[processItems] policies complete - call unused")
+                                        generateReportItems()
+                                        /*
                                         var reportItems = [[String:[String:[String:String]]]]()
                                         if self.packagesButtonState == "on" {
                                             reportItems.append(["packages":self.masterObjectDict["packages"]!])
@@ -1468,9 +1485,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if self.mobileDeviceEAsButtonState == "on" {
                                             reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
                                         }
-//                                            DispatchQueue.main.async {
-                                            self.unused(itemDictionary: reportItems)
-//                                            }
+                                        self.unused(itemDictionary: reportItems)
+                                        */
                                         
                                         break
                                     }
@@ -1481,11 +1497,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 } else {
                     // skipped policy check
                     waitFor.policy = false
-                    self.backgroundQ.async {
+                    self.backgroundQ.async { [self] in
                         while true {
                             usleep(10)
                             if !waitFor.policy && !waitFor.osxconfigurationprofile {
                                 WriteToLog().message(theString: "[processItems] policies complete - call unused")
+                                generateReportItems()
+                                /*
                                 var reportItems = [[String:[String:[String:String]]]]()
                                 if self.packagesButtonState == "on" {
                                     reportItems.append(["packages":self.masterObjectDict["packages"]!])
@@ -1529,9 +1547,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 if self.mobileDeviceEAsButtonState == "on" {
                                     reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
                                 }
-//                                    DispatchQueue.main.async {
-                                    self.unused(itemDictionary: reportItems)
-//                                    }
+                                self.unused(itemDictionary: reportItems)
+                                */
                                 
                                 break
                             }
@@ -1549,6 +1566,54 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
         }
     }
+    
+    func generateReportItems() {
+        var reportItems = [[String:[String:[String:String]]]]()
+        if self.packagesButtonState == "on" {
+            reportItems.append(["packages":self.masterObjectDict["packages"]!])
+        }
+        if self.scriptsButtonState == "on" {
+            reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
+        }
+        if self.ebooksButtonState == "on" {
+            reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
+        }
+        if self.classesButtonState == "on" {
+            reportItems.append(["classes":self.masterObjectDict["classes"]!])
+        }
+        if self.computerGroupsButtonState == "on" {
+            reportItems.append(["computergroups":self.masterObjectDict["computerGroups"]!])
+        }
+        if self.computerProfilesButtonState == "on" {
+            reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
+        }
+        if self.macAppsButtonState == "on" {
+            reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
+        }
+        if self.policiesButtonState == "on" {
+            reportItems.append(["policies":self.masterObjectDict["policies"]!])
+        }
+        if self.restrictedSoftwareButtonState == "on" {
+            reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
+        }
+        if self.computerEAsButtonState == "on" {
+            reportItems.append(["computerextensionattributes":self.masterObjectDict["computerextensionattributes"]!])
+        }
+        if self.mobileDeviceGroupsButtonState == "on" {
+            reportItems.append(["mobiledevicegroups":self.masterObjectDict["mobileDeviceGroups"]!])
+        }
+        if self.mobileDeviceAppsButtonState == "on" {
+            reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
+        }
+        if self.configurationProfilesButtonState == "on" {
+            reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
+        }
+        if self.mobileDeviceEAsButtonState == "on" {
+            reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
+        }
+        self.unused(itemDictionary: reportItems)
+    }
+    
         // get the full record for each comuter group, policy, computer configuration profile...
     func recursiveLookup(theServer: String, base64Creds: String, theEndpoint: String, theData: [[String:Any]], index: Int) {
         
@@ -4070,6 +4135,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             let (statusCode, theResult) = result
             if theResult == "success" {
                 DispatchQueue.main.async {
+                    LoginWindow.show = false
                     // save password if checked - start
                     if self.saveCreds {
                         Credentials().save(service: JamfProServer.source.fqdnFromUrl, account: self.uname_TextField.stringValue, credential: self.passwd_TextField.stringValue)
@@ -4148,7 +4214,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     }
     
     override func viewWillDisappear() {
-        print("[viewWillDisappear] log file: \(Log.path!)\(Log.file)")
+//        print("[viewWillDisappear] log file: \(Log.path!)\(Log.file)")
         if !didRun {
             if FileManager.default.fileExists(atPath: Log.path! + Log.file) {
                 do {
@@ -4242,4 +4308,8 @@ extension String {
             return newString
         }
     }
+}
+
+extension Notification.Name {
+    public static let logoutNotification = Notification.Name("logoutNotification")
 }

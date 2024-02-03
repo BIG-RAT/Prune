@@ -9,8 +9,16 @@
 import Cocoa
 
 class Json: NSObject, URLSessionDelegate {
-        
+    
+    let getRecordQ = OperationQueue() // DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
+    
     func getRecord(theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: [String:AnyObject]) -> Void) {
+        print("[getRecord] record: \(theEndpoint)")
+        if LoginWindow.show {
+            getRecordQ.cancelAllOperations()
+            NotificationCenter.default.post(name: .logoutNotification, object: self)
+            return
+        }
 
         JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
             (result: (Int,String)) in
@@ -18,7 +26,6 @@ class Json: NSObject, URLSessionDelegate {
 //            print("[getRecord] token check")
             if theResult == "success" {
                 
-                let getRecordQ = OperationQueue() // DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
             
                 URLCache.shared.removeAllCachedResponses()
                 var existingDestUrl = ""

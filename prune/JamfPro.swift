@@ -13,10 +13,15 @@ class JamfPro: NSObject, URLSessionDelegate {
     var theUapiQ = OperationQueue() // create operation queue for API calls
         
     func jpapiAction(serverUrl: String, endpoint: String, apiData: [String:Any], id: String, token: String, method: String, completion: @escaping (_ returnedJSON: [String: Any]) -> Void) {
+        
         getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
             (result: (Int,String)) in
             let (statusCode, theResult) = result
-//            print("[jpapiAction] token check")
+            
+//            print("[jpapiAction]             method: \(method)")
+//            print("[jpapiAction]           endpoint: \(endpoint)")
+//            print("[jpapiAction] token check result: \(statusCode)")
+            
             if theResult == "success" {
                 
                 if method.lowercased() == "skip" {
@@ -54,7 +59,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                     }
                 }
                 
-                //        print("[Jpapi.action] Attempting \(method) on \(urlString).")
+//                print("[Jpapi.action] Attempting \(method) on \(urlString).")
                 
                 configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(token)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
                 let session = Foundation.URLSession(configuration: configuration, delegate: self as URLSessionDelegate, delegateQueue: OperationQueue.main)
@@ -62,16 +67,21 @@ class JamfPro: NSObject, URLSessionDelegate {
                     (data, response, error) -> Void in
                     session.finishTasksAndInvalidate()
                     if let httpResponse = response as? HTTPURLResponse {
+//                        print("[Jpapi.action] status code \(httpResponse.statusCode).")
                         if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                             let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                             if let endpointJSON = json as? [String:Any] {
                                 completion(endpointJSON)
                                 return
                             } else {    // if let endpointJSON error
-                                if httpResponse.statusCode == 204 && endpoint == "auth/invalidate-token" {
-                                    completion(["JPAPI_result":"token terminated", "JPAPI_response":httpResponse.statusCode])
+                                if endpoint == "auth/invalidate-token" {
+                                    if httpResponse.statusCode == 204 {
+                                        completion(["JPAPI_result":"token terminated", "JPAPI_response":httpResponse.statusCode])
+                                    } else {
+                                        completion(["JPAPI_result":"token termination failed", "JPAPI_response":httpResponse.statusCode])
+                                    }
                                 } else {
-                                    completion(["JPAPI_result":"failed", "JPAPI_response":httpResponse.statusCode])
+                                    completion(["JPAPI_result":"failed converting \(String(describing: json)) to JSON", "JPAPI_response":httpResponse.statusCode])
                                 }
                                 return
                             }
@@ -85,6 +95,8 @@ class JamfPro: NSObject, URLSessionDelegate {
                     }
                 })
                 task.resume()
+            } else {
+                completion(["JPAPI_result":"failed to generate or terminate token", "JPAPI_method": method, "JPAPI_response": statusCode])
             }
         }
     }
@@ -95,11 +107,6 @@ class JamfPro: NSObject, URLSessionDelegate {
             let (statusCode, theResult) = result
 //            print("[jpapiAction] token check")
             if theResult == "success" {
-                
-//                if method.lowercased() == "skip" {
-//                    completion([["JPAPI_result":"failed", "JPAPI_response":000]])
-//                    return
-//                }
                 
                 URLCache.shared.removeAllCachedResponses()
                 var path = ""
@@ -149,6 +156,8 @@ class JamfPro: NSObject, URLSessionDelegate {
                     }
                 })
                 task.resume()
+            } else {
+                completion(("failed",[["JPAPI_response": statusCode]]))
             }
         }
     }
