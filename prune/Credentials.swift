@@ -13,32 +13,22 @@ let kSecAttrAccountString          = NSString(format: kSecAttrAccount)
 let kSecValueDataString            = NSString(format: kSecValueData)
 let kSecClassGenericPasswordString = NSString(format: kSecClassGenericPassword)
 let keychainQ                      = DispatchQueue(label: "com.jamf.prune", qos: DispatchQoS.background)
-let prefix                         = "prune"
+let prefix                         = AppInfo.name.lowercased()
 let sharedPrefix                   = "JPMA"
 let accessGroup                    = "PS2F6S478M.jamfie.SharedJPMA"
+var useApiClient                   = 0
+
+// old entry: prune - <server fqdn>
 
 class Credentials {
     
     var userPassDict = [String:String]()
+    var keychainItemName = ""
     
     func save(service: String, account: String, credential: String, whichServer: String = "source") {
-        if service != "" && account != "" && service.first != "/" {
-            var theService = service
+        if service != "" && account != "" {
             
-//            switch whichServer {
-//            case "source":
-//                if JamfProServer.sourceUseApiClient == 1 {
-//                    theService = "\(AppInfo.name)-apiClient-" + theService
-//                }
-//            case "dest":
-//                if JamfProServer.destUseApiClient == 1 {
-//                    theService = "\(AppInfo.name)-apiClient-" + theService
-//                }
-//            default:
-//                break
-//            }
-            
-            let keychainItemName = ( whichServer == "" ) ? theService:"JPMA-\(theService)"
+            let keychainItemName = ( useApiClient == 0 ) ? "JPMA-" + service:"\(prefix)-apiClient-" + service
             
 //            print("[Credentials.save] save/update keychain item \(keychainItemName)")
 
@@ -52,46 +42,35 @@ class Credentials {
                                                         kSecValueData as String: password]
                     
                     // see if credentials already exist for server
-                    let accountCheck = retrieve(service: service, account: account)
+                    let accountCheck = checkExisting(service: keychainItemName, account: account)
                     if accountCheck.count == 0 {
                         // try to add new credentials, if account exists we'll try updating it
                         let addStatus = SecItemAdd(keychainQuery as CFDictionary, nil)
                         if (addStatus != errSecSuccess) {
                             if let addErr = SecCopyErrorMessageString(addStatus, nil) {
-                                print("[addStatus] Write failed for new credentials: \(addErr)")
+                                print("[addStatus] Write failed for service \(service), account \(account): \(addErr)")
+                                WriteToLog().message(theString: "Write failed for service \(service), account \(account): \(addErr).")
                             }
                         }
                     } else {
-                        let keychainQuery1 = [kSecClass as String: kSecClassGenericPasswordString,
+                        // credentials already exist, try to update
+                        keychainQuery = [kSecClass as String: kSecClassGenericPasswordString,
                                          kSecAttrService as String: keychainItemName,
                                          kSecAttrAccessGroup as String: accessGroup,
                                          kSecUseDataProtectionKeychain as String: true,
-                                         kSecAttrAccount as String: account,
                                          kSecMatchLimit as String: kSecMatchLimitOne,
                                          kSecReturnAttributes as String: true]
-                        
-                        var existingAccounts = [String:String]()
-                        for (username, password) in accountCheck {
-//                            existingAccounts.append(username)
-                            existingAccounts[username] = password
-                        }
-//                        if let _ = existingAccounts.firstIndex(of: account) {
-                        if existingAccounts[account] != nil {
-                        // credentials already exist, try to update
-                            if existingAccounts[account] != credential {
-                                let updateStatus = SecItemUpdate(keychainQuery1 as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
-                                print("[Credentials.save] updateStatus result: \(updateStatus)")
-                            } else {
-                                print("password for \(account) is up-to-date")
-                            }
-                        } else {
-                            print("[addStatus] save password for: \(account)")
-                            let addStatus = SecItemAdd(keychainQuery as CFDictionary, nil)
-                            if (addStatus != errSecSuccess) {
-                                if let addErr = SecCopyErrorMessageString(addStatus, nil) {
-                                    print("[addStatus] Write2 failed for new credentials: \(addErr)")
+                        if credential != accountCheck[account] {
+                            let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
+                            if (updateStatus != errSecSuccess) {
+                                if let updateErr = SecCopyErrorMessageString(updateStatus, nil) {
+                                    WriteToLog().message(theString: "keychain item for service \(service), account \(account), failed to update.")
+                                } else {
+                                    WriteToLog().message(theString: "keychain item for service \(service), account \(account), has been updated.")
                                 }
                             }
+                        } else {
+                            WriteToLog().message(theString: "keychain item for service \(service), account \(account), is up-to-date.")
                         }
                     }
                 }
@@ -99,76 +78,53 @@ class Credentials {
         }
     }   // func save - end
     
+    private func checkExisting(service: String, account: String) -> [String:String] {
+                
+        userPassDict.removeAll()
+        let keychainQuery: [String: Any] = [kSecClass as String: kSecClassGenericPasswordString,
+                                            kSecAttrAccessGroup as String: accessGroup,
+                                            kSecAttrService as String: service,
+                                            kSecAttrAccount as String: account,
+                                            kSecMatchLimit as String: kSecMatchLimitOne,
+                                            kSecReturnAttributes as String: true,
+                                            kSecReturnData as String: true]
+        
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(keychainQuery as CFDictionary, &item)
+        guard status != errSecItemNotFound else {
+//            print("[Credentials.oldItemLookup] lookup error occurred: \(status.description)")
+            return [:]
+        }
+        guard status == errSecSuccess else { return [:] }
+        
+        guard let existingItem = item as? [String : Any],
+            let passwordData = existingItem[kSecValueData as String] as? Data,
+//            let account = existingItem[kSecAttrAccount as String] as? String,
+            let password = String(data: passwordData, encoding: String.Encoding.utf8)
+        else {
+            return [:]
+        }
+        userPassDict[account] = password
+        return userPassDict
+    }
+    
     func retrieve(service: String, account: String, whichServer: String = "source") -> [String:String] {
         
 //        print("[Credentials.retrieve] start search for: \(service)")
-        
-//        if !setting.fullGUI && (JamfProServer.sourceApiClient["id"] != "" && whichServer == "source" || JamfProServer.destApiClient["id"] != "" && whichServer == "dest") {
-//            if whichServer == "source" {
-//                return["\(String(describing: JamfProServer.sourceApiClient["id"]!))":"\(String(describing: JamfProServer.sourceApiClient["secret"]!))"]
-//            } else if whichServer == "dest" {
-//                return["\(String(describing: JamfProServer.destApiClient["id"]!))":"\(String(describing: JamfProServer.destApiClient["secret"]!))"]
-//            }
-//            return [:]
-//        }
-        
+
         var keychainResult = [String:String]()
         var theService = service
-        
-//        print("[credentials] JamfProServer.sourceApiClient: \(JamfProServer.sourceUseApiClient)")
-        
-//        switch whichServer {
-//        case "source":
-//            if JamfProServer.sourceUseApiClient == 1 {
-//                theService = "apiClient-" + theService
-//            }
-//        case "dest":
-//            if JamfProServer.destUseApiClient == 1 {
-//                theService = "apiClient-" + theService
-//            }
-//        default:
-//            break
-//        }
-        
+             
         userPassDict.removeAll()
         
-        var keychainItemName = ( whichServer == "" ) ?  theService:"JPMA-\(theService)"
+        var keychainItemName = ( useApiClient == 0 ) ? "JPMA-" + service:"\(prefix)-apiClient-" + service
 //        print("[credentials] keychainItemName: \(keychainItemName)")
         // look for common keychain item
         keychainResult = itemLookup(service: keychainItemName)
         // look for legacy keychain item
-        if keychainResult.count == 0 {
+        if keychainResult.count == 0 && useApiClient == 0 {
             keychainItemName = "\(prefix) - \(service)"
             keychainResult   = oldItemLookup(service: keychainItemName)
-            if keychainResult.count == 0 {
-                keychainItemName = "\(prefix)-\(service)"
-                keychainResult   = oldItemLookup(service: keychainItemName)
-                if keychainResult.count == 0 {
-                    keychainItemName = "\(prefix)-\(account)-\(service)"
-                    keychainResult   = oldItemLookup(service: keychainItemName)
-                    if keychainResult.count == 0 {
-                        keychainItemName = "JamfProApps-\(theService)"
-                        keychainResult   = itemLookup(service: keychainItemName)
-                        if keychainResult.count == 0 {
-                            keychainItemName = "\(sharedPrefix)-\(service)"
-                            keychainResult   = itemLookup(service: keychainItemName)
-                            if keychainResult.count == 0 {
-                                keychainItemName = "\(sharedPrefix)-\(account)-\(service)"
-                                keychainResult   = itemLookup(service: keychainItemName)
-                                
-                                if keychainResult.count == 0 {
-                                    keychainItemName = "\(sharedPrefix)-\(service)"
-                                    keychainResult   = oldItemLookup(service: keychainItemName)
-                                    if keychainResult.count == 0 {
-                                        keychainItemName = "\(sharedPrefix)-\(account)-\(service)"
-                                        keychainResult   = oldItemLookup(service: keychainItemName)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
         
         return keychainResult
@@ -198,7 +154,7 @@ class Credentials {
         guard status == errSecSuccess else { return [:] }
         
         guard let items = items_ref as? [[String: Any]] else {
-            print("[Credentials.itemLookup] unable to read keychain item: \(service)")
+//            print("[Credentials.itemLookup] unable to read keychain item: \(service)")
             return [:]
         }
         for item in items {
@@ -225,7 +181,7 @@ class Credentials {
         var item: CFTypeRef?
         let status = SecItemCopyMatching(keychainQuery as CFDictionary, &item)
         guard status != errSecItemNotFound else {
-            print("[Credentials.oldItemLookup] lookup error occurred for \(service): \(status.description)")
+//            print("[Credentials.oldItemLookup] lookup error occurred for \(service): \(status.description)")
             return [:]
         }
         guard status == errSecSuccess else { return [:] }
@@ -240,5 +196,4 @@ class Credentials {
         userPassDict[account] = password
         return userPassDict
     }
-
 }

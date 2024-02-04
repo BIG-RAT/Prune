@@ -19,8 +19,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     var theDeleteQ = OperationQueue() // queue for delete API calls
     
     @IBOutlet weak var jamfServer_TextField: NSTextField!
-    @IBOutlet weak var uname_TextField: NSTextField!
-    @IBOutlet weak var passwd_TextField: NSSecureTextField!
+//    @IBOutlet weak var uname_TextField: NSTextField!
+//    @IBOutlet weak var passwd_TextField: NSSecureTextField!
 //    @IBOutlet weak var savePassword_Button: NSButton!
     
     @IBOutlet weak var scan_Button: NSButton!
@@ -64,8 +64,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     // ex. masterObjectDict["packages"] = [package1Name:["id":id1,"name":name1],package2Name:["id":id2,"name":name2]]
     var masterObjectDict = [String:[String:[String:String]]]()
     var masterObjects    = ["advancedcomputersearches", "advancedmobiledevicesearches", "packages", "osxconfigurationprofiles", "scripts", "ebooks", "classes", "computerGroups", "macapplications", "policies", "restrictedsoftware", "computerextensionattributes", "mobileDeviceGroups", "mobiledeviceapplications", "mobiledeviceconfigurationprofiles", "computer-prestages", "patchpolicies", "patchsoftwaretitles", "mobiledeviceextensionattributes"]
-
-    var failedLookup = [String:[String]]()
     
     var unusedItems_TableArray: [String]?
     var unusedItems_TableDict: [[String:String]]?
@@ -97,6 +95,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     
     var msgText    = ""
     var nextObject = ""
+    
+    let myParagraphStyle = NSMutableParagraphStyle()
     
     let backgroundQ = DispatchQueue(label: "com.jamf.prune.backgroundQ", qos: DispatchQoS.background)
     
@@ -153,29 +153,26 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         unusedItems_TableArray?.removeAll()
         unusedItems_TableDict?.removeAll()
         
-        //        process_TextField.textColor   = NSColor.blue
         process_TextField.font        = NSFont(name: "HelveticaNeue", size: CGFloat(16))
         process_TextField.stringValue = ""
         
-        JamfProServer.source = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
-        jamfCreds            = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
+        jamfCreds            = "\(JamfProServer.username):\(JamfProServer.password)"
         let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
         jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
         completed            = 0
         
-        sourceServer = ServerInfo(url: jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: ""), username: uname_TextField.stringValue, password: passwd_TextField.stringValue, saveCreds: userDefaults.object(forKey: "saveCreds") as? Int ?? 0, useApiClient: 0)
+        sourceServer = ServerInfo(url: JamfProServer.source, username: JamfProServer.username, password: JamfProServer.password, saveCreds: defaults.object(forKey: "saveCreds") as? Int ?? 0, useApiClient: 0)
         
         if unusedItems_TableArray?.count == 0 {
             object_TableView.reloadData()
         }
         
+
         JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) { [self]
             (result: (Int,String)) in
             let (statusCode, theResult) = result
             if theResult == "success" {
                 DispatchQueue.main.async { [self] in
-                    userDefaults.set(JamfProServer.source, forKey: "server")
-                    userDefaults.set("\(uname_TextField.stringValue)", forKey: "username")
                     process_TextField.isHidden = false
                     process_TextField.stringValue = "Starting lookups..."
                 }
@@ -1741,8 +1738,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
 //                                }
                             } else {
-                                WriteToLog().message(theString: "[recursiveLookup.patch] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id)")
-                                failedLookupDict(theEndpoint: theEndpoint, theId: "\(id)")
+//                                WriteToLog().message(theString: "[recursiveLookup] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id).  Status code: \(statusCode)")
+//                                failedLookupDict(theEndpoint: theEndpoint, theId: "\(id)")
                             }
 
                             
@@ -2188,8 +2185,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 WriteToLog().message(theString: "[recursiveLookup] unknown endpoint: \(theEndpoint)")
                             }
                         } else {
-                            WriteToLog().message(theString: "[recursiveLookup] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id)")
-                            failedLookupDict(theEndpoint: theEndpoint, theId: "\(id)")
+//                            WriteToLog().message(theString: "[recursiveLookup] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id)")
+//                            failedLookupDict(theEndpoint: theEndpoint, theId: "\(id)")
                         }
                         
                         if index == objectArrayCount-1 {
@@ -2330,7 +2327,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             working(isWorking: false)
             self.process_TextField.isHidden = true
             if failedLookup.count > 0 {
-                _ = Alert().warning(header: "", message: "Some lookups failed, some items may be incorrectly listed.  Search the log for entries starting with:\n[recursiveLookup] Nothing returned for server:")
+                let noun = (failedLookup.count) == 1 ? "lookup":"lookups"
+                WriteToLog().message(theString: "[Failed Lookups] \(failedLookup.count) \(noun) failed")
+                _ = Alert().warning(header: "", message: "Some lookups failed, some items may be incorrectly listed.  Search the log for entries containing:\nNothing returned for server:")
             }
     //        print("unusedItems_TableDict: \(unusedItems_TableDict ?? [[:]])")
         }
@@ -2368,14 +2367,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //            self.processItems(type: nextItem)
 //        }
 //    }
-    
-    func failedLookupDict(theEndpoint: String, theId: String) {
-        if failedLookup[theEndpoint] == nil {
-            failedLookup[theEndpoint] = [theId]
-        } else {
-            failedLookup[theEndpoint]?.append(theId)
-        }
-    }
     
     // used when importing files
     func buildDictionary(type: String, used: String, data: [String:Any]) -> [String:Any] {
@@ -2575,7 +2566,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     jamfServer_TextField.stringValue = "\(value)"
                     JamfProServer.source = "\(value)"
                 case "username":
-                    uname_TextField.stringValue = "\(value)"
+                    JamfProServer.username = "\(value)"
                 default:
                     switch key {
                     case "unusedPackages":
@@ -2706,7 +2697,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         let failedExported:[String] = ["Failed Exported Items"]
         let exportQ = DispatchQueue(label: "com.jamf.prune.exportQ", qos: DispatchQoS.background)
         working(isWorking: true)
-        let header = "\"jamfServer\": \"\(JamfProServer.source)\",\n \"username\": \"\(uname_TextField.stringValue)\""
+        let header = "\"jamfServer\": \"\(JamfProServer.source)\",\n \"username\": \"\(JamfProServer.username)\""
         exportQ.sync {
             if self.packagesButtonState == "on" {
                 var firstPackage = true
@@ -3393,10 +3384,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         working(isWorking: true)
         
-        JamfProServer.source       = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
-        jamfCreds           = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
-        let jamfUtf8Creds   = jamfCreds.data(using: String.Encoding.utf8)
-        jamfBase64Creds     = (jamfUtf8Creds?.base64EncodedString())!
+        JamfProServer.source = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
+        jamfCreds            = "\(JamfProServer.username):\(JamfProServer.password)"
+        let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
+        jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
         
         theDeleteQ.maxConcurrentOperationCount = 4
         
@@ -3683,6 +3674,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     }
     
     func xmlAction(action: String, theServer: String, base64Creds: String, theCategory: String = "", theEndpoint: String, completion: @escaping (_ result: (Int,String)) -> Void) {
+        
 
         JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
             (result: (Int,String)) in
@@ -3758,10 +3750,18 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             } else {
                                 WriteToLog().message(theString: "[Xml.\(action.uppercased())] error HTTP Status Code: \(httpResponse.statusCode)\n")
+                                WriteToLog().message(theString: "[Xml.action] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                                if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
+                                    failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
+                                }
                                 completion((httpResponse.statusCode,""))
                             }
                         } else {
-        //                    WriteToLog().message(stringOfText: "[Xml.action] error parsing JSON for \(existingDestUrl)\n")
+                            WriteToLog().message(theString: "[Xml.action] no response from \(existingDestUrl)")
+                            WriteToLog().message(theString: "[Xml.action] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                            if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
+                                failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
+                            }
                             completion((0,""))
                         }   // if let httpResponse - end
                         semaphore.signal()
@@ -3774,52 +3774,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
         }
     }
-    
-//    var deleteQ = OperationQueue() // create operation queue for delete calls
-//    func removeFromJcds(fileId: String, completion: @escaping (_ result: String) -> Void) {
-//        if !jcds2PackageDict.contains(where: { $0.key == packageIdFileNameDict[fileId] }) {
-//            print("[removeFromJcds] \(String(describing: packageIdFileNameDict[fileId])) does not exist on the JCDS")
-//            completion("skipped")
-//            return
-//        }
-//        deleteQ.maxConcurrentOperationCount = 2
-//        let semaphore = DispatchSemaphore(value: 0)
-//        URLCache.shared.removeAllCachedResponses()
-//
-//        let encodedFilename = packageIdFileNameDict[fileId]?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
-//        if encodedFilename != "" {
-//            deleteQ.addOperation {
-//                var endpointPath = "\(JamfProServer.source)/api/v1/jcds/files/\(encodedFilename)"
-//                endpointPath = endpointPath.replacingOccurrences(of: "//api", with: "/api")
-//                
-//                let endpointUrl    = URL(string: "\(endpointPath)")
-//                let configuration  = URLSessionConfiguration.ephemeral
-//                var request        = URLRequest(url: endpointUrl!)
-//                request.httpMethod = "DELETE"
-//                configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(String(describing: JamfProServer.accessToken))", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
-//                
-//                print("[removeFromJcds] endpointUrl: \(endpointUrl?.absoluteString ?? "unknown")")
-////                print("[removeFromJcds] configuration.httpAdditionalHeaders: \(String(describing: configuration.httpAdditionalHeaders))")
-//                
-//                let session = Foundation.URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
-//                let task = session.dataTask(with: request as URLRequest, completionHandler: {
-//                    (data, response, error) -> Void in
-//                    session.finishTasksAndInvalidate()
-//                    if let httpResponse = response as? HTTPURLResponse {
-//                        print("[removeFromJcds] httpResponse: \(String(describing: httpResponse))")
-//                        WriteToLog().message(theString: "[removeFromJcds] status code from DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS: \(httpResponse.statusCode)")
-//                        print("[removeFromJcds] statusCode: \(httpResponse.statusCode)")
-//                    } else {
-//                        WriteToLog().message(theString: "[removeFromJcds] No response trying to DELETE \(String(describing: packageIdFileNameDict[fileId])) from the JCDS")
-//                    }
-//                    semaphore.signal()
-//                    completion("returned from removeFromJcds")
-//                })
-//                task.resume()
-//                semaphore.wait()
-//            }
-//        }
-//    }
     
     func allButtonsEnabledState(theState: Bool) {
         packages_Button.isEnabled              = theState
@@ -3936,9 +3890,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     }
         
     func updateProcessTextfield(currentCount: String) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [self] in
             let theText = self.process_TextField.stringValue.components(separatedBy: "...")[0]
-            self.process_TextField.stringValue = "\(theText)... \(currentCount)"
+            let progressText = NSMutableAttributedString(string: "\(theText)... \(currentCount)", attributes: [.paragraphStyle: myParagraphStyle])
+            self.process_TextField.attributedStringValue = progressText
+    
+//            self.process_TextField.stringValue = "\(theText)... \(currentCount)"
         }
     }
     
@@ -4107,15 +4064,16 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     }   // func viewSelectObject - end
     
     // Delegate Methods - start
-    func sendLoginInfo(loginInfo: (String,String,String,Int)) {
+    func sendLoginInfo(loginInfo: (String,String,String,String,Int)) {
         
         var saveCredsState: Int?
-        (jamfServer_TextField.stringValue,uname_TextField.stringValue,passwd_TextField.stringValue,saveCredsState) = loginInfo
+        (_, jamfServer_TextField.stringValue, _, _,saveCredsState) = loginInfo
+//        (_,jamfServer_TextField.stringValue,uname_TextField.stringValue,passwd_TextField.stringValue,saveCredsState) = loginInfo
         
-        let enteredServer = jamfServer_TextField.stringValue.replacingOccurrences(of: "://", with: "/")
+        let enteredServer = JamfProServer.source.replacingOccurrences(of: "://", with: "/")
         let tmpArray = enteredServer.components(separatedBy: "/")
-        if !(tmpArray.count > 1 && jamfServer_TextField.stringValue.contains("://")) {
-            Alert().display(header: "", message: "Invalid server URL.")
+        if !(tmpArray.count > 1 && JamfProServer.source.contains("://")) {
+            _ = Alert().display(header: "", message: "Invalid server URL.")
             DispatchQueue.main.async {
                 self.performSegue(withIdentifier: "loginView", sender: nil)
                 self.working(isWorking: false)
@@ -4124,25 +4082,29 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         
         JamfProServer.source = jamfServer_TextField.stringValue
-        jamfCreds            = "\(uname_TextField.stringValue):\(passwd_TextField.stringValue)"
+        jamfCreds            = "\(JamfProServer.username):\(JamfProServer.password)"
         let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
         jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
         
         saveCreds = (saveCredsState == 1) ? true:false
         // check authentication, set auth method - start
+
         JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) {
             (result: (Int,String)) in
             let (statusCode, theResult) = result
             if theResult == "success" {
                 DispatchQueue.main.async {
                     LoginWindow.show = false
+                    
+                    defaults.set(JamfProServer.source, forKey: "currentServer")
+                    defaults.set(JamfProServer.username, forKey: "username")
+                    useApiClient = 1
+                    
                     // save password if checked - start
                     if self.saveCreds {
-                        Credentials().save(service: JamfProServer.source.fqdnFromUrl, account: self.uname_TextField.stringValue, credential: self.passwd_TextField.stringValue)
+                        Credentials().save(service: JamfProServer.source.fqdnFromUrl, account: JamfProServer.username, credential: JamfProServer.password)
                     }
                     
-                    userDefaults.set(JamfProServer.source, forKey: "server")
-                    userDefaults.set("\(self.uname_TextField.stringValue)", forKey: "username")
                     self.logout = false
                     WriteToLog().message(theString: "[ViewController] successfully authenticated to \(JamfProServer.source)")
                     // save password if checked - end
@@ -4175,6 +4137,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         // Do any additional setup after loading the view.
         
         Log.file = getCurrentTime().replacingOccurrences(of: ":", with: "") + "_" + Log.file
+        myParagraphStyle.lineSpacing = 5
+        myParagraphStyle.alignment   = .center
         
         // create log directory if missing - start
         if !FileManager.default.fileExists(atPath: Log.path!) {

@@ -5,6 +5,9 @@ As your Jamf server ages it often accumulates more and more unused items, such a
 
 ![alt text](./images/pruneApp.png "Prune")
 
+In the event the server reply indicates an error occurred reading an object it will be logged and you will receive an alert indicating the results may be inaccurate.
+![alt text](./images/pruneWarning.png "prune warning")<br><br>
+
 Once the list of unused items is generated you can edit it within the app.  If you see an object you wish to keep, say some policy, simply option-click the item in the list.  The item will be removed from the list, and hence not removed from the server.  Perhaps you'd like to review the item on the server before deleting, not a problem, just double click the item and you'll be taken to it on the Jamf server (may need to authenticate first).
 
 ![alt text](./images/edit.png "modify/review")
@@ -99,6 +102,8 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
+2024-02-04 - v3.2.0: Update login window.  Add support for bearer token.  Provide an alert if some lookups fail, which may result in inaccurate results.
+
 2023-10-15 - v3.1.1: Fix issue #42.  Updated token refresh process to address issue #41 and update logging.
 
 2023-09-16 - v3.1.0: Fix issue #39, double quotes in display name.  Better handling of bearer token expiration.  Fix issue export to csv policies.  Enable the sharing of keychain items created with this app to other apps I write.

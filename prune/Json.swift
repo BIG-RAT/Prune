@@ -13,13 +13,13 @@ class Json: NSObject, URLSessionDelegate {
     let getRecordQ = OperationQueue() // DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
     
     func getRecord(theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: [String:AnyObject]) -> Void) {
-        print("[getRecord] record: \(theEndpoint)")
+
         if LoginWindow.show {
             getRecordQ.cancelAllOperations()
             NotificationCenter.default.post(name: .logoutNotification, object: self)
             return
         }
-
+        
         JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
             (result: (Int,String)) in
             let (statusCode, theResult) = result
@@ -66,19 +66,9 @@ class Json: NSObject, URLSessionDelegate {
                         if let httpResponse = response as? HTTPURLResponse {
 //                            print("[Json.getRecord] httpResponse for \(theEndpoint): \(String(describing: httpResponse))")
                             if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
-                                if theEndpoint == "jcds2Packages" {
-                                    jcds2PackageDict.removeAll()
-                                    if let responseData = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments) {
-                                        if let packagesJSON = responseData as? [Any] {
-                                            for thePackage in packagesJSON as! [[String:Any]] {
-                                                jcds2PackageDict[thePackage["fileName"] as! String] = "jcds2Package" as AnyObject
-                                            }
-                                        }
-                                    }
-                                    completion(jcds2PackageDict)
-                                } else {
                                     do {
                                         let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+//                                        print("[getRecord] json: \(String(describing: json))")
                                         if let endpointJSON = json as? [String:AnyObject] {
                                             //                                WriteToLog().message(theString: "[Json.getRecord] returned JSON: \(endpointJSON)")
                                             completion(endpointJSON)
@@ -91,19 +81,31 @@ class Json: NSObject, URLSessionDelegate {
                                             } else {
                                                 WriteToLog().message(theString: "[Json.getRecord] No data was returned from post/put")
                                             }
+                                            WriteToLog().message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                                            if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
+                                                failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
+                                            }
                                             completion([:])
                                         }
                                     }
-                                }
+//                                }
                             } else {
                                 WriteToLog().message(theString: "[Json.getRecord] error during GET, HTTP Status Code: \(httpResponse.statusCode)\n")
                                 if "\(httpResponse.statusCode)" == "401" {
-                                    Alert().display(header: "Alert", message: "Verify username and password.")
+                                    _ = Alert().display(header: "Alert", message: "Verify username and password.")
+                                }
+                                WriteToLog().message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                                if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
+                                    failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
                                 }
                                 completion([:])
                             }
                         } else {
                             WriteToLog().message(theString: "[Json.getRecord] no response for \(existingDestUrl)")
+                            WriteToLog().message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                            if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
+                                failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
+                            }
                             completion([:])
                         }   // if let httpResponse - end
                         semaphore.signal()
