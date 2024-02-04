@@ -5,6 +5,8 @@
 
 Download: [Prune](https://github.com/BIG-RAT/prune/releases/latest/download/prune.zip)
 
+Beta Download: [Beta v3.1.2-b2](https://github.com/BIG-RAT/Prune/releases/download/v3.1.2-b2/Prune_v3.1.2-b2.zip)
+
 As your Jamf server ages it often accumulates more and more unused items, such as outdated packages, unscoped policies, mobile device apps...  Use Prune to help identify and remove those unused items.
 
 ![alt text](./images/pruneApp.png "Prune")
