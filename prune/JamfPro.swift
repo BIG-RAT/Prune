@@ -13,7 +13,7 @@ class JamfPro: NSObject, URLSessionDelegate {
     var theUapiQ = OperationQueue() // create operation queue for API calls
     var clientType = "username / password"
         
-    func jpapiAction(serverUrl: String, endpoint: String, apiData: [String:Any], id: String, token: String, method: String, completion: @escaping (_ returnedJSON: [String: Any]) -> Void) {
+    func jpapiAction(serverUrl: String, endpoint: String, apiData: [String:Any], id: String = "", token: String = "", method: String, completion: @escaping (_ returnedJSON: [String: Any]) -> Void) {
         getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
             (result: (Int,String)) in
             let (statusCode, theResult) = result
@@ -33,7 +33,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                 var path = ""
                 
                 switch endpoint {
-                case  "buildings", "csa/token", "icon", "jamf-pro-version", "auth/invalidate-token":
+                case "app-installers/deployments", "buildings", "csa/token", "icon", "jamf-pro-version", "auth/invalidate-token":
                     path = "v1/\(endpoint)"
                 default:
                     path = "v2/\(endpoint)"
@@ -44,7 +44,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                 if id != "" && id != "0" {
                     urlString = urlString + "/\(id)"
                 }
-                //        print("[Jpapi] urlString: \(urlString)")
+                print("[Jpapi] urlString: \(urlString)")
                 
                 let url            = URL(string: "\(urlString)")
                 let configuration  = URLSessionConfiguration.ephemeral
@@ -61,15 +61,16 @@ class JamfPro: NSObject, URLSessionDelegate {
                 
 //                print("[jpapiAction] Attempting \(method) on \(urlString).")
                 
-                configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(token)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
+                configuration.httpAdditionalHeaders = ["Authorization" : "Bearer \(JamfProServer.accessToken)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]
                 let session = Foundation.URLSession(configuration: configuration, delegate: self as URLSessionDelegate, delegateQueue: OperationQueue.main)
                 let task = session.dataTask(with: request as URLRequest, completionHandler: {
                     (data, response, error) -> Void in
                     session.finishTasksAndInvalidate()
                     if let httpResponse = response as? HTTPURLResponse {
-//                        print("[jpapiAction] status code \(httpResponse.statusCode).")
+                        print("[jpapiAction] \(endpoint) - status code \(httpResponse.statusCode).")
                         if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                             let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+                            print("[Jpapi] json: \(String(describing: json))")
                             if let endpointJSON = json as? [String:Any] {
                                 completion(endpointJSON)
                                 return
@@ -144,7 +145,11 @@ class JamfPro: NSObject, URLSessionDelegate {
                         if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                             let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                             if let endpointJSON = json as? [[String:Any]] {
-                                completion(("success", endpointJSON))
+                                if endpoint == "app-instalers" {
+                                    completion(("success", endpointJSON))
+                                } else {
+                                    completion(("success", endpointJSON))
+                                }
                                 return
                             } else {
                                 completion(("failed",[["JPAPI_response":httpResponse.statusCode]]))

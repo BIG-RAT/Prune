@@ -731,7 +731,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                                             
             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                 msgText    = "mobile device profiles"
-                nextObject = "patchsoftwaretitles"
+//                nextObject = "patchsoftwaretitles"
+                nextObject = "app-installers"
                 
                 if (type == "mobiledeviceapplications" && self.mobileDeviceAppsButtonState == "on") || self.mobileDeviceGroupsButtonState == "on" || (type == "mobiledeviceconfigurationprofiles" && self.configurationProfilesButtonState == "on") {
                     var xmlTag = ""
@@ -792,13 +793,55 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                 } else {
                     // skip \(msgText)
-                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
+                    WriteToLog().message(theString: "[processItems] skipping \(type) - call \(nextObject)")
                     waitFor.mobiledeviceobject = false
                     DispatchQueue.main.async { [self] in
                         self.processItems(type: nextObject)
                     }
                 }
-                            
+                
+            case "app-installers":
+                    // look for groups used in app installers
+                    WriteToLog().message(theString: "[processItems] app-installers")
+                    let nextObject = "patchsoftwaretitles"
+                
+                    if computerGroupsButtonState == "on" {
+                        DispatchQueue.main.async {
+                               self.process_TextField.stringValue = "Fetching App Installers..."
+                        }
+
+                        var appInstallersArray = [[String:Any]]()
+                        
+                        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "app-installers/deployments", apiData: [:], method: "GET") {
+                            (returnedJSON: [String: Any]) in
+    //                        print("[processItems] patchsoftwaretitles apiGetAll result: \(result)")
+                            if let allAppInstallers = returnedJSON["results"] as? [[String:Any]] {
+                                for appInstaller in allAppInstallers {
+                                    let appInstallerName = appInstaller["name"] ?? "unknown"
+                                    if let smartGroup = appInstaller["smartGroup"] as? [String:String], let smartGroupName = smartGroup["name"], let smartGroupId = smartGroup["id"] {
+                                        WriteToLog().message(theString: "\(appInstallerName) is scoped to group \(smartGroupName)")
+                                        // mark group as unused
+                                        self.masterObjectDict["computerGroups"]![smartGroupName] = ["id":smartGroupId, "used":"true"]
+                                    }
+                                }
+                                WriteToLog().message(theString: "[processItems] app installers complete - call \(nextObject)")
+                                DispatchQueue.main.async {
+                                    self.processItems(type: nextObject)
+                                }
+                            } else {
+                                WriteToLog().message(theString: "[processItems] no app installers found - call \(nextObject)")
+                                DispatchQueue.main.async {
+                                    self.processItems(type: nextObject)
+                                }
+                            }
+                       }   //   Json().getRecord - patchpolicies - end
+                    } else {
+                       WriteToLog().message(theString: "[processItems] skipping app installers - call \(nextObject)")
+                       DispatchQueue.main.async {
+                           self.processItems(type: nextObject)
+                       }
+                    }
+                
             case "patchsoftwaretitles":
                 // look for packages used in patch policies
                 WriteToLog().message(theString: "[processItems] patchsoftwaretitles")
@@ -966,7 +1009,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                            self.processItems(type: nextObject)
                        }
                     }
-                
                 
             case "computer-prestages":
                 msgText    = "Computer Prestages"
