@@ -480,7 +480,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
     }
     
     func setWindowSize(setting: Int) {
-        print("[setWindowSize] setting: \(setting)")
+//        print("[setWindowSize] setting: \(setting)")
         if setting == 0 {
             preferredContentSize = CGSize(width: 518, height: 85)
             hideCreds_button.toolTip = "show username/password fields"
@@ -541,7 +541,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
 //        jamfProPassword_textfield.delegate = self
         
         lastServer = defaults.string(forKey: "currentServer") ?? ""
-        print("[viewDidLoad] lastServer: \(lastServer)")
+//        print("[viewDidLoad] lastServer: \(lastServer)")
         var foundServer = false
         
         useApiClient = defaults.integer(forKey: "sourceUseApiClient")

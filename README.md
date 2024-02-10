@@ -48,7 +48,7 @@ Once the list of unused items is generated you can edit it within the app.  If y
         </tr>
         <tr>
             <td>Computer Groups</td>
-            <td>Check for usage in policies, computer configuration profiles, computer groups, eBooks, restricted software, advanced searches, enabled state</td>
+            <td>Check for usage in policies, computer configuration profiles, computer groups, eBooks, restricted software, advanced searches, app installers, enabled state</td>
         </tr>
         <tr>
             <td>Computer Profiles</td>
@@ -100,13 +100,14 @@ Once the list of unused items is generated you can edit it within the app.  If y
 * **Policies** scoped only to users and/or user groups will show as unused due to an issue with the API (it doesn't list the users or user groups).
 * **Mac App** enabled/disabled state is not available via the API and thus not used to determine usage.
 * **Bookmarks** are not accessible via the API.  As a result groups that are only used to scope bookmarks will show as unused.
-* **App-Installer** are not available through the API.  As a result groups used for scoping may erroneously show as unused.
 
 Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Data/Library/Logs/Prune.log```
 
 <br><hr><br>
 
 ### History:
+2024-02-09 - v3.2.1: Query App Installers for groups used for scoping.
+
 2024-02-04 - v3.2.0: Update login window.  Add support for bearer token.  Provide an alert if some lookups fail, which may result in inaccurate results.
 
 2023-10-15 - v3.1.1: Fix issue #42.  Updated token refresh process to address issue #41 and update logging.

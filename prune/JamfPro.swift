@@ -44,7 +44,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                 if id != "" && id != "0" {
                     urlString = urlString + "/\(id)"
                 }
-                print("[Jpapi] urlString: \(urlString)")
+//                print("[Jpapi] urlString: \(urlString)")
                 
                 let url            = URL(string: "\(urlString)")
                 let configuration  = URLSessionConfiguration.ephemeral
@@ -67,10 +67,10 @@ class JamfPro: NSObject, URLSessionDelegate {
                     (data, response, error) -> Void in
                     session.finishTasksAndInvalidate()
                     if let httpResponse = response as? HTTPURLResponse {
-                        print("[jpapiAction] \(endpoint) - status code \(httpResponse.statusCode).")
+//                        print("[jpapiAction] \(endpoint) - status code \(httpResponse.statusCode).")
                         if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                             let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                            print("[Jpapi] json: \(String(describing: json))")
+//                            print("[Jpapi] json: \(String(describing: json))")
                             if let endpointJSON = json as? [String:Any] {
                                 completion(endpointJSON)
                                 return
