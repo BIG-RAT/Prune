@@ -1,5 +1,5 @@
 # Prune
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/BIG-RAT/prune?display_name=tag) ![GitHub all releases](https://img.shields.io/github/downloads/BIG-RAT/prune/total)  ![GitHub all releases](https://img.shields.io/github/downloads/BIG-RAT/prune/latest/total)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/BIG-RAT/prune?display_name=tag) ![GitHub all releases](https://img.shields.io/github/downloads/BIG-RAT/prune/total)  ![GitHub latest release](https://img.shields.io/github/downloads/BIG-RAT/prune/latest/total)
  ![GitHub issues](https://img.shields.io/github/issues-raw/BIG-RAT/prune) ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/BIG-RAT/prune) ![GitHub pull requests](https://img.shields.io/github/issues-pr-raw/BIG-RAT/jamfcpr) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed-raw/BIG-RAT/prune)
 
 
