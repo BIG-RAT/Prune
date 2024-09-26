@@ -62,13 +62,6 @@ struct LoginWindow {
     static var show = true
 }
 
-//struct token {
-//    static var refreshInterval:UInt32 = 20*60  // 20 minutes
-//    static var sourceServer  = ""
-//    static var sourceExpires = ""
-//    static var isValid       = false
-//}
-
 class ServerInfo: NSObject {
     var url: String
     var username: String

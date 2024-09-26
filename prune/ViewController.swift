@@ -19,9 +19,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     var theDeleteQ = OperationQueue() // queue for delete API calls
     
     @IBOutlet weak var jamfServer_TextField: NSTextField!
-//    @IBOutlet weak var uname_TextField: NSTextField!
-//    @IBOutlet weak var passwd_TextField: NSSecureTextField!
-//    @IBOutlet weak var savePassword_Button: NSButton!
     
     @IBOutlet weak var scan_Button: NSButton!
     @IBOutlet weak var view_PopUpButton: NSPopUpButton!
@@ -200,7 +197,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
         }
     }
-    
     
     @IBAction func showLogFolder(_ sender: Any) {
         isDir = true
@@ -4281,6 +4277,7 @@ extension ViewController: NSTableViewDelegate {
     
         if let cell = object_TableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: cellIdentifier), owner: nil) as? NSTableCellView {
             cell.textField?.stringValue = text
+            cell.toolTip = text
             return cell
         }
         return nil
