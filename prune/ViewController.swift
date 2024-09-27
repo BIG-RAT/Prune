@@ -2445,21 +2445,30 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         }
         
         self.masterObjectDict["\(category)"] = [String:[String:String]]()
-        
+        var theName = ""
+        var enabled = ""
         if let listOfUnused = data[type] {
             for theDict in listOfUnused as! [[String:String]] {
                 
                 // change theDict["name"] for disabled policies
-                
+                enabled = "true"
                 if type != "unusedComputerGroups" && type != "unusedMobileDeviceGroups" {
-//                    print("theDict[\"name\"]: \(String(describing: theDict["name"]!))")
-                    let theName = (type == "unusedPolicies") ? theDict["name"]!.replacingOccurrences(of: ")    [disabled]", with: ")"):theDict["name"]!
-//                    print("theName: \(String(describing: theName))\n")
-                    unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false"]
-                    masterObjectDict["\(category)"]![theName] = ["id":theDict["id"]!, "used":"false"]
-//                    unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false"]
-//                    masterObjectDict["\(category)"]![theDict["name"]!] = ["id":theDict["id"]!, "used":"false"]
-                    // self.masterObjectDict["scripts"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                    switch type {
+                    case "unusedPolicies", "unusedComputerEAs":
+                        let pattern = (type == "unusedPolicies") ? "\\d+\\) {4}+\\[disabled+\\]+$":" {4}+\\[disabled+\\]+$"
+                        var stringToMatch = "    [disabled]"
+                        if type == "unusedPolicies" {
+                            stringToMatch = ")\(stringToMatch)"
+                        }
+                        if theDict["name"]!.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil {
+                            enabled = "false"
+                        }
+                        theName = theDict["name"]!.replacingOccurrences(of: stringToMatch, with: ")")
+                    default:
+                        theName = theDict["name"]!
+                    }
+                    unusedItemsDictionary["\(theName)"] = ["id":theDict["id"]!,"used":"false", "enabled":enabled]
+                    masterObjectDict["\(category)"]![theName] = ["id":theDict["id"]!, "used":"false", "enabled":enabled]
                 } else {
                     unusedItemsDictionary[theDict["name"]!] = ["id":theDict["id"]!,"used":"false","groupType":theDict["groupType"]]
                     masterObjectDict["\(category)"]![theDict["name"]!] = ["id":theDict["id"]!,"used":"false"]
@@ -2539,7 +2548,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             importFile(fileURL: objPath)
 //            return
         } else {
-            print("present open dialog")
             // filetypes that are selectable
             let fileTypeArray: Array = ["json"]
 
@@ -2569,7 +2577,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     func importFile(fileURL: URL) {
     
         if (fileURL.path.suffix(5) != ".json") {
-            Alert().display(header: "Alert", message: "Import file type must be json")
+            _ = Alert().display(header: "Alert", message: "Import file type must be json")
             return
         }
         var isDir : ObjCBool = false
@@ -2579,6 +2587,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         do {
             setAllButtonsState(theState: "off")
             unusedItems_TableDict?.removeAll()
+            masterObjectDict.removeAll()
             let dataFile =  try Data(contentsOf:fileURL, options: .mappedIfSafe)
             let objectJSON = try JSONSerialization.jsonObject(with: dataFile, options: .mutableLeaves) as? [String:Any]
             
@@ -2740,12 +2749,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.packagesButtonState == "on" {
                 var firstPackage = true
                 let packageLogFile = "prunePackages_\(timeStamp).json"
-//                let packageLogFile = "prunePackages_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(packageLogFile)
 
                 do {
                     try "{\(header),\n \"unusedPackages\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let packageLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["packages"]!) {
@@ -2777,12 +2784,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.scriptsButtonState == "on" {
                 var firstScript = true
                 let scriptLogFile = "pruneScripts_\(timeStamp).json"
-//                let scriptLogFile = "pruneScripts_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(scriptLogFile)
 
                 do {
                     try "{\(header),\n \"unusedScripts\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedScripts>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let scriptLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["scripts"]!) {
@@ -2884,16 +2889,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.computerGroupsButtonState == "on" {
                 var firstComputerGroup = true
                 let computerGroupLogFile = "pruneComputerGroups_\(timeStamp).json"
-//                let computerGroupLogFile = "pruneComputerGroups_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(computerGroupLogFile)
 
                 do {
                     try "{\(header),\n \"unusedComputerGroups\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedComputerGroups>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let computerGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["computerGroups"]!) {
-    //                    for (key, _) in computerGroupsDict {
                             if masterObjectDict["computerGroups"]![key]?["used"]! == "false" {
                                 computerGroupLogFileOp.seekToEndOfFile()
     //                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"},\n"
@@ -2921,16 +2923,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.computerProfilesButtonState == "on" {
                 var firstComputerProfile = true
                 let ComputerProfileLogFile = "pruneComputerProfiles_\(timeStamp).json"
-//                let ComputerProfileLogFile = "pruneComputerProfiles_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(ComputerProfileLogFile)
 
                 do {
                     try "{\(header),\n \"unusedComputerProfiles\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedComputerProfiles>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let computerProfileLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["osxconfigurationprofiles"]!) {
-    //                   for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
                             if masterObjectDict["osxconfigurationprofiles"]![key]?["used"]! == "false" {
                                 computerProfileLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
@@ -2966,11 +2965,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
                 do {
                     try "{\(header),\n \"unusedMacApps\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let macAppLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["macapplications"]!) {
-    //                   for (key, _) in policiesDict {
                             if masterObjectDict["macapplications"]![key]?["used"]! == "false" {
                                 macAppLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
@@ -3000,20 +2997,21 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.policiesButtonState == "on" {
                 var firstPolicy = true
                 let policyLogFile = "prunePolicies_\(timeStamp).json"
-//                let policyLogFile = "prunePolicies_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(policyLogFile)
 
                 do {
                     try "{\(header),\n \"unusedPolicies\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedPackages>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let policyLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["policies"]!) {
-    //                   for (key, _) in policiesDict {
                             if masterObjectDict["policies"]![key]?["used"]! == "false" || masterObjectDict["policies"]![key]?["enabled"]! == "false" {
                                 policyLogFileOp.seekToEndOfFile()
 
-                                let displayName = (masterObjectDict["policies"]![key]?["enabled"]! == "true") ? key.escapeDoubleQuotes:"\(key.escapeDoubleQuotes)    [disabled]"
+                                var displayName = key.escapeDoubleQuotes
+                                if masterObjectDict["policies"]![key]?["enabled"]! == "false" {
+                                    displayName.append("    [disabled]")
+                                }
+
                                 if firstPolicy {
                                     text = "\t{\"id\": \"\(String(describing: masterObjectDict["policies"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
                                     firstPolicy = false
@@ -3044,11 +3042,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
                 do {
                     try "{\(header),\n \"unusedRestrictedSoftware\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedRestrictedSoftware>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["restrictedsoftware"]!) {
-    //                   for (key, _) in masterObjectDict["restrictedsoftware"]! {
                             if masterObjectDict["restrictedsoftware"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
@@ -3076,16 +3072,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.computerEAsButtonState == "on" {
                 var firstTitle = true
                 let rsLogFile = "pruneComputerEAs_\(timeStamp).json"
-//                let rsLogFile = "pruneRestrictedSoftware_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(rsLogFile)
 
                 do {
                     try "{\(header),\n \"unusedComputerEAs\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedRestrictedSoftware>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["computerextensionattributes"]!) {
-    //                   for (key, _) in masterObjectDict["restrictedsoftware"]! {
                             if masterObjectDict["computerextensionattributes"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
@@ -3113,16 +3106,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.mobileDeviceGroupsButtonState == "on" {
                 var firstMobileDeviceGrp = true
                 let mobileDeviceGroupLogFile = "pruneMobileDeviceGroups_\(timeStamp).json"
-//                let mobileDeviceGroupLogFile = "pruneComputerGroups_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(mobileDeviceGroupLogFile)
 
                 do {
                     try "{\(header),\n \"unusedMobileDeviceGroups\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedMobileDeviceGroups>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let mobileDeviceGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobileDeviceGroups"]!) {
-    //                   for (key, _) in mobileDeviceGroupsDict {
                             if masterObjectDict["mobileDeviceGroups"]![key]?["used"]! == "false" {
                                 mobileDeviceGroupLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"},\n"
@@ -3150,16 +3140,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.mobileDeviceAppsButtonState == "on" {
                 var firstMobileDeviceApp = true
                 let logFile = "pruneMobileDeviceApps_\(timeStamp).json"
-//                let logFile = "pruneComputerProfiles_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(logFile)
 
                 do {
                     try "{\(header),\n \"unusedMobileDeviceApps\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedMobileDeviceApps>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceapplications"]!) {
-    //                   for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
                             if masterObjectDict["mobiledeviceapplications"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
@@ -3187,16 +3174,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.configurationProfilesButtonState == "on" {
                 var firstConfigurationProfile = true
                 let logFile = "pruneMobileDeviceConfigurationProfiles_\(timeStamp).json"
-//                let logFile = "pruneMobileDeviceConfigurationProfiles_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(logFile)
 
                 do {
                     try "{\(header),\n \"unusedMobileDeviceConfigurationProfiles\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedMobileDeviceConfigurationProfiles>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceconfigurationprofiles"]!) {
-    //                    for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
                             if masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
@@ -3224,16 +3208,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if self.mobileDeviceEAsButtonState == "on" {
                 var firstTitle = true
                 let rsLogFile = "pruneMobileDeviceEAs_\(timeStamp).json"
-//                let rsLogFile = "pruneRestrictedSoftware_\(timeStamp).xml"
                 let exportURL = getDownloadDirectory().appendingPathComponent(rsLogFile)
 
                 do {
                     try "{\(header),\n \"unusedMobileDeviceEAs\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-//                    try "<unusedRestrictedSoftware>\n".write(to: exportURL, atomically: true, encoding: .utf8)
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceextensionattributes"]!) {
-    //                   for (key, _) in masterObjectDict["restrictedsoftware"]! {
                             if masterObjectDict["mobiledeviceextensionattributes"]![key]?["used"]! == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
