@@ -106,6 +106,8 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
+2024-09-26 - v3.2.2: Address crash when exporting after an import. Address title being truncated, full name appears as a tooltip.
+
 2024-02-09 - v3.2.1: Query App Installers for groups used for scoping.
 
 2024-02-04 - v3.2.0: Update login window.  Add support for bearer token.  Provide an alert if some lookups fail, which may result in inaccurate results.
