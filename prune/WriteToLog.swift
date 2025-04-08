@@ -1,9 +1,5 @@
 //
-//  WriteToLog.swift
-//  Prune
-//
-//  Created by Leslie Helou on 7/11/20.
-//  Copyright © 2019 jamf. All rights reserved.
+//  Copyright 2024 Jamf. All rights reserved.
 //
 
 import Foundation
@@ -14,22 +10,6 @@ class WriteToLog {
     let fm                    = FileManager()
     
     func logCleanup() {
-        // migrate log files from old location - start
-//        var isDirectory: ObjCBool = true
-////        print("[logCleanup] old log path: \(Log.path!)jamfcpr")
-//        if fm.fileExists(atPath: Log.path! + "jamfcpr", isDirectory: &isDirectory) {
-//            do {
-//                let oldLogFiles = try fm.contentsOfDirectory(atPath: Log.path! + "jamfcpr/")
-//                for oldLogFile in oldLogFiles {
-//                    print("[logCleanup] move old log: \(oldLogFile)")
-//                    try fm.moveItem(atPath: Log.path! + "jamfcpr/\(oldLogFile)", toPath: Log.path! + oldLogFile)
-//                }
-//                try fm.removeItem(atPath: Log.path! + "jamfcpr/")
-//            } catch {
-//                print("[logCleanup] error moving old log files from: \(Log.path!)jamfcpr")
-//            }
-//        }
-        // migrate log files from old location - end
         
         if didRun {
             var logArray: [String] = []
