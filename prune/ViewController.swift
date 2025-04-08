@@ -108,7 +108,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         LoginWindow.show = true
         JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.accessToken, method: "POST") { [self]
             (returnedJSON: [String:Any]) in
-            WriteToLog().message(theString: "logging out: \(String(describing: returnedJSON["JPAPI_result"]!))")
+            WriteToLog.shared.message(theString: "logging out: \(String(describing: returnedJSON["JPAPI_result"]!))")
             performSegue(withIdentifier: "loginView", sender: nil)
         }
     }
@@ -177,7 +177,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 for theObject in masterObjects {
                     masterObjectDict[theObject] = [String:[String:String]]()
                 }
-                WriteToLog().message(theString: "[Scan] start scanning...")
+                WriteToLog.shared.message(theString: "[Scan] start scanning...")
                 
                 if computerEAsButtonState == "on" {
                     processItems(type: "computerextensionattributes")
@@ -209,7 +209,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     
     func processItems(type: String) {
         
-        WriteToLog().message(theString: "[processItems] Starting to process \(type)")
+        WriteToLog.shared.message(theString: "[processItems] Starting to process \(type)")
 //        let semaphore = DispatchSemaphore(value: 0)
         theGetQ.maxConcurrentOperationCount = 4
         var groupType = ""
@@ -220,7 +220,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             case "computerextensionattributes","mobiledeviceextensionattributes":
                 var deviceText = ""
 
-                WriteToLog().message(theString: "[processItems] \(type)")
+                WriteToLog.shared.message(theString: "[processItems] \(type)")
                 switch type {
                 case "computerextensionattributes":
                     nextObject = "mobiledeviceextensionattributes"
@@ -258,7 +258,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                                if type == "computerextensionattributes" {
                                 let enabled = eaInfo.enabled.bool ?? true
 //                                }
-                                WriteToLog().message(theString: "\(deviceText.lowercased()) extension attribute title id: \(eaInfo.id.text!)      name: \(eaInfo.Name.text!)      enabled: \(enabled)")
+                                WriteToLog.shared.message(theString: "\(deviceText.lowercased()) extension attribute title id: \(eaInfo.id.text!)      name: \(eaInfo.Name.text!)      enabled: \(enabled)")
                                 let eaDisplayName = enabled ? name:"\(name)    [disabled]"
                                eaArray.append(["id": "\(id)", "name": "\(eaDisplayName)"])
                                // mark advanced search title as unused (reporting only)
@@ -272,7 +272,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                 } else {
                     // skip EAs
-                    WriteToLog().message(theString: "[processItems] skipping \(deviceText.lowercased()) extension attributes, calling - \(nextObject)")
+                    WriteToLog.shared.message(theString: "[processItems] skipping \(deviceText.lowercased()) extension attributes, calling - \(nextObject)")
                     DispatchQueue.main.async { [self] in
                         self.processItems(type: nextObject)
                     }
@@ -324,7 +324,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             DispatchQueue.main.async {
                                 self.process_TextField.stringValue = "Scanning for nested groups and extensions attributes..."
                             }
-                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                            WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                             self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint, theData: computerGroupsArray, index: 0)
                             waitFor.deviceGroup = true
                             self.backgroundQ.async { [self] in
@@ -333,7 +333,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     if !waitFor.deviceGroup {
                                         if type == "computerGroups" || (!computerGroupsScanned && computerEAsButtonState == "on") {
 //                                                print("[processItems] skipping \(type) - call mobileDeviceGroups")
-                                            WriteToLog().message(theString: "[processItems] skipping \(type) - call mobileDeviceGroups")
+                                            WriteToLog.shared.message(theString: "[processItems] skipping \(type) - call mobileDeviceGroups")
                                             computerGroupsScanned = true
                                             DispatchQueue.main.async {
                                                 self.processItems(type: "mobileDeviceGroups")
@@ -341,7 +341,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                             
                                         } else {
 //                                                print("[processItems] skipping \(type) - call packages")
-                                            WriteToLog().message(theString: "[processItems] skipping \(type) - call packages")
+                                            WriteToLog.shared.message(theString: "[processItems] skipping \(type) - call packages")
                                             DispatchQueue.main.async {
                                                 self.processItems(type: "packages")
                                             }
@@ -356,13 +356,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                 } else {
                     if type == "computerGroups" {
-                        WriteToLog().message(theString: "[processItems] skipping \(type) - call mobileDeviceGroups")
+                        WriteToLog.shared.message(theString: "[processItems] skipping \(type) - call mobileDeviceGroups")
                         DispatchQueue.main.async {
                             self.processItems(type: "mobileDeviceGroups")
                         }
                         
                     } else {
-                        WriteToLog().message(theString: "[processItems] skipping \(type) - call packages")
+                        WriteToLog.shared.message(theString: "[processItems] skipping \(type) - call packages")
                         DispatchQueue.main.async {
                             self.processItems(type: "packages")
                         }
@@ -399,7 +399,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         }
                                     }
                                     
-                                    WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                    WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                                     packageIdFileNameDict = [:]
                                     recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: packagesArray, index: 0)
                                     waitFor.packages = true
@@ -407,7 +407,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         while true {
                                             usleep(10)
                                             if !waitFor.packages {
-                                                WriteToLog().message(theString: "[processItems] packages complete - next object: scripts")
+                                                WriteToLog.shared.message(theString: "[processItems] packages complete - next object: scripts")
                                                 DispatchQueue.main.async { [self] in
                                                     self.processItems(type: "scripts")
                                                 }
@@ -420,7 +420,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     
                                 }
                             } else {
-                                WriteToLog().message(theString: "[processItems] call scripts")
+                                WriteToLog.shared.message(theString: "[processItems] call scripts")
                                 DispatchQueue.main.async {
                                     self.processItems(type: "scripts")
                                 }
@@ -447,13 +447,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         }
-                        WriteToLog().message(theString: "[processItems] call scripts")
+                        WriteToLog.shared.message(theString: "[processItems] call scripts")
                         DispatchQueue.main.async {
                             self.processItems(type: "scripts")
                         }
                     }
                 } else {
-                    WriteToLog().message(theString: "[processItems] skipping packages - call scripts")
+                    WriteToLog.shared.message(theString: "[processItems] skipping packages - call scripts")
                     DispatchQueue.main.async {
                         self.processItems(type: "scripts")
                     }
@@ -480,13 +480,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             }
                         }
                         
-                        WriteToLog().message(theString: "[processItems] scripts complete - call eBooks")
+                        WriteToLog.shared.message(theString: "[processItems] scripts complete - call eBooks")
                         DispatchQueue.main.async {
                             self.processItems(type: "ebooks")
                         }
                     }
                 } else {
-                    WriteToLog().message(theString: "[processItems] skipping scripts - call eBooks")
+                    WriteToLog.shared.message(theString: "[processItems] skipping scripts - call eBooks")
                     DispatchQueue.main.async {
                         self.processItems(type: "ebooks")
                     }
@@ -514,14 +514,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                             
-                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                            WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                             self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: ebooksArray, index: 0)
                             waitFor.ebook = true
                             self.backgroundQ.async { [self] in
                                 while true {
                                     usleep(10)
                                     if !waitFor.ebook {
-                                        WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                        WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
                                         DispatchQueue.main.async { [self] in
                                             self.processItems(type: nextObject)
                                         }
@@ -530,14 +530,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         } else {
-                            WriteToLog().message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
+                            WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
                             DispatchQueue.main.async { [self] in
                                 self.processItems(type: "\(nextObject)")
                             }
                         }
                     }
                 } else {
-                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
+                    WriteToLog.shared.message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
                     DispatchQueue.main.async { [self] in
                         self.processItems(type: "\(nextObject)")
                     }
@@ -565,14 +565,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                             
-                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                            WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                             self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: classesArray, index: 0)
                             waitFor.classes = true
                             self.backgroundQ.async { [self] in
                                 while true {
                                     usleep(10)
                                     if !waitFor.classes {
-                                        WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                        WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
                                         DispatchQueue.main.async { [self] in
                                             self.processItems(type: nextObject)
                                         }
@@ -581,14 +581,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         } else {
-                            WriteToLog().message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
+                            WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - call \(nextObject)")
                             DispatchQueue.main.async { [self] in
                                 self.processItems(type: "\(nextObject)")
                             }
                         }
                     }
                 } else {
-                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
+                    WriteToLog.shared.message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
                     DispatchQueue.main.async { [self] in
                         self.processItems(type: "\(nextObject)")
                     }
@@ -617,7 +617,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                                    while true {
 //                                        usleep(10)
 //                                        if !waitFor.computerConfiguration {
-//                                            WriteToLog().message(theString: "[processItems] computerConfigurations complete - call osxconfigurationprofiles")
+//                                            WriteToLog.shared.message(theString: "[processItems] computerConfigurations complete - call osxconfigurationprofiles")
 //                                            DispatchQueue.main.async {
 //                                                self.processItems(type: "osxconfigurationprofiles")
 //                                            }
@@ -628,14 +628,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //
 //                            } else {
 //                                // no computer configurations exist
-//                                WriteToLog().message(theString: "[processItems] no computerConfigurations - call osxconfigurationprofiles")
+//                                WriteToLog.shared.message(theString: "[processItems] no computerConfigurations - call osxconfigurationprofiles")
 //                                DispatchQueue.main.async {
 //                                    self.processItems(type: "osxconfigurationprofiles")
 //                                }
 //                            }
 //                        }   //         Json().getRecord - computerConfigurations - end
 //                    } else {
-//                        WriteToLog().message(theString: "[processItems] skipping computerConfigurations - call osxconfigurationprofiles")
+//                        WriteToLog.shared.message(theString: "[processItems] skipping computerConfigurations - call osxconfigurationprofiles")
 //                        DispatchQueue.main.async {
 //                            self.processItems(type: "osxconfigurationprofiles")
 //                        }
@@ -666,7 +666,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     while true {
                                         usleep(10)
                                         if !waitFor.osxconfigurationprofile {
-                                            WriteToLog().message(theString: "[processItems] osxconfigurationprofiles complete - call mobiledeviceapplications")
+                                            WriteToLog.shared.message(theString: "[processItems] osxconfigurationprofiles complete - call mobiledeviceapplications")
                                             if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGroupsButtonState == "on" {
                                                 DispatchQueue.main.async {
                                                     self.processItems(type: "mobiledeviceapplications")
@@ -680,12 +680,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         }   // if !waitFor.osxconfigurationprofile - end
                                     }
                                 }
-                                WriteToLog().message(theString: "[processItems] call recursiveLookup for osxconfigurationprofiles")
+                                WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for osxconfigurationprofiles")
                                 self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "osxconfigurationprofiles", theData: osxconfigurationprofilesArray, index: 0)
                             } else {
                                 // no computer profiles exist
                                 waitFor.osxconfigurationprofile = false
-                                WriteToLog().message(theString: "[processItems] computer configuration profiles complete - call mobiledeviceapplications")
+                                WriteToLog.shared.message(theString: "[processItems] computer configuration profiles complete - call mobiledeviceapplications")
                                 if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGroupsButtonState == "on" {
                                     DispatchQueue.main.async {
                                         self.processItems(type: "mobiledeviceapplications")
@@ -697,7 +697,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }   // if self.mobileDeviceAppsButtonState == "on" - end
                             }
                         } else {
-                            WriteToLog().message(theString: "[processItems] unable to read computer configuration profiles - call mobiledeviceapplications")
+                            WriteToLog.shared.message(theString: "[processItems] unable to read computer configuration profiles - call mobiledeviceapplications")
                             waitFor.osxconfigurationprofile = false
                             if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGroupsButtonState == "on" {
                                 DispatchQueue.main.async {
@@ -712,7 +712,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                 } else {
                     // skip computer configuration profiles
-                    WriteToLog().message(theString: "[processItems] skipping computer configuration profiles - call mobiledeviceapplications")
+                    WriteToLog.shared.message(theString: "[processItems] skipping computer configuration profiles - call mobiledeviceapplications")
                     waitFor.osxconfigurationprofile = false
                     if self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGroupsButtonState == "on" {
                         DispatchQueue.main.async {
@@ -762,7 +762,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     while true {
                                         usleep(10)
                                         if !waitFor.mobiledeviceobject {
-                                            WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                            WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
                                             DispatchQueue.main.async { [self] in
                                                 self.processItems(type: nextObject)
                                             }
@@ -770,17 +770,17 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         }
                                     }
                                 }
-                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                                 self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: mobileDeviceObjectArray, index: 0)
                             } else {
                                 // no computer configurations exist
-                                WriteToLog().message(theString: "[processItems] \(msgText) complete - \(nextObject)")
+                                WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - \(nextObject)")
                                 DispatchQueue.main.async { [self] in
                                     self.processItems(type: nextObject)
                                 }
                             }
                         } else {
-                            WriteToLog().message(theString: "[processItems] unable to read \(msgText) - \(nextObject)")
+                            WriteToLog.shared.message(theString: "[processItems] unable to read \(msgText) - \(nextObject)")
                             waitFor.mobiledeviceobject = false
                             DispatchQueue.main.async { [self] in
                                 self.processItems(type: nextObject)
@@ -789,7 +789,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                 } else {
                     // skip \(msgText)
-                    WriteToLog().message(theString: "[processItems] skipping \(type) - call \(nextObject)")
+                    WriteToLog.shared.message(theString: "[processItems] skipping \(type) - call \(nextObject)")
                     waitFor.mobiledeviceobject = false
                     DispatchQueue.main.async { [self] in
                         self.processItems(type: nextObject)
@@ -798,7 +798,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 
             case "app-installers":
                     // look for groups used in app installers
-                    WriteToLog().message(theString: "[processItems] app-installers")
+                    WriteToLog.shared.message(theString: "[processItems] app-installers")
                     let nextObject = "patchsoftwaretitles"
                 
                     if computerGroupsButtonState == "on" {
@@ -815,24 +815,24 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 for appInstaller in allAppInstallers {
                                     let appInstallerName = appInstaller["name"] ?? "unknown"
                                     if let smartGroup = appInstaller["smartGroup"] as? [String:String], let smartGroupName = smartGroup["name"], let smartGroupId = smartGroup["id"] {
-                                        WriteToLog().message(theString: "\(appInstallerName) is scoped to group \(smartGroupName)")
+                                        WriteToLog.shared.message(theString: "\(appInstallerName) is scoped to group \(smartGroupName)")
                                         // mark group as unused
                                         self.masterObjectDict["computerGroups"]![smartGroupName] = ["id":smartGroupId, "used":"true"]
                                     }
                                 }
-                                WriteToLog().message(theString: "[processItems] app installers complete - call \(nextObject)")
+                                WriteToLog.shared.message(theString: "[processItems] app installers complete - call \(nextObject)")
                                 DispatchQueue.main.async {
                                     self.processItems(type: nextObject)
                                 }
                             } else {
-                                WriteToLog().message(theString: "[processItems] no app installers found - call \(nextObject)")
+                                WriteToLog.shared.message(theString: "[processItems] no app installers found - call \(nextObject)")
                                 DispatchQueue.main.async {
                                     self.processItems(type: nextObject)
                                 }
                             }
                        }   //   Json().getRecord - patchpolicies - end
                     } else {
-                       WriteToLog().message(theString: "[processItems] skipping app installers - call \(nextObject)")
+                       WriteToLog.shared.message(theString: "[processItems] skipping app installers - call \(nextObject)")
                        DispatchQueue.main.async {
                            self.processItems(type: nextObject)
                        }
@@ -840,7 +840,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 
             case "patchsoftwaretitles":
                 // look for packages used in patch policies
-                WriteToLog().message(theString: "[processItems] patchsoftwaretitles")
+                WriteToLog.shared.message(theString: "[processItems] patchsoftwaretitles")
         //        let nextObject = "patchsoftwaretitles"
                 let nextObject = "patchpolicies"
 //                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
@@ -860,7 +860,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 let id   = "\(patchSoftwareTitleConfig["id"] ?? "")"
                                 let name = "\(patchSoftwareTitleConfig["displayName"] ?? "")"
                                 if id != "" && name != "" {
-                                    WriteToLog().message(theString: "software patch policy id: \(id) \t name: \(name)")
+                                    WriteToLog.shared.message(theString: "software patch policy id: \(id) \t name: \(name)")
                                     patchPoliciesArray.append(["id": "\(id)", "name": "\(name)"])
                                     // mark patch policies as unused (reporting only) - start
                                     self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -879,7 +879,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     while true {
                                         usleep(10)
                                         if !waitFor.patchSoftwareTitles {
-                                            WriteToLog().message(theString: "[processItems] patch software titles complete - call \(nextObject)")
+                                            WriteToLog.shared.message(theString: "[processItems] patch software titles complete - call \(nextObject)")
                                             DispatchQueue.main.async {
                                                 self.processItems(type: nextObject)
                                             }
@@ -887,18 +887,18 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         }
                                     }
                                 }    // self.backgroundQ.async - end
-                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                                 self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
                                 
                             } else {
                                 // no patch policies exist
-                                WriteToLog().message(theString: "[processItems] no patch software titles - call \(nextObject)")
+                                WriteToLog.shared.message(theString: "[processItems] no patch software titles - call \(nextObject)")
                                 DispatchQueue.main.async {
                                     self.processItems(type: nextObject)
                                 }
                             }
                         } else {
-                            WriteToLog().message(theString: "[processItems] error reading patch software titles - call \(nextObject)")
+                            WriteToLog.shared.message(theString: "[processItems] error reading patch software titles - call \(nextObject)")
                             DispatchQueue.main.async {
                                 self.processItems(type: nextObject)
                             }
@@ -919,7 +919,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                        for thePolicy in parsedXmlData.patch_software_titles.patch_software_title {
 //                            if let id = thePolicy.id.text, let name = thePolicy.Name.text {
 //
-//                                WriteToLog().message(theString: "patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
+//                                WriteToLog.shared.message(theString: "patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
 //                                patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
 //                                // mark patch policies as unused (reporting only) - start
 //                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -929,7 +929,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
                    }   //         Json().getRecord - patchpolicies - end
                 } else {
-                   WriteToLog().message(theString: "[processItems] skipping patch software titles - call \(nextObject)")
+                   WriteToLog.shared.message(theString: "[processItems] skipping patch software titles - call \(nextObject)")
                    DispatchQueue.main.async {
                        self.processItems(type: nextObject)
                    }
@@ -937,7 +937,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 
             case "patchpolicies":
                     // look for groups used in patch policies
-                    WriteToLog().message(theString: "[processItems] patchpolicies")
+                    WriteToLog.shared.message(theString: "[processItems] patchpolicies")
                     let nextObject = "computer-prestages"
                     if computerGroupsButtonState == "on" {
                         DispatchQueue.main.async {
@@ -961,7 +961,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                            for thePolicy in parsedXmlData.patch_policies {
                                 if let id = thePolicy.id.text, let name = thePolicy.Name.text {
 
-                                    WriteToLog().message(theString: "patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
+                                    WriteToLog.shared.message(theString: "patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
                                     patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
                                     // mark patch policies as unused (reporting only) - start
                                     self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -980,7 +980,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                    while true {
                                        usleep(10)
                                        if !waitFor.policy {
-                                           WriteToLog().message(theString: "[processItems] patch policies complete - call \(nextObject)")
+                                           WriteToLog.shared.message(theString: "[processItems] patch policies complete - call \(nextObject)")
                                            DispatchQueue.main.async {
                                                self.processItems(type: nextObject)
                                            }
@@ -988,19 +988,19 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                        }
                                    }
                                }
-                               WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                               WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
                                
                            } else {
                                // no patch policies exist
-                               WriteToLog().message(theString: "[processItems] no patch policies - call \(nextObject)")
+                               WriteToLog.shared.message(theString: "[processItems] no patch policies - call \(nextObject)")
                                DispatchQueue.main.async {
                                    self.processItems(type: nextObject)
                                }
                            }
                        }   //         Json().getRecord - patchpolicies - end
                     } else {
-                       WriteToLog().message(theString: "[processItems] skipping patch policies - call \(nextObject)")
+                       WriteToLog.shared.message(theString: "[processItems] skipping patch policies - call \(nextObject)")
                        DispatchQueue.main.async {
                            self.processItems(type: nextObject)
                        }
@@ -1024,10 +1024,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         if let _ = result[xmlTag] {
                             let prestageObjectArray = result[xmlTag] as! [[String: Any]]
                             let prestageObjectArrayCount = prestageObjectArray.count
-                            WriteToLog().message(theString: "[processItems] scanning computer prestages for packages and configuration profiles.")
-                            WriteToLog().message(theString: "[processItems] found \(prestageObjectArrayCount) prestages.")
+                            WriteToLog.shared.message(theString: "[processItems] scanning computer prestages for packages and configuration profiles.")
+                            WriteToLog.shared.message(theString: "[processItems] found \(prestageObjectArrayCount) prestages.")
                             if prestageObjectArrayCount > 0 {
-                                WriteToLog().message(theString: "[processItems] scanning computer prestages for packages and computer profiles.")
+                                WriteToLog.shared.message(theString: "[processItems] scanning computer prestages for packages and computer profiles.")
                                 for i in (0..<prestageObjectArrayCount) {
                                     self.updateProcessTextfield(currentCount: "\n(\(i+1)/\(prestageObjectArrayCount))")
                                     if let id = prestageObjectArray[i]["id"], let displayName = prestageObjectArray[i]["displayName"] {
@@ -1037,19 +1037,19 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                             if self.packagesButtonState == "on" {
                                                 if let customPackageIds = prestageObjectArray[i]["customPackageIds"] as? [String] {
                                                 //                                                print("prestage \(displayName) has the following package ids \(customPackageIds)")
-                                                    WriteToLog().message(theString: "[processItems] prestage \(displayName) has \(customPackageIds.count) packages")
+                                                    WriteToLog.shared.message(theString: "[processItems] prestage \(displayName) has \(customPackageIds.count) packages")
                                                     
                                                     for prestagePackageId in customPackageIds {
         //                                                        print("mark package \(String(describing: self.packagesByIdDict[prestagePackageId]!)) as used.")
                                                         if self.packagesByIdDict[prestagePackageId] != nil {
                                                             self.masterObjectDict["packages"]!["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
                                                         } else {
-                                                            WriteToLog().message(theString: "[processItems] Appears package id \(prestagePackageId) does not exist.")
+                                                            WriteToLog.shared.message(theString: "[processItems] Appears package id \(prestagePackageId) does not exist.")
                                                         }
                                                     }
                                                     
                                                 } else {
-                                                    WriteToLog().message(theString: "[processItems] prestage \(displayName) has no packages")
+                                                    WriteToLog.shared.message(theString: "[processItems] prestage \(displayName) has no packages")
                                                 }
                                             }
                                         
@@ -1067,19 +1067,19 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         }
                                     }
                                 }
-                                WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
                                 DispatchQueue.main.async { [self] in
                                     self.processItems(type: nextObject)
                                 }
                             } else {
                                 // no computer Prestage exist
-                                WriteToLog().message(theString: "[processItems] \(msgText) complete - \(nextObject)")
+                                WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - \(nextObject)")
                                 DispatchQueue.main.async { [self] in
                                     self.processItems(type: nextObject)
                                 }
                             }
                         } else {
-                            WriteToLog().message(theString: "[processItems] unable to read \(msgText) - \(nextObject)")
+                            WriteToLog.shared.message(theString: "[processItems] unable to read \(msgText) - \(nextObject)")
                             waitFor.computerPrestage = false
                             DispatchQueue.main.async { [self] in
                                 self.processItems(type: nextObject)
@@ -1088,7 +1088,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                 } else {
                     // skip computer-prestages
-                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - \(nextObject)")
+                    WriteToLog.shared.message(theString: "[processItems] skipping \(msgText) - \(nextObject)")
                     waitFor.computerPrestage = false
                     DispatchQueue.main.async { [self] in
                         self.processItems(type: nextObject)
@@ -1096,7 +1096,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 }
         
         case "restrictedsoftware":
-            WriteToLog().message(theString: "[processItems] restrictedsoftware")
+            WriteToLog.shared.message(theString: "[processItems] restrictedsoftware")
             let nextObject = "advancedcomputersearches"
             if self.restrictedSoftwareButtonState == "on" || self.computerGroupsButtonState == "on" {
                DispatchQueue.main.async {
@@ -1120,7 +1120,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                        if let id = rsPolicy.id.text, let name = rsPolicy.Name.text {
 
 //                               print("restricted software title id: \(rsPolicy.id.text!) \t name: \(rsPolicy.Name.text!)")
-                           WriteToLog().message(theString: "restricted software title id: \(rsPolicy.id.text!)      name: \(rsPolicy.Name.text!)")
+                           WriteToLog.shared.message(theString: "restricted software title id: \(rsPolicy.id.text!)      name: \(rsPolicy.Name.text!)")
                            restrictedsoftwareArray.append(["id": "\(rsPolicy.id.text!)", "name": "\(rsPolicy.Name.text!)"])
                            // mark restricted software title as unused (reporting only)
                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -1133,14 +1133,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                            self.process_TextField.stringValue = "Scanning Restricted Software for groups..."
                        }
                     
-                       WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                       WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                        self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: restrictedsoftwareArray, index: 0)
                        waitFor.policy = true
                        self.backgroundQ.async {
                            while true {
                                usleep(10)
                                if !waitFor.policy {
-                                   WriteToLog().message(theString: "[processItems] restricted software configurations complete - call \(nextObject)")
+                                   WriteToLog.shared.message(theString: "[processItems] restricted software configurations complete - call \(nextObject)")
                                    DispatchQueue.main.async {
                                        self.processItems(type: nextObject)
                                    }
@@ -1151,7 +1151,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                        
                    } else {
                        // no restricted software configurations exist
-                       WriteToLog().message(theString: "[processItems] no restricted software configurations - call \(nextObject)")
+                       WriteToLog.shared.message(theString: "[processItems] no restricted software configurations - call \(nextObject)")
                        DispatchQueue.main.async {
                            self.processItems(type: nextObject)
                        }
@@ -1159,14 +1159,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                }
             } else {
                 // skip restrictedsoftware
-                WriteToLog().message(theString: "[processItems] skipping restricted software, calling - \(nextObject)")
+                WriteToLog.shared.message(theString: "[processItems] skipping restricted software, calling - \(nextObject)")
                 DispatchQueue.main.async {
                     self.processItems(type: nextObject)
                 }
             }
             
             case "advancedcomputersearches":
-                WriteToLog().message(theString: "[processItems] \(type)")
+                WriteToLog.shared.message(theString: "[processItems] \(type)")
                 let nextObject = "advancedmobiledevicesearches"
                 if self.computerGroupsButtonState == "on" || self.computerEAsButtonState == "on" {
                    DispatchQueue.main.async {
@@ -1190,7 +1190,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                            if let id = acsPolicy.id.text, let name = acsPolicy.Name.text {
 
     //                               print("restricted software title id: \(acsPolicy.id.text!) \t name: \(acsPolicy.Name.text!)")
-                               WriteToLog().message(theString: "advanced computer search title id: \(acsPolicy.id.text!)      name: \(acsPolicy.Name.text!)")
+                               WriteToLog.shared.message(theString: "advanced computer search title id: \(acsPolicy.id.text!)      name: \(acsPolicy.Name.text!)")
                                advancedcomputersearchArray.append(["id": "\(acsPolicy.id.text!)", "name": "\(acsPolicy.Name.text!)"])
                                // mark advanced computer search title as unused (reporting only)
                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -1203,14 +1203,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                self.process_TextField.stringValue = "Scanning Advanced Computer Searches for groups..."
                            }
                         
-                           WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                           WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                            self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: advancedcomputersearchArray, index: 0)
                            waitFor.advancedsearch = true
                            self.backgroundQ.async {
                                while true {
                                    usleep(10)
                                    if !waitFor.advancedsearch {
-                                       WriteToLog().message(theString: "[processItems] advanced computer searches complete - call \(nextObject)")
+                                       WriteToLog.shared.message(theString: "[processItems] advanced computer searches complete - call \(nextObject)")
                                        DispatchQueue.main.async {
                                            self.processItems(type: nextObject)
                                        }
@@ -1222,7 +1222,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                            
                        } else {
                            // no restricted software configurations exist
-                           WriteToLog().message(theString: "[processItems] no advanced computer searches - call \(nextObject)")
+                           WriteToLog.shared.message(theString: "[processItems] no advanced computer searches - call \(nextObject)")
                            DispatchQueue.main.async {
                                self.processItems(type: nextObject)
                            }
@@ -1230,14 +1230,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                    }
                 } else {
                     // skip restrictedsoftware
-                    WriteToLog().message(theString: "[processItems] skipping advanced computer searches, calling - \(nextObject)")
+                    WriteToLog.shared.message(theString: "[processItems] skipping advanced computer searches, calling - \(nextObject)")
                     DispatchQueue.main.async {
                         self.processItems(type: nextObject)
                     }
                 }
                 
             case "advancedmobiledevicesearches":
-                WriteToLog().message(theString: "[processItems] \(type)")
+                WriteToLog.shared.message(theString: "[processItems] \(type)")
                 let nextObject = "macapplications"
                 if self.mobileDeviceGroupsButtonState == "on" || self.mobileDeviceEAsButtonState == "on" {
                    DispatchQueue.main.async {
@@ -1261,7 +1261,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                            if let id = amds.id.text, let name = amds.Name.text {
 
     //                               print("restricted software title id: \(acsPolicy.id.text!) \t name: \(acsPolicy.Name.text!)")
-                               WriteToLog().message(theString: "advanced mobile device search title id: \(id)      name: \(name)")
+                               WriteToLog.shared.message(theString: "advanced mobile device search title id: \(id)      name: \(name)")
                                advancedsearchArray.append(["id": "\(id)", "name": "\(name)"])
                                // mark advanced computer search title as unused (reporting only)
                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
@@ -1274,14 +1274,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                self.process_TextField.stringValue = "Scanning Advanced Mobile Device Searches for groups..."
                            }
                         
-                           WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                           WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                            self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: advancedsearchArray, index: 0)
                            waitFor.advancedsearch = true
                            self.backgroundQ.async {
                                while true {
                                    usleep(10)
                                    if !waitFor.advancedsearch {
-                                       WriteToLog().message(theString: "[processItems] advanced mobile device searches complete - call \(nextObject)")
+                                       WriteToLog.shared.message(theString: "[processItems] advanced mobile device searches complete - call \(nextObject)")
                                        DispatchQueue.main.async {
                                            self.processItems(type: nextObject)
                                        }
@@ -1293,7 +1293,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                            
                        } else {
                            // no restricted software configurations exist
-                           WriteToLog().message(theString: "[processItems] no advanced mobile device searches - call \(nextObject)")
+                           WriteToLog.shared.message(theString: "[processItems] no advanced mobile device searches - call \(nextObject)")
                            DispatchQueue.main.async {
                                self.processItems(type: nextObject)
                            }
@@ -1301,7 +1301,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                    }
                 } else {
                     // skip restrictedsoftware
-                    WriteToLog().message(theString: "[processItems] skipping advanced mobile device searches, calling - \(nextObject)")
+                    WriteToLog.shared.message(theString: "[processItems] skipping advanced mobile device searches, calling - \(nextObject)")
                     DispatchQueue.main.async {
                         self.processItems(type: nextObject)
                     }
@@ -1329,14 +1329,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
                                 }
 
-                                WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                                WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                                 self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: macAppsArray, index: 0)
                                 waitFor.macApps = true
                                 self.backgroundQ.async { [self] in
                                     while true {
                                         usleep(10)
                                         if !waitFor.macApps {
-                                            WriteToLog().message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
+                                            WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - next object: \(nextObject)")
                                             DispatchQueue.main.async { [self] in
                                                 self.processItems(type: nextObject)
                                             }
@@ -1346,13 +1346,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             } else {
                                 // no computer configurations exist
-                                WriteToLog().message(theString: "[processItems] \(msgText) complete - \(nextObject)")
+                                WriteToLog.shared.message(theString: "[processItems] \(msgText) complete - \(nextObject)")
                                 DispatchQueue.main.async { [self] in
                                     self.processItems(type: nextObject)
                                 }
                             }
                         } else {
-                            WriteToLog().message(theString: "[processItems] unable to read \(msgText) - \(nextObject)")
+                            WriteToLog.shared.message(theString: "[processItems] unable to read \(msgText) - \(nextObject)")
                             waitFor.macApps = false
                             DispatchQueue.main.async { [self] in
                                 self.processItems(type: nextObject)
@@ -1361,7 +1361,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                 } else {
                     // skip \(msgText)
-                    WriteToLog().message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
+                    WriteToLog.shared.message(theString: "[processItems] skipping \(msgText) - call \(nextObject)")
                     waitFor.macApps = false
                     DispatchQueue.main.async { [self] in
                         self.processItems(type: nextObject)
@@ -1405,14 +1405,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 self.process_TextField.stringValue = "Scanning policies for packages, scripts, computer groups..."
                             }
                         
-                            WriteToLog().message(theString: "[processItems] call recursiveLookup for \(type)")
+                            WriteToLog.shared.message(theString: "[processItems] call recursiveLookup for \(type)")
                             self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "policies", theData: policiesArray, index: 0)
                             waitFor.policy = true
                             self.backgroundQ.async { [self] in
                                 while true {
                                     usleep(10)
                                     if !waitFor.policy && !waitFor.osxconfigurationprofile {
-                                        WriteToLog().message(theString: "[processItems] policies complete - call unused")
+                                        WriteToLog.shared.message(theString: "[processItems] policies complete - call unused")
                                         generateReportItems()
                                         /*
                                         var reportItems = [[String:[String:[String:String]]]]()
@@ -1468,13 +1468,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 
                         } else {
                             // no policies found
-                            WriteToLog().message(theString: "[processItems] no policies found or policies not searched")
+                            WriteToLog.shared.message(theString: "[processItems] no policies found or policies not searched")
                             waitFor.policy = false
                             self.backgroundQ.async { [self] in
                                 while true {
                                     usleep(10)
                                     if !waitFor.policy && !waitFor.osxconfigurationprofile {
-                                        WriteToLog().message(theString: "[processItems] policies complete - call unused")
+                                        WriteToLog.shared.message(theString: "[processItems] policies complete - call unused")
                                         generateReportItems()
                                         /*
                                         var reportItems = [[String:[String:[String:String]]]]()
@@ -1536,7 +1536,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         while true {
                             usleep(10)
                             if !waitFor.policy && !waitFor.osxconfigurationprofile {
-                                WriteToLog().message(theString: "[processItems] policies complete - call unused")
+                                WriteToLog.shared.message(theString: "[processItems] policies complete - call unused")
                                 generateReportItems()
                                 /*
                                 var reportItems = [[String:[String:[String:String]]]]()
@@ -1593,7 +1593,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 // object that have a scope - end
                     
                 default:
-                    WriteToLog().message(theString: "[default] unknown item, exiting...")
+                    WriteToLog.shared.message(theString: "[default] unknown item, exiting...")
                     DispatchQueue.main.async {
                         NSApplication.shared.terminate(self)
                         self.processItems(type: "initialize")
@@ -1689,14 +1689,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         case "mobiledeviceconfigurationprofiles":
             objectEndpoint = "mobiledeviceconfigurationprofiles/id"
         default:
-            WriteToLog().message(theString: "[recursiveLookup] unknown endpoint: [\(theEndpoint)]")
+            WriteToLog.shared.message(theString: "[recursiveLookup] unknown endpoint: [\(theEndpoint)]")
             return
         }
                     
         let theObject = objectArray[index]
-        WriteToLog().message(theString: "[recursiveLookup] start parsing \(theObject)")
+        WriteToLog.shared.message(theString: "[recursiveLookup] start parsing \(theObject)")
         if let id = theObject["id"], let name = theObject["name"] {
-            WriteToLog().message(theString: "[recursiveLookup] \(index+1) of \(objectArrayCount)\t lookup: name \(name) - id \(id)")
+            WriteToLog.shared.message(theString: "[recursiveLookup] \(index+1) of \(objectArrayCount)\t lookup: name \(name) - id \(id)")
             updateProcessTextfield(currentCount: "\n(\(index+1)/\(objectArrayCount))")
 
             switch theEndpoint {
@@ -1776,7 +1776,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
 //                                }
                             } else {
-//                                WriteToLog().message(theString: "[recursiveLookup] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id).  Status code: \(statusCode)")
+//                                WriteToLog.shared.message(theString: "[recursiveLookup] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id).  Status code: \(statusCode)")
 //                                failedLookupDict(theEndpoint: theEndpoint, theId: "\(id)")
                             }
 
@@ -2006,7 +2006,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 
                             case "macapplications":
                                 // enabled/disabled state of Mac Apps is not visible in the api
-                                WriteToLog().message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
+                                WriteToLog.shared.message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
                                 
                                 let macAppsXml = result["mac_application"] as! [String:AnyObject]
                                 
@@ -2122,7 +2122,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 // check of used computergroups - end
                                 
                             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
-                                WriteToLog().message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
+                                WriteToLog.shared.message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
                                 
                                 let theMobileDeviceObjectXml = (theEndpoint == "mobiledeviceapplications") ? result["mobile_device_application"] as! [String:AnyObject]:result["configuration_profile"] as! [String:AnyObject]
                                 
@@ -2154,7 +2154,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 // check of used mobiledevicegroups - end
                                 
                             case "restrictedsoftware":
-                                WriteToLog().message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
+                                WriteToLog.shared.message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
                                 
                                 let restrictedsoftwareObjectXml = result["restricted_software"] as! [String:AnyObject]
                                 
@@ -2187,7 +2187,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 
                                 /*
                                  case "advancedcomputersearches":
-                                     WriteToLog().message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
+                                     WriteToLog.shared.message(theString: "[recursiveLookup] check usage for \(theEndpoint)")
                                      
                                      let restrictedsoftwareObjectXml = result["advancedcomputersearch"] as! [String:AnyObject]
                                      
@@ -2220,10 +2220,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                  */
                                 
                             default:
-                                WriteToLog().message(theString: "[recursiveLookup] unknown endpoint: \(theEndpoint)")
+                                WriteToLog.shared.message(theString: "[recursiveLookup] unknown endpoint: \(theEndpoint)")
                             }
                         } else {
-//                            WriteToLog().message(theString: "[recursiveLookup] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id)")
+//                            WriteToLog.shared.message(theString: "[recursiveLookup] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id)")
 //                            failedLookupDict(theEndpoint: theEndpoint, theId: "\(id)")
                         }
                         
@@ -2250,7 +2250,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                                 waitFor.mobiledeviceobject = false
                             default:
-                                WriteToLog().message(theString: "[index == objectArrayCount-1] unknown endpoint: \(theEndpoint)")
+                                WriteToLog.shared.message(theString: "[index == objectArrayCount-1] unknown endpoint: \(theEndpoint)")
                             }
                         } else {
                             // check the next item
@@ -2260,7 +2260,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
             
         } else {   // if let id = theObject["id"], let name = theObject["name"] - end
-            WriteToLog().message(theString: "[recursiveLookup] unable to identify id and/or name of object")
+            WriteToLog.shared.message(theString: "[recursiveLookup] unable to identify id and/or name of object")
             if index == objectArrayCount-1 {
                 switch theEndpoint {
                 case "computergroups", "mobiledevicegroups":
@@ -2280,7 +2280,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                     waitFor.mobiledeviceobject = false
                 default:
-                    WriteToLog().message(theString: "[index == objectArrayCount-1] unknown endpoint: \(theEndpoint)")
+                    WriteToLog.shared.message(theString: "[index == objectArrayCount-1] unknown endpoint: \(theEndpoint)")
                 }
             } else {
                 // check the next item
@@ -2366,7 +2366,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             self.process_TextField.isHidden = true
             if failedLookup.count > 0 {
                 let noun = (failedLookup.count) == 1 ? "lookup":"lookups"
-                WriteToLog().message(theString: "[Failed Lookups] \(failedLookup.count) \(noun) failed")
+                WriteToLog.shared.message(theString: "[Failed Lookups] \(failedLookup.count) \(noun) failed")
                 _ = Alert().warning(header: "", message: "Some lookups failed, some items may be incorrectly listed.  Search the log for entries containing:\nNothing returned for server:")
             }
     //        print("unusedItems_TableDict: \(unusedItems_TableDict ?? [[:]])")
@@ -2400,7 +2400,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //            }
 //        }
 //
-//        WriteToLog().message(theString: "[processItems] scripts complete - call \(nextItem)")
+//        WriteToLog.shared.message(theString: "[processItems] scripts complete - call \(nextItem)")
 //        DispatchQueue.main.async {
 //            self.processItems(type: nextItem)
 //        }
@@ -2666,7 +2666,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
 
         } catch {
-            WriteToLog().message(theString: "file read error")
+            WriteToLog.shared.message(theString: "file read error")
             return
         }
     }
@@ -2710,19 +2710,19 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 
                 if selectedObjects.firstIndex(of: key.lowercased()) != nil {
 //                    print("export \(key)")
-                    WriteToLog().message(theString: "exporting \(key)")
+                    WriteToLog.shared.message(theString: "exporting \(key)")
                     for (theObject, objectInfo) in dictOfObjects {
                         if key == "policies" {
                             if objectInfo["used"] == "false" || objectInfo["enabled"] == "false" {
                                 unusedObjects.append("\"\(key)\",\"\(theObject)\"\n")
-                                WriteToLog().message(theString: "    \(theObject)")
+                                WriteToLog.shared.message(theString: "    \(theObject)")
                             } else {
-//                                WriteToLog().message(theString: "*** \(objectInfo)\n")
+//                                WriteToLog.shared.message(theString: "*** \(objectInfo)\n")
                             }
                         } else {
                             if objectInfo["used"] == "false" {
                                 unusedObjects.append("\"\(key)\",\"\(theObject)\"\n")
-                                WriteToLog().message(theString: "    \(theObject)")
+                                WriteToLog.shared.message(theString: "    \(theObject)")
                             }
                         }
                     }
@@ -2777,7 +2777,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Packages")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedPackages>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedPackages>")
                 }
             }
             
@@ -2812,7 +2812,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Scripts")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedScripts>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedScripts>")
                 }
             }
             
@@ -2847,7 +2847,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused eBooks")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedEbooks>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedEbooks>")
                 }
             }
             
@@ -2882,7 +2882,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Classes")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedClasses>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedClasses>")
                 }
             }
             
@@ -2916,7 +2916,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Computer Groups")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedComputerGroups>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedComputerGroups>")
                 }
             }   // if self.computerGroupsButtonState == "on" - end
                         
@@ -2951,7 +2951,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Computer Configuration Profiles")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedComputerProfiles>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedComputerProfiles>")
                 }
             }   // if self.computerGroupsButtonState == "on" - end
             
@@ -2990,7 +2990,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Mac Apps")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedMacApps>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedMacApps>")
                 }
             }
             
@@ -3030,7 +3030,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Policies")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedPolicies>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedPolicies>")
                 }
             }
             
@@ -3065,7 +3065,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Restricted Software")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedRestrictedSoftware>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedRestrictedSoftware>")
                 }
             }
             
@@ -3099,7 +3099,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Computer EAs")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedComputerEAs>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedComputerEAs>")
                 }
             }
                         
@@ -3133,7 +3133,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Mobile Device Groups")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceGroups>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedMobileDeviceGroups>")
                 }
             }   // if self.mobileDeviceGroupsButtonState == "on" - end
             
@@ -3167,7 +3167,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Mobile Device Apps")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceApps>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedMobileDeviceApps>")
                 }
             }   // if self.mobileDeviceAppsButtonState == "on" - end
                         
@@ -3201,7 +3201,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Mobile Device Configuration Profiles")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceConfigurationProfiles>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedMobileDeviceConfigurationProfiles>")
                 }
             }   // if self.configurationProfilesButtonState == "on" - end
             
@@ -3235,7 +3235,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportedItems.append("\tUnused Mobile Device EAs")
                     }
                 } catch {
-                    WriteToLog().message(theString: "failed to write the following: <unusedMobileDeviceEAs>")
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedMobileDeviceEAs>")
                 }
             }
             
@@ -3274,15 +3274,15 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                               print("check for option key - success")
                                     withOptionKey = true
                                 }
-                                WriteToLog().message(theString: "[removeObject_Action]      itemDict: \(itemName) and type \(objectType)")
-                                WriteToLog().message(theString: "[removeObject_Action] withOptionKey: \(withOptionKey)")
+                                WriteToLog.shared.message(theString: "[removeObject_Action]      itemDict: \(itemName) and type \(objectType)")
+                                WriteToLog.shared.message(theString: "[removeObject_Action] withOptionKey: \(withOptionKey)")
                                 
                                 switch objectType {
                                     case "packages":
                                         if withOptionKey {
                                             self.masterObjectDict["packages"]!.removeValue(forKey: itemName)
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                     
@@ -3290,7 +3290,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                             self.masterObjectDict["scripts"]!.removeValue(forKey: itemName)
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                         
@@ -3298,7 +3298,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                             self.masterObjectDict["ebooks"]!.removeValue(forKey: itemName)
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                         
@@ -3306,7 +3306,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                             self.masterObjectDict["classes"]!.removeValue(forKey: itemName)
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                     
@@ -3314,7 +3314,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                           self.masterObjectDict["computerGroups"]!.removeValue(forKey: itemName)
                                         } else {
-                                          WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                          WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                           return
                                         }
                                     
@@ -3322,7 +3322,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                           self.masterObjectDict["osxconfigurationprofiles"]?.removeValue(forKey: itemName)
                                         } else {
-                                          WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                          WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                           return
                                         }
                                     
@@ -3330,7 +3330,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                             self.masterObjectDict["policies"]?.removeValue(forKey: itemName.replacingOccurrences(of: ")    [disabled]", with: ")"))
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                     
@@ -3338,7 +3338,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                             self.masterObjectDict["restrictedsoftware"]?.removeValue(forKey: itemName)
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                     
@@ -3346,7 +3346,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                             self.masterObjectDict["computerextensionattributes"]?.removeValue(forKey: itemName)
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
 
@@ -3354,7 +3354,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                             self.masterObjectDict["mobileDeviceGroups"]!.removeValue(forKey: itemName)
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
 
@@ -3362,7 +3362,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                             self.masterObjectDict["mobiledeviceapplications"]?.removeValue(forKey: itemName)
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                     
@@ -3370,7 +3370,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         if withOptionKey {
                                             self.masterObjectDict[objectType]?.removeValue(forKey: itemName)
                                         } else {
-                                            WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                             return
                                         }
                                     
@@ -3378,12 +3378,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     if withOptionKey {
                                         self.masterObjectDict["mobiledeviceextensionattributes"]?.removeValue(forKey: itemName)
                                     } else {
-                                        WriteToLog().message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                        WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
                                         return
                                     }
 
                                     default:
-                                        WriteToLog().message(theString: "[removeObject_Action] unknown objectType: \(String(describing: self.removeObject_Action))")
+                                        WriteToLog.shared.message(theString: "[removeObject_Action] unknown objectType: \(String(describing: self.removeObject_Action))")
                                         return
                                 }
                             self.unusedItems_TableDict?.remove(at: theRow)
@@ -3417,7 +3417,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["packages"]! {
                 if masterObjectDict["packages"]![key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["packages"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove package with id: \(key)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove package with id: \(key)")
                     masterItemsToDeleteArray.append(["packages":id])
                 }
             }
@@ -3428,7 +3428,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["scripts"]! {
                 if masterObjectDict["scripts"]![key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove script with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove script with id: \(id)")
                     masterItemsToDeleteArray.append(["scripts":id])
                 }
             }
@@ -3438,7 +3438,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["computerGroups"]! {
                 if masterObjectDict["computerGroups"]![key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove computer group with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove computer group with id: \(id)")
                     masterItemsToDeleteArray.append(["computergroups":id])
                 }
             }
@@ -3448,7 +3448,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
                 if masterObjectDict["osxconfigurationprofiles"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove computer configuration profile with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove computer configuration profile with id: \(id)")
                     masterItemsToDeleteArray.append(["osxconfigurationprofiles":id])
                 }
             }
@@ -3458,7 +3458,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["ebooks"]! {
                 if masterObjectDict["ebooks"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove eBook with id: \(key)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove eBook with id: \(key)")
                     masterItemsToDeleteArray.append(["ebooks":id])
                 }
             }
@@ -3468,7 +3468,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["policies"]! {
                 if masterObjectDict["policies"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["policies"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove policy with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove policy with id: \(id)")
                     masterItemsToDeleteArray.append(["policies":id])
                 }
             }
@@ -3478,7 +3478,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["restrictedsoftware"]! {
                 if masterObjectDict["restrictedsoftware"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove restricted software with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove restricted software with id: \(id)")
                     masterItemsToDeleteArray.append(["restrictedsoftware":id])
                 }
             }
@@ -3488,7 +3488,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["computerextensionattributes"]! {
                 if masterObjectDict["computerextensionattributes"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["computerextensionattributes"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove computer extension attribute with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove computer extension attribute with id: \(id)")
                     masterItemsToDeleteArray.append(["computerextensionattributes":id])
                 }
             }
@@ -3498,7 +3498,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["mobileDeviceGroups"]! {
                 if masterObjectDict["mobileDeviceGroups"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove mobile device group with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove mobile device group with id: \(id)")
                     masterItemsToDeleteArray.append(["mobiledevicegroups":id])
                 }
             }
@@ -3508,7 +3508,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
                 if masterObjectDict["mobiledeviceapplications"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove mobile device application with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove mobile device application with id: \(id)")
                     masterItemsToDeleteArray.append(["mobiledeviceapplications":id])
                 }
             }
@@ -3518,7 +3518,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
                 if masterObjectDict["mobiledeviceconfigurationprofiles"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove mobile device configuration profile with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove mobile device configuration profile with id: \(id)")
                     masterItemsToDeleteArray.append(["mobiledeviceconfigurationprofiles":id])
                 }
             }
@@ -3528,7 +3528,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["classes"]! {
                 if masterObjectDict["classes"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["classes"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove class with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove class with id: \(id)")
                     masterItemsToDeleteArray.append(["classes":id])
                 }
             }
@@ -3538,7 +3538,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             for (key, _) in masterObjectDict["mobiledeviceextensionattributes"]! {
                 if masterObjectDict["mobiledeviceextensionattributes"]?[key]?["used"] == "false" {
                     let id = "\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]!["id"]!))"
-                    WriteToLog().message(theString: "[remove_Action] remove mobile device extension attribute with id: \(id)")
+                    WriteToLog.shared.message(theString: "[remove_Action] remove mobile device extension attribute with id: \(id)")
                     masterItemsToDeleteArray.append(["mobiledeviceextensionattributes":id])
                 }
             }
@@ -3576,7 +3576,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                            self.process_TextField.stringValue = "\nProcessed item \(counter+1) of \(masterItemsToDeleteArray.count)"
 //                        }
 //                        if category == "packages" {
-//                            WriteToLog().message(theString: "[remove_Action] removing \(category) from JCDS")
+//                            WriteToLog.shared.message(theString: "[remove_Action] removing \(category) from JCDS")
 //                        }
                         xmlAction(action: "DELETE", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theCategory: category, theEndpoint: "\(category)/id/\(id)") {
                             (xmlResult: (Int,String)) in
@@ -3589,10 +3589,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     return
                                 }
                                 failedDeleteCount+=1
-                                WriteToLog().message(theString: "[remove_Action] failed to removed category \(category) with id: \(id)")
+                                WriteToLog.shared.message(theString: "[remove_Action] failed to removed category \(category) with id: \(id)")
                             } else {
                                 deleteCount+=1
-                                WriteToLog().message(theString: "[remove_Action] removed category \(category) with id: \(id)")
+                                WriteToLog.shared.message(theString: "[remove_Action] removed category \(category) with id: \(id)")
                             }
                             self.counter += 1
                             
@@ -3708,8 +3708,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 existingDestUrl = "\(theServer)/JSSResource/\(theEndpoint)"
                 existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
                 
-        //        if LogLevel.debug { WriteToLog().message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
-                WriteToLog().message(theString: "[Xml.\(action.uppercased())] existing endpoint URL: \(existingDestUrl)")
+        //        if LogLevel.debug { WriteToLog.shared.message(stringOfText: "[Json.getRecord] Looking up: \(existingDestUrl)\n") }
+                WriteToLog.shared.message(theString: "[Xml.\(action.uppercased())] existing endpoint URL: \(existingDestUrl)")
                 let destEncodedURL = URL(string: existingDestUrl)
                 let xmlRequest     = NSMutableURLRequest(url: destEncodedURL! as URL)
                 
@@ -3742,11 +3742,11 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                                 do {
                                     if action == "DELETE" {
-                                        WriteToLog().message(theString: "[Xml.\(action.uppercased())] successfully removed: \(theEndpoint) from Jamf Pro")
+                                        WriteToLog.shared.message(theString: "[Xml.\(action.uppercased())] successfully removed: \(theEndpoint) from Jamf Pro")
 //                                        if theCategory == "packages" {
 //                                            let endpointArray = theEndpoint.components(separatedBy: "/")
 //                                            if endpointArray.count == 3 {
-//                                                WriteToLog().message(theString: "[remove_Action] removing \(String(describing: packageIdFileNameDict[endpointArray[2]])) from JCDS")
+//                                                WriteToLog.shared.message(theString: "[remove_Action] removing \(String(describing: packageIdFileNameDict[endpointArray[2]])) from JCDS")
 //                                                removeFromJcds(fileId: endpointArray[2]) {
 //                                                    (result: String) in
 //                                                    print("[xmlAction.removeFromJcds] result: \(result)")
@@ -3761,23 +3761,23 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                             completion((httpResponse.statusCode,returnedXML))
 //                                        }
                                     } else {
-                                        WriteToLog().message(theString: "[Xml.\(action.uppercased())] successfully retrieved: \(theEndpoint)")
+                                        WriteToLog.shared.message(theString: "[Xml.\(action.uppercased())] successfully retrieved: \(theEndpoint)")
                                         let returnedXML = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
                                         
                                         completion((httpResponse.statusCode,returnedXML))
                                     }
                                 }
                             } else {
-                                WriteToLog().message(theString: "[Xml.\(action.uppercased())] error HTTP Status Code: \(httpResponse.statusCode)\n")
-                                WriteToLog().message(theString: "[Xml.action] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                                WriteToLog.shared.message(theString: "[Xml.\(action.uppercased())] error HTTP Status Code: \(httpResponse.statusCode)\n")
+                                WriteToLog.shared.message(theString: "[Xml.action] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
                                 if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
                                     failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
                                 }
                                 completion((httpResponse.statusCode,""))
                             }
                         } else {
-                            WriteToLog().message(theString: "[Xml.action] no response from \(existingDestUrl)")
-                            WriteToLog().message(theString: "[Xml.action] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                            WriteToLog.shared.message(theString: "[Xml.action] no response from \(existingDestUrl)")
+                            WriteToLog.shared.message(theString: "[Xml.action] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
                             if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
                                 failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
                             }
@@ -3989,7 +3989,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
                         for (_, objectType) in itemDict as [String:String] {
                             
-                            WriteToLog().message(theString: "[viewSelectObject] open itemDict: \(itemName) of type \(objectType) in browser")
+                            WriteToLog.shared.message(theString: "[viewSelectObject] open itemDict: \(itemName) of type \(objectType) in browser")
                             
                             switch objectType {
                                 case "packages":
@@ -4072,7 +4072,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
 
                                 default:
-                                    WriteToLog().message(theString: "[viewSelectObject] unknown objectType: \(String(describing: self.removeObject_Action))")
+                                    WriteToLog.shared.message(theString: "[viewSelectObject] unknown objectType: \(String(describing: self.removeObject_Action))")
                                     return
                             }
                         }
@@ -4125,7 +4125,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                     
                     self.logout = false
-                    WriteToLog().message(theString: "[ViewController] successfully authenticated to \(JamfProServer.source)")
+                    WriteToLog.shared.message(theString: "[ViewController] successfully authenticated to \(JamfProServer.source)")
                     // save password if checked - end
                 }
             } else {
@@ -4176,9 +4176,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         }
         
         let appBuild          = Bundle.main.infoDictionary!["CFBundleVersion"] as! String
-        WriteToLog().message(theString: "-------------------------------------------------------")
-        WriteToLog().message(theString: "-     Prune Version: \(AppInfo.version) Build: \(appBuild )")
-        WriteToLog().message(theString: "-------------------------------------------------------")
+        WriteToLog.shared.message(theString: "-------------------------------------------------------")
+        WriteToLog.shared.message(theString: "-     Prune Version: \(AppInfo.version) Build: \(appBuild )")
+        WriteToLog.shared.message(theString: "-------------------------------------------------------")
         
         object_TableView.delegate     = self
         object_TableView.dataSource   = self

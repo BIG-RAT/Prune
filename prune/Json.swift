@@ -46,7 +46,7 @@ class Json: NSObject, URLSessionDelegate {
                     }
                 }
                 
-                WriteToLog().message(theString: "[Json.getRecord] get existing endpoints URL: \(existingDestUrl)")
+                WriteToLog.shared.message(theString: "[Json.getRecord] get existing endpoints URL: \(existingDestUrl)")
                 let destEncodedURL = URL(string: existingDestUrl)
                 let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
                 
@@ -70,18 +70,18 @@ class Json: NSObject, URLSessionDelegate {
                                         let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
 //                                        print("[getRecord] json: \(String(describing: json))")
                                         if let endpointJSON = json as? [String:AnyObject] {
-                                            //                                WriteToLog().message(theString: "[Json.getRecord] returned JSON: \(endpointJSON)")
+                                            //                                WriteToLog.shared.message(theString: "[Json.getRecord] returned JSON: \(endpointJSON)")
                                             completion(endpointJSON)
                                         } else {
-                                            WriteToLog().message(theString: "[Json.getRecord] error parsing JSON for \(existingDestUrl)")
+                                            WriteToLog.shared.message(theString: "[Json.getRecord] error parsing JSON for \(existingDestUrl)")
                                             if let _ = String(data: data!, encoding: .utf8) {
                                                 let responseData = String(data: data!, encoding: .utf8)!
-                                                WriteToLog().message(theString: "[Json.getRecord] full response from GET:\n\(responseData)")
+                                                WriteToLog.shared.message(theString: "[Json.getRecord] full response from GET:\n\(responseData)")
                                                 //                        print("create data response: \(responseData)")
                                             } else {
-                                                WriteToLog().message(theString: "[Json.getRecord] No data was returned from post/put")
+                                                WriteToLog.shared.message(theString: "[Json.getRecord] No data was returned from post/put")
                                             }
-                                            WriteToLog().message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                                            WriteToLog.shared.message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
                                             if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
                                                 failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
                                             }
@@ -90,19 +90,19 @@ class Json: NSObject, URLSessionDelegate {
                                     }
 //                                }
                             } else {
-                                WriteToLog().message(theString: "[Json.getRecord] error during GET, HTTP Status Code: \(httpResponse.statusCode)\n")
+                                WriteToLog.shared.message(theString: "[Json.getRecord] error during GET, HTTP Status Code: \(httpResponse.statusCode)\n")
                                 if "\(httpResponse.statusCode)" == "401" {
                                     _ = Alert().display(header: "Alert", message: "Verify username and password.")
                                 }
-                                WriteToLog().message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                                WriteToLog.shared.message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
                                 if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
                                     failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
                                 }
                                 completion([:])
                             }
                         } else {
-                            WriteToLog().message(theString: "[Json.getRecord] no response for \(existingDestUrl)")
-                            WriteToLog().message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
+                            WriteToLog.shared.message(theString: "[Json.getRecord] no response for \(existingDestUrl)")
+                            WriteToLog.shared.message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
                             if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
                                 failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
                             }

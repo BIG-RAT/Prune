@@ -49,7 +49,7 @@ class Credentials {
                         if (addStatus != errSecSuccess) {
                             if let addErr = SecCopyErrorMessageString(addStatus, nil) {
                                 print("[addStatus] Write failed for service \(service), account \(account): \(addErr)")
-                                WriteToLog().message(theString: "Write failed for service \(service), account \(account): \(addErr).")
+                                WriteToLog.shared.message(theString: "Write failed for service \(service), account \(account): \(addErr).")
                             }
                         }
                     } else {
@@ -64,13 +64,13 @@ class Credentials {
                             let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
                             if (updateStatus != errSecSuccess) {
                                 if let updateErr = SecCopyErrorMessageString(updateStatus, nil) {
-                                    WriteToLog().message(theString: "keychain item for service \(service), account \(account), failed to update.")
+                                    WriteToLog.shared.message(theString: "keychain item for service \(service), account \(account), failed to update.")
                                 } else {
-                                    WriteToLog().message(theString: "keychain item for service \(service), account \(account), has been updated.")
+                                    WriteToLog.shared.message(theString: "keychain item for service \(service), account \(account), has been updated.")
                                 }
                             }
                         } else {
-                            WriteToLog().message(theString: "keychain item for service \(service), account \(account), is up-to-date.")
+                            WriteToLog.shared.message(theString: "keychain item for service \(service), account \(account), is up-to-date.")
                         }
                     }
                 }

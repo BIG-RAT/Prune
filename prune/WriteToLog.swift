@@ -6,7 +6,11 @@ import Foundation
 import os.log
 
 class WriteToLog {
-    var logFileW: FileHandle? = FileHandle(forUpdatingAtPath: (Log.path! + Log.file))
+    
+    static let shared = WriteToLog()
+    private init() { }
+    
+//    var logFileW: FileHandle? = FileHandle(forUpdatingAtPath: (Log.path! + Log.file))
     let fm                    = FileManager()
     
     func logCleanup() {
@@ -26,12 +30,12 @@ class WriteToLog {
                 // remove old log files
                 if logCount-1 >= Log.maxFiles {
                     for i in (0..<logCount-Log.maxFiles) {
-                        WriteToLog().message(theString: "Deleting log file: " + logArray[i] + "\n")
+                        WriteToLog.shared.message(theString: "Deleting log file: " + logArray[i] + "\n")
                         do {
                             try fm.removeItem(atPath: logArray[i])
                         }
                         catch let error as NSError {
-                            WriteToLog().message(theString: "Error deleting log file:\n    " + logArray[i] + "\n    \(error)\n")
+                            WriteToLog.shared.message(theString: "Error deleting log file:\n    " + logArray[i] + "\n    \(error)\n")
                         }
                     }
                 }
@@ -44,17 +48,35 @@ class WriteToLog {
                 try fm.removeItem(atPath: Log.path! + Log.file)
             }
             catch let error as NSError {
-                WriteToLog().message(theString: "Error deleting log file:    \n" + Log.path! + Log.file + "\n    \(error)\n")
+                WriteToLog.shared.message(theString: "Error deleting log file:    \n" + Log.path! + Log.file + "\n    \(error)\n")
             }
         }
     }
 
     func message(theString: String) {
         let logString = "\(getCurrentTime(theFormat: "log")) \(theString)\n"
-        self.logFileW?.seekToEndOfFile()
+//        print("[WriteToLog] \(logString)")
+
+        guard let logData = logString.data(using: .utf8) else { return }
+        let logURL = URL(fileURLWithPath: Log.path! + Log.file)
+        
+        do {
+            let fileHandle = try FileHandle(forWritingTo: logURL)
+            defer { fileHandle.closeFile() } // Ensure file is closed
             
-        let logText = (logString as NSString).data(using: String.Encoding.utf8.rawValue)
-        self.logFileW?.write(logText!)
+            fileHandle.seekToEndOfFile()
+            fileHandle.write(logData)
+        } catch {
+            print("[Log Error] Failed to write to log file: \(error.localizedDescription)")
+        }
+        
+        
+        
+//        let logString = "\(getCurrentTime(theFormat: "log")) \(theString)\n"
+//        self.logFileW?.seekToEndOfFile()
+//            
+//        let logText = (logString as NSString).data(using: String.Encoding.utf8.rawValue)
+//        self.logFileW?.write(logText!)
     }
 
 }

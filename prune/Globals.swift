@@ -137,7 +137,7 @@ public func timeDiff(startTime: Date) -> (Int, Int, Int, Double) {
     let endTime = Date()
 //                    let components = Calendar.current.dateComponents([.second, .nanosecond], from: startTime, to: endTime)
 //                    let timeDifference = Double(components.second!) + Double(components.nanosecond!)/1000000000
-//                    WriteToLog().message(stringOfText: "[ViewController.download] time difference: \(timeDifference) seconds")
+//                    WriteToLog.shared.message(stringOfText: "[ViewController.download] time difference: \(timeDifference) seconds")
     let components = Calendar.current.dateComponents([
         .hour, .minute, .second, .nanosecond], from: startTime, to: endTime)
     var diffInSeconds = Double(components.hour!)*3600 + Double(components.minute!)*60 + Double(components.second!) + Double(components.nanosecond!)/1000000000
@@ -145,7 +145,7 @@ public func timeDiff(startTime: Date) -> (Int, Int, Int, Double) {
 //    let timeDifference = Int(components.second!) //+ Double(components.nanosecond!)/1000000000
 //    let (h,r) = timeDifference.quotientAndRemainder(dividingBy: 3600)
 //    let (m,s) = r.quotientAndRemainder(dividingBy: 60)
-//    WriteToLog().message(stringOfText: "[ViewController.download] download time: \(h):\(m):\(s) (h:m:s)")
+//    WriteToLog.shared.message(stringOfText: "[ViewController.download] download time: \(h):\(m):\(s) (h:m:s)")
     return (Int(components.hour!), Int(components.minute!), Int(components.second!), diffInSeconds)
 //    return (h, m, s)
 }
