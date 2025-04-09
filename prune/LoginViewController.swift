@@ -520,6 +520,8 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        migrateAppGroupSettings()
+        
         // to clear saved list of servers
 //        defaults.set([:] as [String:[String:AnyObject]], forKey: "serversDict")
 //        sharedDefaults!.set([:] as [String:[String:AnyObject]], forKey: "serversDict")

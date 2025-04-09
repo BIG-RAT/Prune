@@ -69,16 +69,7 @@ class WriteToLog {
         } catch {
             print("[Log Error] Failed to write to log file: \(error.localizedDescription)")
         }
-        
-        
-        
-//        let logString = "\(getCurrentTime(theFormat: "log")) \(theString)\n"
-//        self.logFileW?.seekToEndOfFile()
-//            
-//        let logText = (logString as NSString).data(using: String.Encoding.utf8.rawValue)
-//        self.logFileW?.write(logText!)
     }
-
 }
 
 extension Logger {
