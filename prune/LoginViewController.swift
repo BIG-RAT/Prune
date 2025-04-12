@@ -647,10 +647,11 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
         WriteToLog.shared.message(theString: "[migrateAppGroupSettings] _sharedSettingsPlistUrl: \(_sharedSettingsPlistUrl.path(percentEncoded: false))")
         
         if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path(percentEncoded: false)) {
-            print("[viewDidLoad] creating settings file")
+            WriteToLog.shared.message(theString: "creating settings file")
             sharedDefaults!.set(Date(), forKey: "created")
             sharedDefaults!.set([String:AnyObject](), forKey: "serversDict")
         }
+        WriteToLog.shared.message(theString: "[migrateAppGroupSettings] app group settings file: \(sharedSettingsPlistUrl.path(percentEncoded: false))")
         let settingsMigrated = sharedDefaults!.object(forKey: "migrated") as? String ?? "false"
         WriteToLog.shared.message(theString: "[migrateAppGroupSettings] settingsMigrated: \(settingsMigrated)")
         if settingsMigrated != "true" {

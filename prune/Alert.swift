@@ -31,7 +31,7 @@ class Alert: NSObject {
             selected = secondButton
         }
         return selected
-    }   // func alert_dialog - end
+    }
     
     func summary(header: String, message: String) {
         let dialog: NSAlert = NSAlert()
