@@ -645,40 +645,36 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
         let _sharedContainerUrl     = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.\(appsGroupId)")
         let _sharedSettingsPlistUrl = (_sharedContainerUrl?.appendingPathComponent("Library/Preferences/group.\(appsGroupId).plist"))!
         WriteToLog.shared.message(theString: "[migrateAppGroupSettings] _sharedSettingsPlistUrl: \(_sharedSettingsPlistUrl.path(percentEncoded: false))")
-        print("[migrateSettings] sharedSettingsPlistUrl: \(sharedSettingsPlistUrl.path(percentEncoded: false))")
-        print("[migrateSettings] _sharedSettingsPlistUrl: \(_sharedSettingsPlistUrl.path(percentEncoded: false))")
+//        print("[migrateSettings] sharedSettingsPlistUrl: \(sharedSettingsPlistUrl.path(percentEncoded: false))")
+//        print("[migrateSettings] _sharedSettingsPlistUrl: \(_sharedSettingsPlistUrl.path(percentEncoded: false))")
         
         if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path(percentEncoded: false)) {
             WriteToLog.shared.message(theString: "creating settings file")
             sharedDefaults!.set(Date(), forKey: "created")
             sharedDefaults!.set([String:AnyObject](), forKey: "serversDict")
         }
+        var serversDict = sharedDefaults!.object(forKey: "serversDict") as? [String:AnyObject] ?? [String:AnyObject]()
+        
         WriteToLog.shared.message(theString: "[migrateAppGroupSettings] app group settings file: \(sharedSettingsPlistUrl.path(percentEncoded: false))")
         let settingsMigrated = sharedDefaults!.object(forKey: "migrated") as? String ?? "false"
         WriteToLog.shared.message(theString: "[migrateAppGroupSettings] settingsMigrated: \(settingsMigrated)")
         if settingsMigrated != "true" {
             if FileManager.default.fileExists(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false)) {
                 WriteToLog.shared.message(theString: "[migrateAppGroupSettings] legacy settings file exists")
-                if FileManager.default.isReadableFile(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false)) {
-                    WriteToLog.shared.message(theString: "[migrateAppGroupSettings] file is readable")
-                    do {
-                        let data = try Data(contentsOf: _sharedSettingsPlistUrl)
-                        WriteToLog.shared.message(theString: "[migrateAppGroupSettings] file settings to data")
-                        
-                        let plist = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any]
-                        WriteToLog.shared.message(theString: "[migrateAppGroupSettings] converted to dictionary")
-                        for (key, value) in plist ?? [:] {
-//                            WriteToLog.shared.message(theString: "[migrateAppGroupSettings] setting value for key: \(key)")
-                            sharedDefaults!.set(value, forKey: key)
+                
+                if let oldPrefs = UserDefaults(suiteName: "group.\(appsGroupId)") {
+                    let _serversDict = oldPrefs.dictionary(forKey: "serversDict") ?? [String:AnyObject]()
+                    for (serverName, serverData) in _serversDict {
+                        if (serversDict[serverName] == nil) {
+                            serversDict[serverName] = serverData as AnyObject
                         }
-                        sharedDefaults!.set("true" as AnyObject, forKey: "migrated")
-                        WriteToLog.shared.message(theString: "[migrateAppGroupSettings] migrated settings")
-                    } catch {
-                        WriteToLog.shared.message(theString: "[migrateAppGroupSettings] failed to migrate settings")
-                        WriteToLog.shared.message(theString: "[migrateAppGroupSettings] error: \(error.localizedDescription)")
                     }
+                    sharedDefaults!.set(serversDict, forKey: "serversDict")
+                    sharedDefaults!.set("true" as AnyObject, forKey: "migrated")
+                    WriteToLog.shared.message(theString: "[migrateAppGroupSettings] migrated settings")
                 } else {
-                    WriteToLog.shared.message(theString: "[migrateAppGroupSettings] file is not readable")
+                    WriteToLog.shared.message(theString: "[migrateAppGroupSettings] unable to read legacy settings")
+                    WriteToLog.shared.message(theString: "[migrateAppGroupSettings] failed to migrate settings")
                 }
             } else {
                 do {

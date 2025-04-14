@@ -7,6 +7,7 @@
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>PS2F6S478M.jamfie.SharedJPMA</string>
+		<string>group.PS2F6S478M.jamfie.SharedJPMA</string>
 	</array>
 	<key>com.apple.security.files.downloads.read-write</key>
 	<true/>
@@ -18,10 +19,10 @@
 	<array>
 		<string>Library/Group Containers/group.PS2F6S478M.jamfie.SharedJPMA/Library/Preferences/group.PS2F6S478M.jamfie.SharedJPMA.plist</string>
 	</array>
-    <key>com.apple.security.temporary-exception.shared-preference.read-only</key>
-    <array>
-        <string>group.PS2F6S478M.jamfie.SharedJPMA</string>
-    </array>
+	<key>com.apple.security.temporary-exception.shared-preference.read-only</key>
+	<array>
+		<string>group.PS2F6S478M.jamfie.SharedJPMA</string>
+	</array>
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)jamfie.SharedJPMA</string>
