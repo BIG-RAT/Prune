@@ -2463,48 +2463,63 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         var reportItems = [[String:[String:[String:String]]]]()
         unusedItems_TableDict?.removeAll()
         if sender.title == "Packages" || (sender.title == "All" && packagesButtonState == "on") {
+            guard let _ = self.masterObjectDict["packages"] else { return }
             reportItems.append(["packages":self.masterObjectDict["packages"]!])
         }
         if sender.title == "Scripts" || (sender.title == "All" && scriptsButtonState == "on") {
+            guard let _ = self.masterObjectDict["scripts"] else { return }
             reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
         }
         if sender.title == "Classes" || (sender.title == "All" && classesButtonState == "on") {
+            guard let _ = self.masterObjectDict["classes"] else { return }
             reportItems.append(["ebooks":self.masterObjectDict["classes"]!])
         }
         if sender.title == "Computer Groups" || (sender.title == "All" && computerGroupsButtonState == "on") {
+            guard let _ = self.masterObjectDict["computerGroups"] else { return }
             reportItems.append(["computergroups":self.masterObjectDict["computerGroups"]!])
         }
         if sender.title == "Computer Profiles" || (sender.title == "All" && computerProfilesButtonState == "on") {
+            guard let _ = self.masterObjectDict["osxconfigurationprofiles"] else { return }
             reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
         }
         if sender.title == "Mac Apps" || (sender.title == "All" && macAppsButtonState == "on") {
+            guard let _ = self.masterObjectDict["macapplications"] else { return }
              reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
         }
         if sender.title == "Policies" || (sender.title == "All" && policiesButtonState == "on") {
+            guard let _ = self.masterObjectDict["policies"] else { return }
             reportItems.append(["policies":self.masterObjectDict["policies"]!])
         }
         if sender.title == "Printers" || (sender.title == "All" && printersButtonState == "on") {
+            guard let _ = self.masterObjectDict["printers"] else { return }
             reportItems.append(["printers":self.masterObjectDict["printers"]!])
         }
         if sender.title == "Restricted Software" || (sender.title == "All" && restrictedSoftwareButtonState == "on") {
+            guard let _ = self.masterObjectDict["restrictedsoftware"] else { return }
             reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
         }
         if sender.title == "Computer EAs" || (sender.title == "All" && computerEAsButtonState == "on") {
+            guard let _ = self.masterObjectDict["computerextensionattributes"] else { return }
             reportItems.append(["computerextensionattributes":self.masterObjectDict["computerextensionattributes"]!])
         }
         if sender.title == "Mobile Device Groups" || (sender.title == "All" && mobileDeviceGroupsButtonState == "on") {
+            guard let _ = self.masterObjectDict["mobileDeviceGroups"] else { return }
             reportItems.append(["mobiledevicegroups":self.masterObjectDict["mobileDeviceGroups"]!])
         }
         if sender.title == "Mobile Device Apps" || (sender.title == "All" && mobileDeviceAppsButtonState == "on") {
+            guard let _ = self.masterObjectDict["mobiledeviceapplications"] else { return }
             reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
         }
         if sender.title == "Mobile Device Config. Profiles" || (sender.title == "All" && configurationProfilesButtonState == "on") {
+            guard let _ = self.masterObjectDict["mobiledeviceconfigurationprofiles"] else { return }
             reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
         }
         if sender.title == "eBooks" || (sender.title == "All" && ebooksButtonState == "on") {
+            guard let _ = self.masterObjectDict["ebooks"] else { return }
             reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
         }
         if sender.title == "Mobile Device EAs" || (sender.title == "All" && mobileDeviceEAsButtonState == "on") {
+            guard let _ = self.masterObjectDict["mobiledeviceextensionattributes"] else { return }
             reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
         }
         self.unused(itemDictionary: reportItems)
@@ -3023,9 +3038,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 printerLogFileOp.seekToEndOfFile()
 
                                 var displayName = key.escapeDoubleQuotes
-                                if masterObjectDict["printers"]![key]?["enabled"]! == "false" {
-                                    displayName.append("    [disabled]")
-                                }
 
                                 if firstPolicy {
                                     text = "\t{\"id\": \"\(String(describing: masterObjectDict["printers"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
@@ -3678,6 +3690,11 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             setAllButtonsState(theState: state)
         } else {
             let title = sender.title
+            
+//            if let ident = sender.identifier?.rawValue {
+//                print("set masterObjectDict for \(ident)")
+//                masterObjectDict[ident] = [:]
+//            }
 //            if state == "on" {
 //                view_PopUpButton.addItem(withTitle: "\(title)")
 //            } else {
