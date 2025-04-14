@@ -1760,45 +1760,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         }
                                     }
                                 }
-                                
-//                                case "printers":
-//                                    
-//                                    let printerInfo = result["printers"] as! [String:AnyObject]
-//                                    
-//                                    // check for used computergroups - start
-//                                    let printerScope = printerInfo["scope"] as! [String:AnyObject]
-//    //                                print("printer (\(name)) scope: \(printerScope)")
-//                //
-//                                    if self.isScoped(scope: printerScope) {
-//                                        let printersArray = printerInfo[""] as [String : AnyObject]
-//                                        self.masterObjectDict["printers"]!["\(name)"]!["used"] = "true"
-//                                    }
-//                                    
-//
-//                                    // check for used computergroups - start
-//                                    let computer_groupList = printerScope["computer_groups"] as! [[String: Any]]
-//                                    for theComputerGroup in computer_groupList {
-//                //                                        print("thePackage: \(thePackage)")
-//                                        let theComputerGroupName = theComputerGroup["name"]
-//                //                                        let theComputerGroupID = theComputerGroup["id"]
-//                //                                        print("packages id for policy id: \(id): \(thePackageID!)")
-//                                        self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
-//                                    }
-//                                    // check exclusions - start
-//                                    let computer_groupExcl = printerScope["exclusions"] as! [String:AnyObject]
-//                                    let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [[String: Any]]
-//                                    for theComputerGroupExcl in computer_groupListExcl {
-//                                        let theComputerGroupName = theComputerGroupExcl["name"]
-//                                        self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
-//                                    }
-//                                    // check exclusions - end
-//                                    // check of used computergroups - end
-//                                    
-//                                    if self.isScoped(scope: printerScope) {
-//                                        self.masterObjectDict["printers"]!["\(name)"]!["used"] = "true"
-//                                    }
-//                                
-//                                // scan each printer - end
                             
                             case "ebooks":
                                 
@@ -1812,14 +1773,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     self.masterObjectDict["ebooks"]!["\(name)"]!["used"] = "true"
                                 }
                                 
-
                                 // check for used computergroups - start
                                 let computer_groupList = eBookScope["computer_groups"] as! [[String: Any]]
                                 for theComputerGroup in computer_groupList {
-            //                                        print("thePackage: \(thePackage)")
                                     let theComputerGroupName = theComputerGroup["name"]
-            //                                        let theComputerGroupID = theComputerGroup["id"]
-            //                                        print("packages id for policy id: \(id): \(thePackageID!)")
                                     self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
                                 }
                                 // check exclusions - start
@@ -1919,18 +1876,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"]!["used"] = "true"
                                     
                                     var format = PropertyListSerialization.PropertyListFormat.xml
-//                                    if let general = theConfigProfile["general"] as? [String:AnyObject], let payloads = general["payloads"] as? String, let payloadData = Data(payloads.utf8) as? Data, let plist = try? PropertyListSerialization.propertyList(from: payloadData, format: &format), let plistDict = plist as? [String: Any] {
+
                                     if let general = theConfigProfile["general"] as? [String:AnyObject], let payloads = general["payloads"] as? String, let payloadData = Data(payloads.utf8) as? Data, let plist = try? PropertyListSerialization.propertyList(from: payloadData, format: nil), let plistDict = plist as? [String: Any], let payloadContent = plistDict["PayloadContent"] as? [[String : Any]] {
-//                                        print("printer name: \(plistDict["UserPrinterList"] ?? "unknown")")
+
                                         for thePayload in payloadContent {
-                                            print("PayloadType: \(thePayload["PayloadType"] ?? "unknown")")
                                             if printersButtonState == "on" && thePayload["PayloadType"] as? String == "com.apple.mcxprinting" {
                                                 let userPrinterList = thePayload["UserPrinterList"] as? [String: Any] ?? [:]
                                                 for (printerName, _) in userPrinterList {
-//                                                    for (printerName, _) in thePrinter {
-                                                        print("printerName: \(printerName)")
-                                                        self.masterObjectDict["printers"]!["\(printerName)"]?["used"] = "true"
-//                                                    }
+                                                    self.masterObjectDict["printers"]!["\(printerName)"]?["used"] = "true"
                                                 }
                                             }
                                         }
@@ -2049,7 +2002,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     
                                     // check for used printers - start
                                     let policyPrinterList = thePolicy["printers"] as? [AnyObject] ?? []
-                                    print("policyPrinterList: \(policyPrinterList)")
+
                                     for theObject in policyPrinterList {
                                         if let thePrinter = theObject as? [String: Any] {
                                             let thePrinterName = thePrinter["name"]
@@ -2210,8 +2163,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 waitFor.macApps = false
                             case "packages":
                                 waitFor.packages = false
-//                            case "printers":
-//                                waitFor.printers = false
                             case "policies","patchpolicies","patchsoftwaretitles","restrictedsoftware":
                                 waitFor.policy = false
                             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
