@@ -20,7 +20,7 @@ class Json: NSObject, URLSessionDelegate {
             return
         }
         
-        JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
+        JamfPro.shared.getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
             (result: (Int,String)) in
             let (statusCode, theResult) = result
 //            print("[getRecord] token check")

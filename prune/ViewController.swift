@@ -108,7 +108,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         setViewButton(setOn: false)
         LoginWindow.show = true
-        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.accessToken, method: "POST") { [self]
+        JamfPro.shared.jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.accessToken, method: "POST") { [self]
             (returnedJSON: [String:Any]) in
             WriteToLog.shared.message(theString: "logging out: \(String(describing: returnedJSON["JPAPI_result"]!))")
             performSegue(withIdentifier: "loginView", sender: nil)
@@ -167,8 +167,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             object_TableView.reloadData()
         }
         
-
-        JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) { [self]
+        JamfPro.shared.getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) { [self]
             (result: (Int,String)) in
             let (statusCode, theResult) = result
             if theResult == "success" {
@@ -844,7 +843,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
                         var appInstallersArray = [[String:Any]]()
                         
-                        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "app-installers/deployments", apiData: [:], method: "GET") {
+                        JamfPro.shared.jpapiAction(serverUrl: JamfProServer.source, endpoint: "app-installers/deployments", apiData: [:], method: "GET") {
                             (returnedJSON: [String: Any]) in
     //                        print("[processItems] patchsoftwaretitles apiGetAll result: \(result)")
                             if let allAppInstallers = returnedJSON["results"] as? [[String:Any]] {
@@ -888,7 +887,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                        self.masterObjectDict[type] = [String:[String:String]]()
                     var patchPoliciesArray = [[String:Any]]()
                     
-                    JamfPro().apiGetAll(serverUrl: JamfProServer.source, endpoint: "patch-software-title-configurations") {
+                    JamfPro.shared.apiGetAll(serverUrl: JamfProServer.source, endpoint: "patch-software-title-configurations") {
                         (result: (String,[[String: Any]])) in
 //                        print("[processItems] patchsoftwaretitles apiGetAll result: \(result)")
                         if result.0 == "success" {
@@ -1603,7 +1602,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             switch theEndpoint {
                 case "patchsoftwaretitles":
                 // search for used packages using api/v2/patch-software-title-configurations/<id> endpoint
-                JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "patch-software-title-configurations", apiData: [:], id: "\(id)", token: JamfProServer.accessToken, method: "GET") {
+                JamfPro.shared.jpapiAction(serverUrl: JamfProServer.source, endpoint: "patch-software-title-configurations", apiData: [:], id: "\(id)", token: JamfProServer.accessToken, method: "GET") {
                     (result: [String:Any]) in
                     if let packagesInfo = result["packages"] as? [[String:String]] {
                         for packageInfo in packagesInfo {
@@ -3695,7 +3694,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     func xmlAction(action: String, theServer: String, base64Creds: String, theCategory: String = "", theEndpoint: String, completion: @escaping (_ result: (Int,String)) -> Void) {
         
 
-        JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
+        JamfPro.shared.getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
             (result: (Int,String)) in
             let (statusCode, theResult) = result
 //            print("[xmlAction] token check")
@@ -4120,7 +4119,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         saveCreds = (saveCredsState == 1) ? true:false
         // check authentication, set auth method - start
 
-        JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) {
+        JamfPro.shared.getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) {
             (result: (Int,String)) in
             let (statusCode, theResult) = result
             if theResult == "success" {

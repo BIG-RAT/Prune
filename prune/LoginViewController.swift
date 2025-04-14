@@ -151,6 +151,10 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
     }
     
     @IBAction func login_action(_ sender: Any) {
+        if selectServer_Button.titleOfSelectedItem == nil {
+            print("no server selected")
+            return
+        }
         spinner_PI.isHidden = false
         spinner_PI.startAnimation(self)
         didRun = true
@@ -163,11 +167,10 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             theSender = sender as! String
         }
 
-        //        if theSender == "Add" {
-            JamfProServer.source   = jamfProServer_textfield.stringValue
-            JamfProServer.username = jamfProUsername_textfield.stringValue
-            JamfProServer.password = jamfProPassword_textfield.stringValue
-//        }
+        JamfProServer.source   = jamfProServer_textfield.stringValue
+        JamfProServer.username = jamfProUsername_textfield.stringValue
+        JamfProServer.password = jamfProPassword_textfield.stringValue
+        
 //        print("[login_action] destination: \(JamfProServer.source)")
 //        print("[login_action] username: \(JamfProServer.username)")
 //        print("[login_action] userpass: \(JamfProServer.password)")
@@ -214,6 +217,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             }
         }
         
+        
         if theSender == "Login" {
             JamfProServer.validToken = false
             let dataToBeSent = (selectServer_Button.titleOfSelectedItem!, JamfProServer.source, JamfProServer.username, JamfProServer.password, saveCreds_button.state.rawValue)
@@ -241,7 +245,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             let jamfUtf8Creds = "\(JamfProServer.username):\(JamfProServer.password)".data(using: String.Encoding.utf8)
             JamfProServer.base64Creds = (jamfUtf8Creds?.base64EncodedString())!
 
-            JamfPro().getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
+            JamfPro.shared.getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: JamfProServer.base64Creds) { [self]
                 authResult in
                 
                 login_Button.isEnabled = true
@@ -384,23 +388,19 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             case "server":
                 let accountDict = Credentials().retrieve(service: jamfProServer_textfield.stringValue.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
                 
-                if accountDict.count == 1 {
-                    for (username, password) in accountDict {
+                for (username, password) in accountDict {
+                    if username.lowercased() == jamfProUsername_textfield.stringValue.lowercased() {
                         jamfProUsername_textfield.stringValue = username
                         jamfProPassword_textfield.stringValue = password
+                        break
                     }
-                } //else {
-//                    if login_Button.title == "Login" {
-//                        setWindowSize(setting: 1)
-//                    } else {
-//                        setWindowSize(setting: 2)
-//                    }
-//                }
+                }
+                
             case "username":
                 let accountDict = Credentials().retrieve(service: "\(jamfProServer_textfield.stringValue.fqdnFromUrl)", account: jamfProUsername_textfield.stringValue)
                 if accountDict.count != 0 {
                     for (username, password) in accountDict {
-                        if username == jamfProUsername_textfield.stringValue {
+                        if username.lowercased() == jamfProUsername_textfield.stringValue.lowercased() {
                             jamfProUsername_textfield.stringValue = username
                             jamfProPassword_textfield.stringValue = password
                         }

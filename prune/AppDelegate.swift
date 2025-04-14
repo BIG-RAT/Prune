@@ -11,7 +11,7 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func QuitNow(sender: AnyObject) {
-        JamfPro().jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.accessToken , method: "POST") {
+        JamfPro.shared.jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.accessToken , method: "POST") {
             (returnedJSON: [String:Any]) in
             WriteToLog.shared.message(theString: "quitting: \(String(describing: returnedJSON["JPAPI_result"]!))")
             NSApplication.shared.terminate(self)

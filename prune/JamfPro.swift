@@ -10,6 +10,9 @@ import Foundation
 
 class JamfPro: NSObject, URLSessionDelegate {
     
+    static let shared = JamfPro()
+    private override init() { }
+    
     var theUapiQ = OperationQueue() // create operation queue for API calls
     var clientType = "username / password"
         
