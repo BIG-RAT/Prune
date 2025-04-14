@@ -59,6 +59,10 @@ Once the list of unused items is generated you can edit it within the app.  If y
             <td>Check scope</td>
         </tr>
         <tr>
+            <td>Printers</td>
+            <td>Check policies, macOS configuration profiles</td>
+        </tr>
+        <tr>
             <td>Mac Apps</td>
             <td>Check scope</td>
         </tr>
@@ -106,6 +110,8 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
+2025-04-14 - v3.3.0: Include printers as an available object to scan. Update for Sequoia and accessing shared data. Misc fixes and cleanup.
+
 2024-09-26 - v3.2.2: Address crash when exporting after an import. Address title being truncated, full name appears as a tooltip.
 
 2024-02-09 - v3.2.1: Query App Installers for groups used for scoping.
