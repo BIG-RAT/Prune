@@ -14,7 +14,7 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
-	<key>com.apple.security.temporary-exception.files.home-relative-path.read-only</key>
+	<key>com.apple.security.temporary-exception.files.absolute-path.read-only</key>
 	<array>
 		<string>Library/Group Containers/group.PS2F6S478M.jamfie.SharedJPMA/Library/Preferences/group.PS2F6S478M.jamfie.SharedJPMA.plist</string>
 	</array>
