@@ -86,6 +86,7 @@ struct waitFor {
     static var osxconfigurationprofile = true
     static var macApps                 = true
     static var packages                = true
+    static var printers                = true
     static var patchSoftwareTitles     = true
     static var policy                  = true
     static var mobiledeviceobject      = true

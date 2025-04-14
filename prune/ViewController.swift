@@ -30,6 +30,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     @IBOutlet weak var computerProfiles_Button: NSButton!
     @IBOutlet weak var macApps_Button: NSButton!
     @IBOutlet weak var policies_Button: NSButton!
+    @IBOutlet weak var printers_Button: NSButton!
     @IBOutlet weak var restrictedSoftware_Button: NSButton!
     @IBOutlet weak var computerEAs_Button: NSButton!
     @IBOutlet weak var mobileDeviceGroups_Button: NSButton!
@@ -60,7 +61,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     // define master dictionary of items
     // ex. masterObjectDict["packages"] = [package1Name:["id":id1,"name":name1],package2Name:["id":id2,"name":name2]]
     var masterObjectDict = [String:[String:[String:String]]]()
-    var masterObjects    = ["advancedcomputersearches", "advancedmobiledevicesearches", "packages", "osxconfigurationprofiles", "scripts", "ebooks", "classes", "computerGroups", "macapplications", "policies", "restrictedsoftware", "computerextensionattributes", "mobileDeviceGroups", "mobiledeviceapplications", "mobiledeviceconfigurationprofiles", "computer-prestages", "patchpolicies", "patchsoftwaretitles", "mobiledeviceextensionattributes"]
+    var masterObjects    = ["advancedcomputersearches", "advancedmobiledevicesearches", "packages", "osxconfigurationprofiles", "scripts", "ebooks", "classes", "computerGroups", "macapplications", "policies", "printers", "restrictedsoftware", "computerextensionattributes", "mobileDeviceGroups", "mobiledeviceapplications", "mobiledeviceconfigurationprofiles", "computer-prestages", "patchpolicies", "patchsoftwaretitles", "mobiledeviceextensionattributes"]
     
     var unusedItems_TableArray: [String]?
     var unusedItems_TableDict: [[String:String]]?
@@ -81,6 +82,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     var computerProfilesButtonState      = "off"
     var macAppsButtonState               = "off"
     var policiesButtonState              = "off"
+    var printersButtonState              = "off"
     var restrictedSoftwareButtonState    = "off"
     var computerEAsButtonState           = "off"
     var mobileDeviceGroupsButtonState    = "off"
@@ -133,6 +135,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         waitFor.osxconfigurationprofile = true
         waitFor.packages                = true
         waitFor.policy                  = true
+//        waitFor.printers                = true
         waitFor.mobiledeviceobject      = true
         waitFor.ebook                   = true
         waitFor.classes                 = true
@@ -447,17 +450,50 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         }
-                        WriteToLog.shared.message(theString: "[processItems] call scripts")
+                        WriteToLog.shared.message(theString: "[processItems] call printers")
+                        DispatchQueue.main.async {
+                            self.processItems(type: "printers")
+                        }
+                    }
+                } else {
+                    WriteToLog.shared.message(theString: "[processItems] skipping packages - call printers")
+                    DispatchQueue.main.async {
+                        self.processItems(type: "printers")
+                    }
+                }
+                
+            case "printers":
+                if self.printersButtonState == "on" {
+                    DispatchQueue.main.async {
+                        self.process_TextField.stringValue = "Fetching Printers..."
+                    }
+                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "printers") {
+                        (result: [String:AnyObject]) in
+                        if let _  = result[type] {
+                            let objectsArray = result[type] as! [[String:Any]]
+                            let objectsArrayCount = objectsArray.count
+                            if objectsArrayCount > 0 {
+                                for i in (0..<objectsArrayCount) {
+                                    if let id = objectsArray[i]["id"], let name = objectsArray[i]["name"] {
+                                        if "\(name)" != "" {
+                                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        WriteToLog.shared.message(theString: "[processItems] printers complete - call scripts")
                         DispatchQueue.main.async {
                             self.processItems(type: "scripts")
                         }
                     }
                 } else {
-                    WriteToLog.shared.message(theString: "[processItems] skipping packages - call scripts")
+                    WriteToLog.shared.message(theString: "[processItems] skipping scripts - call scripts")
                     DispatchQueue.main.async {
                         self.processItems(type: "scripts")
                     }
-                }
+               }
                 
             case "scripts":
                 if self.scriptsButtonState == "on" {
@@ -642,7 +678,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                    }
                                                 
             case "osxconfigurationprofiles":
-                if self.computerGroupsButtonState == "on" || self.computerProfilesButtonState == "on" {
+                if self.computerGroupsButtonState == "on" || self.computerProfilesButtonState == "on" || self.printersButtonState == "on" {
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Computer Configuration Profiles..."
                     }
@@ -1370,7 +1406,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                  
                       
             case "policies":
-                if self.policiesButtonState == "on" || self.packagesButtonState == "on" || self.scriptsButtonState == "on" || self.computerGroupsButtonState == "on" {
+                if self.policiesButtonState == "on" || self.packagesButtonState == "on" || self.printersButtonState == "on" || self.scriptsButtonState == "on" || self.computerGroupsButtonState == "on" {
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Policies..."
                     }
@@ -1414,52 +1450,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     if !waitFor.policy && !waitFor.osxconfigurationprofile {
                                         WriteToLog.shared.message(theString: "[processItems] policies complete - call unused")
                                         generateReportItems()
-                                        /*
-                                        var reportItems = [[String:[String:[String:String]]]]()
-                                        if self.packagesButtonState == "on" {
-                                            reportItems.append(["packages":self.masterObjectDict["packages"]!])
-                                        }
-                                        if self.scriptsButtonState == "on" {
-                                            reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
-                                        }
-                                        if self.ebooksButtonState == "on" {
-                                            reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
-                                        }
-                                        if self.classesButtonState == "on" {
-                                            reportItems.append(["classes":self.masterObjectDict["classes"]!])
-                                        }
-                                        if self.computerGroupsButtonState == "on" {
-                                            reportItems.append(["computergroups":self.masterObjectDict["computerGroups"]!])
-                                        }
-                                        if self.computerProfilesButtonState == "on" {
-                                            reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
-                                        }
-                                        if self.macAppsButtonState == "on" {
-                                            reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
-                                        }
-                                        if self.policiesButtonState == "on" {
-                                            reportItems.append(["policies":self.masterObjectDict["policies"]!])
-                                        }
-                                        if self.restrictedSoftwareButtonState == "on" {
-                                            reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
-                                        }
-                                        if self.computerEAsButtonState == "on" {
-                                            reportItems.append(["computerextensionattributes":self.masterObjectDict["computerextensionattributes"]!])
-                                        }
-                                        if self.mobileDeviceGroupsButtonState == "on" {
-                                            reportItems.append(["mobiledevicegroups":self.masterObjectDict["mobileDeviceGroups"]!])
-                                        }
-                                        if self.mobileDeviceAppsButtonState == "on" {
-                                            reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
-                                        }
-                                        if self.configurationProfilesButtonState == "on" {
-                                            reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
-                                        }
-                                        if self.mobileDeviceEAsButtonState == "on" {
-                                            reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
-                                        }
-                                        self.unused(itemDictionary: reportItems)
-                                        */
                                         
                                         break
                                     }
@@ -1476,53 +1466,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     if !waitFor.policy && !waitFor.osxconfigurationprofile {
                                         WriteToLog.shared.message(theString: "[processItems] policies complete - call unused")
                                         generateReportItems()
-                                        /*
-                                        var reportItems = [[String:[String:[String:String]]]]()
-                                        if self.packagesButtonState == "on" {
-                                            reportItems.append(["packages":self.masterObjectDict["packages"]!])
-                                        }
-                                        if self.scriptsButtonState == "on" {
-                                            reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
-                                        }
-                                        if self.ebooksButtonState == "on" {
-                                            reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
-                                        }
-                                        if self.classesButtonState == "on" {
-                                            reportItems.append(["classes":self.masterObjectDict["classes"]!])
-                                        }
-                                        if self.computerGroupsButtonState == "on" {
-                                            reportItems.append(["computergroups":self.masterObjectDict["computerGroups"]!])
-                                        }
-                                        if self.computerProfilesButtonState == "on" {
-                                            reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
-                                        }
-                                        if self.macAppsButtonState == "on" {
-                                            reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
-                                        }
-                                        if self.policiesButtonState == "on" {
-                                            reportItems.append(["policies":self.masterObjectDict["policies"]!])
-                                        }
-                                        if self.restrictedSoftwareButtonState == "on" {
-                                            reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
-                                        }
-                                        if self.computerEAsButtonState == "on" {
-                                            reportItems.append(["computerextensionattributes":self.masterObjectDict["computerextensionattributes"]!])
-                                        }
-                                        if self.mobileDeviceGroupsButtonState == "on" {
-                                            reportItems.append(["mobiledevicegroups":self.masterObjectDict["mobileDeviceGroups"]!])
-                                        }
-                                        if self.mobileDeviceAppsButtonState == "on" {
-                                        reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
-                                        }
-                                        if self.configurationProfilesButtonState == "on" {
-                                        reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
-                                        }
-                                        if self.mobileDeviceEAsButtonState == "on" {
-                                            reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
-                                        }
-                                        self.unused(itemDictionary: reportItems)
-                                        */
-                                        
                                         break
                                     }
                                 }
@@ -1538,53 +1481,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             if !waitFor.policy && !waitFor.osxconfigurationprofile {
                                 WriteToLog.shared.message(theString: "[processItems] policies complete - call unused")
                                 generateReportItems()
-                                /*
-                                var reportItems = [[String:[String:[String:String]]]]()
-                                if self.packagesButtonState == "on" {
-                                    reportItems.append(["packages":self.masterObjectDict["packages"]!])
-                                }
-                                if self.scriptsButtonState == "on" {
-                                    reportItems.append(["scripts":self.masterObjectDict["scripts"]!])
-                                }
-                                if self.ebooksButtonState == "on" {
-                                    reportItems.append(["ebooks":self.masterObjectDict["ebooks"]!])
-                                }
-                                if self.classesButtonState == "on" {
-                                    reportItems.append(["classes":self.masterObjectDict["classes"]!])
-                                }
-                                if self.computerGroupsButtonState == "on" {
-                                    reportItems.append(["computergroups":self.masterObjectDict["computerGroups"]!])
-                                }
-                                if self.computerProfilesButtonState == "on" {
-                                    reportItems.append(["osxconfigurationprofiles":self.masterObjectDict["osxconfigurationprofiles"]!])
-                                }
-                                if self.macAppsButtonState == "on" {
-                                    reportItems.append(["macapplications":self.masterObjectDict["macapplications"]!])
-                                }
-                                if self.policiesButtonState == "on" {
-                                    reportItems.append(["policies":self.masterObjectDict["policies"]!])
-                                }
-                                if self.restrictedSoftwareButtonState == "on" {
-                                    reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
-                                }
-                                if self.computerEAsButtonState == "on" {
-                                    reportItems.append(["computerextensionattributes":self.masterObjectDict["computerextensionattributes"]!])
-                                }
-                                if self.mobileDeviceGroupsButtonState == "on" {
-                                    reportItems.append(["mobiledevicegroups":self.masterObjectDict["mobileDeviceGroups"]!])
-                                }
-                                if self.mobileDeviceAppsButtonState == "on" {
-                                    reportItems.append(["mobiledeviceapplications":self.masterObjectDict["mobiledeviceapplications"]!])
-                                }
-                                if self.configurationProfilesButtonState == "on" {
-                                    reportItems.append(["mobiledeviceconfigurationprofiles":self.masterObjectDict["mobiledeviceconfigurationprofiles"]!])
-                                }
-                                if self.mobileDeviceEAsButtonState == "on" {
-                                    reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
-                                }
-                                self.unused(itemDictionary: reportItems)
-                                */
-                                
                                 break
                             }
                         }
@@ -1627,6 +1523,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         }
         if self.policiesButtonState == "on" {
             reportItems.append(["policies":self.masterObjectDict["policies"]!])
+        }
+        if self.printersButtonState == "on" {
+            reportItems.append(["printers":self.masterObjectDict["printers"]!])
         }
         if self.restrictedSoftwareButtonState == "on" {
             reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
@@ -1676,6 +1575,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             objectEndpoint = "packages/id"
         case "policies":
             objectEndpoint = "policies/id"
+        case "printers":
+            objectEndpoint = "printers/id"
         case "patchpolicies":
             objectEndpoint = "patchpolicies/id"
         case "patchsoftwaretitles":
@@ -1859,7 +1760,45 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         }
                                     }
                                 }
-                            
+                                
+//                                case "printers":
+//                                    
+//                                    let printerInfo = result["printers"] as! [String:AnyObject]
+//                                    
+//                                    // check for used computergroups - start
+//                                    let printerScope = printerInfo["scope"] as! [String:AnyObject]
+//    //                                print("printer (\(name)) scope: \(printerScope)")
+//                //
+//                                    if self.isScoped(scope: printerScope) {
+//                                        let printersArray = printerInfo[""] as [String : AnyObject]
+//                                        self.masterObjectDict["printers"]!["\(name)"]!["used"] = "true"
+//                                    }
+//                                    
+//
+//                                    // check for used computergroups - start
+//                                    let computer_groupList = printerScope["computer_groups"] as! [[String: Any]]
+//                                    for theComputerGroup in computer_groupList {
+//                //                                        print("thePackage: \(thePackage)")
+//                                        let theComputerGroupName = theComputerGroup["name"]
+//                //                                        let theComputerGroupID = theComputerGroup["id"]
+//                //                                        print("packages id for policy id: \(id): \(thePackageID!)")
+//                                        self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
+//                                    }
+//                                    // check exclusions - start
+//                                    let computer_groupExcl = printerScope["exclusions"] as! [String:AnyObject]
+//                                    let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [[String: Any]]
+//                                    for theComputerGroupExcl in computer_groupListExcl {
+//                                        let theComputerGroupName = theComputerGroupExcl["name"]
+//                                        self.masterObjectDict["computerGroups"]!["\(theComputerGroupName!)"]?["used"] = "true"
+//                                    }
+//                                    // check exclusions - end
+//                                    // check of used computergroups - end
+//                                    
+//                                    if self.isScoped(scope: printerScope) {
+//                                        self.masterObjectDict["printers"]!["\(name)"]!["used"] = "true"
+//                                    }
+//                                
+//                                // scan each printer - end
                             
                             case "ebooks":
                                 
@@ -1971,18 +1910,33 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 // look up each computer profile and check scope/limitations - start
                                                                                 
                                 let theConfigProfile = result["os_x_configuration_profile"] as! [String:AnyObject]
+//                                print("\(name) theConfigProfile: \(theConfigProfile)")
                                 
                                 // check for used computergroups - start
                                 let profileScope = theConfigProfile["scope"] as! [String:AnyObject]
             //
                                 if self.isScoped(scope: profileScope) {
                                     self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"]!["used"] = "true"
+                                    
+                                    var format = PropertyListSerialization.PropertyListFormat.xml
+//                                    if let general = theConfigProfile["general"] as? [String:AnyObject], let payloads = general["payloads"] as? String, let payloadData = Data(payloads.utf8) as? Data, let plist = try? PropertyListSerialization.propertyList(from: payloadData, format: &format), let plistDict = plist as? [String: Any] {
+                                    if let general = theConfigProfile["general"] as? [String:AnyObject], let payloads = general["payloads"] as? String, let payloadData = Data(payloads.utf8) as? Data, let plist = try? PropertyListSerialization.propertyList(from: payloadData, format: nil), let plistDict = plist as? [String: Any], let payloadContent = plistDict["PayloadContent"] as? [[String : Any]] {
+//                                        print("printer name: \(plistDict["UserPrinterList"] ?? "unknown")")
+                                        for thePayload in payloadContent {
+                                            print("PayloadType: \(thePayload["PayloadType"] ?? "unknown")")
+                                            if printersButtonState == "on" && thePayload["PayloadType"] as? String == "com.apple.mcxprinting" {
+                                                let userPrinterList = thePayload["UserPrinterList"] as? [String: Any] ?? [:]
+                                                for (printerName, _) in userPrinterList {
+//                                                    for (printerName, _) in thePrinter {
+                                                        print("printerName: \(printerName)")
+                                                        self.masterObjectDict["printers"]!["\(printerName)"]?["used"] = "true"
+//                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
-//                                if let _ = self.masterObjectDict["computerGroups"] {
-//                                    // we're ok
-//                                } else {
-//                                    self.masterObjectDict["computerGroups"] = [String:[String:String]]()
-//                                }
+                                
                                 let computer_groupList = profileScope["computer_groups"] as! [[String: Any]]
                                 for theComputerGroup in computer_groupList {
             //                                        print("thePackage: \(thePackage)")
@@ -2082,7 +2036,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     // check of used packages - end
 
                                     // check for used scripts - start
-                                    let policyScriptList = thePolicy["scripts"] as! [[String: Any]]
+                                    let policyScriptList = thePolicy["scripts"] as? [[String: Any]] ?? []
 //                                    print("[scriptCheck] masterObjectDict[\"scripts\"]: \(self.masterObjectDict["scripts"])")
                                     for theScript in policyScriptList {
                 //                                        print("thePackage: \(thePackage)")
@@ -2092,6 +2046,17 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                                        self.scriptsDict["\(theScriptName!)"]?["used"] = "true"
                                     }
                                     // check of used scripts - end
+                                    
+                                    // check for used printers - start
+                                    let policyPrinterList = thePolicy["printers"] as? [AnyObject] ?? []
+                                    print("policyPrinterList: \(policyPrinterList)")
+                                    for theObject in policyPrinterList {
+                                        if let thePrinter = theObject as? [String: Any] {
+                                            let thePrinterName = thePrinter["name"]
+                                            self.masterObjectDict["printers"]!["\(thePrinterName!)"]?["used"] = "true"
+                                        }
+                                    }
+                                    // check of used printers - end
                                 }
 
                                 // check for used computergroups - start
@@ -2245,6 +2210,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 waitFor.macApps = false
                             case "packages":
                                 waitFor.packages = false
+//                            case "printers":
+//                                waitFor.printers = false
                             case "policies","patchpolicies","patchsoftwaretitles","restrictedsoftware":
                                 waitFor.policy = false
                             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
@@ -2275,6 +2242,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     waitFor.osxconfigurationprofile = false
                 case "packages":
                     waitFor.packages = false
+//                case "printers":
+//                    waitFor.printers = false
                 case "policies","patchpolicies","patchsoftwaretitles","restrictedsoftware":
                     waitFor.policy = false
                 case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
@@ -2514,6 +2483,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         if sender.title == "Policies" || (sender.title == "All" && policiesButtonState == "on") {
             reportItems.append(["policies":self.masterObjectDict["policies"]!])
         }
+        if sender.title == "Printers" || (sender.title == "All" && printersButtonState == "on") {
+            reportItems.append(["printers":self.masterObjectDict["printers"]!])
+        }
         if sender.title == "Restricted Software" || (sender.title == "All" && restrictedSoftwareButtonState == "on") {
             reportItems.append(["restrictedsoftware":self.masterObjectDict["restrictedsoftware"]!])
         }
@@ -2634,6 +2606,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     case "unusedPolicies":
                         policies_Button.state = NSControl.StateValue(rawValue: 1)
                         policiesButtonState = "on"
+                    case "unusedPrinters":
+                        printers_Button.state = NSControl.StateValue(rawValue: 1)
+                        printersButtonState = "on"
                     case "unusedRestrictedSoftware":
                         restrictedSoftware_Button.state = NSControl.StateValue(rawValue: 1)
                         restrictedSoftwareButtonState = "on"
@@ -2692,7 +2667,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             let exportURL = getDownloadDirectory().appendingPathComponent(exportedReport)
 //            print("masterObjectDict: \(masterObjectDict)")
             var selectedObjects = [String]()
-            let buttonArray:[NSButton] = [packages_Button,scripts_Button,computerGroups_Button,computerProfiles_Button,policies_Button,restrictedSoftware_Button,computerEAs_Button,macApps_Button,mobileDeviceGroups_Button,mobileDeviceApps_Button,configurationProfiles_Button,classes_Button,ebooks_Button,mobileDeviceEAs_Button]
+            let buttonArray:[NSButton] = [packages_Button,scripts_Button,computerGroups_Button,computerProfiles_Button,policies_Button,printers_Button,restrictedSoftware_Button,computerEAs_Button,macApps_Button,mobileDeviceGroups_Button,mobileDeviceApps_Button,configurationProfiles_Button,classes_Button,ebooks_Button,mobileDeviceEAs_Button]
             for theButton in buttonArray {
                 if theButton.state.rawValue == 1 {
                     selectedObjects.append("\(theButton.identifier?.rawValue ?? "")")
@@ -3034,6 +3009,43 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 }
             }
             
+            if self.printersButtonState == "on" {
+                var firstPolicy = true
+                let printerLogFile = "prunePrinters_\(timeStamp).json"
+                let exportURL = getDownloadDirectory().appendingPathComponent(printerLogFile)
+
+                do {
+                    try "{\(header),\n \"unusedPrinters\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+                    
+                    if let printerLogFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["printers"]!) {
+                            if masterObjectDict["printers"]![key]?["used"]! == "false" {
+                                printerLogFileOp.seekToEndOfFile()
+
+                                var displayName = key.escapeDoubleQuotes
+                                if masterObjectDict["printers"]![key]?["enabled"]! == "false" {
+                                    displayName.append("    [disabled]")
+                                }
+
+                                if firstPolicy {
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["printers"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                    firstPolicy = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["printers"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                }
+                                printerLogFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }   // for (key, _) in packagesDict - end
+                        printerLogFileOp.seekToEndOfFile()
+                        printerLogFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+                        printerLogFileOp.closeFile()
+                        exportedItems.append("\tUnused Printers")
+                    }
+                } catch {
+                    WriteToLog.shared.message(theString: "failed to write the following: <unusedPrinters>")
+                }
+            }
+            
             if self.restrictedSoftwareButtonState == "on" {
                 var firstTitle = true
                 let rsLogFile = "pruneRestrictedSoftware_\(timeStamp).json"
@@ -3286,6 +3298,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                             return
                                         }
                                     
+                                    case "printers":
+                                        if withOptionKey {
+                                            self.masterObjectDict["printers"]!.removeValue(forKey: itemName)
+                                        } else {
+                                            WriteToLog.shared.message(theString: "[removeObject_Action] single click \(objectType) - without option key")
+                                            return
+                                        }
+                                    
                                     case "scripts":
                                         if withOptionKey {
                                             self.masterObjectDict["scripts"]!.removeValue(forKey: itemName)
@@ -3470,6 +3490,16 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     let id = "\(String(describing: masterObjectDict["policies"]![key]!["id"]!))"
                     WriteToLog.shared.message(theString: "[remove_Action] remove policy with id: \(id)")
                     masterItemsToDeleteArray.append(["policies":id])
+                }
+            }
+        }
+        
+        if (viewing == "All" && printers_Button.state.rawValue == 1) || viewing == "Printers" {
+            for (key, _) in masterObjectDict["printers"]! {
+                if masterObjectDict["printers"]?[key]?["used"] == "false" {
+                    let id = "\(String(describing: masterObjectDict["printers"]![key]!["id"]!))"
+                    WriteToLog.shared.message(theString: "[remove_Action] remove printer with id: \(id)")
+                    masterItemsToDeleteArray.append(["printers":id])
                 }
             }
         }
@@ -3668,6 +3698,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 macAppsButtonState = "\(state)"
             case "Policies":
                 policiesButtonState = "\(state)"
+            case "Printers":
+                printersButtonState = "\(state)"
             case "Restricted Software":
                 restrictedSoftwareButtonState = "\(state)"
             case "Computer EAs":
@@ -3800,6 +3832,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         computerGroups_Button.isEnabled        = theState
         computerProfiles_Button.isEnabled      = theState
         policies_Button.isEnabled              = theState
+        printers_Button.isEnabled              = theState
         macApps_Button.isEnabled               = theState
         restrictedSoftware_Button.isEnabled    = theState
         computerEAs_Button.isEnabled           = theState
@@ -3822,6 +3855,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         computerProfiles_Button.state = NSControl.StateValue(rawValue: state)
         macApps_Button.state = NSControl.StateValue(rawValue: state)
         policies_Button.state = NSControl.StateValue(rawValue: state)
+        printers_Button.state = NSControl.StateValue(rawValue: state)
         restrictedSoftware_Button.state = NSControl.StateValue(rawValue: state)
         computerEAs_Button.state = NSControl.StateValue(rawValue: state)
         mobileDeviceGroups_Button.state = NSControl.StateValue(rawValue: state)
@@ -3830,7 +3864,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         mobileDeviceEAs_Button.state = NSControl.StateValue(rawValue: state)
         
         if theState == "on" {
-            let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Mac Apps", "Policies", "Restricted Software", "Computer EAs", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles", "Mobile Device EAs"]
+            let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Mac Apps", "Policies", "Printers", "Restricted Software", "Computer EAs", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles", "Mobile Device EAs"]
             for theButton in availableButtons {
                 view_PopUpButton.addItem(withTitle: "\(theButton)")
             }
@@ -3847,6 +3881,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         computerProfilesButtonState      = "\(theState)"
         macAppsButtonState               = "\(theState)"
         policiesButtonState              = "\(theState)"
+        printersButtonState              = "\(theState)"
         restrictedSoftwareButtonState    = "\(theState)"
         computerEAsButtonState           = "\(theState)"
         mobileDeviceGroupsButtonState    = "\(theState)"
@@ -3880,6 +3915,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
             if policiesButtonState == "on" {
                 view_PopUpButton.addItem(withTitle: "Policies")
+            }
+            if printersButtonState == "on" {
+                view_PopUpButton.addItem(withTitle: "Printers")
             }
             if restrictedSoftwareButtonState == "on" {
                 view_PopUpButton.addItem(withTitle: "Restricted Software")
@@ -4029,17 +4067,23 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         return
                                     }
                                 
+                                case "printers":
+                                    if let objectId = self.masterObjectDict["printers"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/printers.html?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+                                
                                 case "restrictedsoftware":
                                     if let objectId = self.masterObjectDict["restrictedsoftware"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/restrictedSoftware.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                         return
                                     }
                                 
-                            case "computerextensionattributes":
-                                if let objectId = self.masterObjectDict["computerextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/computerExtensionAttributes.html?id=\(objectId)&o=r") {
-                                    NSWorkspace.shared.open(objectURL)
-                                    return
-                                }
+                                case "computerextensionattributes":
+                                    if let objectId = self.masterObjectDict["computerextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/computerExtensionAttributes.html?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
 
                                 case "mobiledevicegroups":
                                     if let objectId = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(JamfProServer.source)/\(groupType)s.html/?id=\(objectId)&o=r") {
@@ -4059,17 +4103,17 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         return
                                     }
                                 
-                            case "ebooks":
-                                if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/eBooks.html/?id=\(objectId)") {
-                                  NSWorkspace.shared.open(objectURL)
-                                    return
-                                }
-                                
-                            case "mobiledeviceextensionattributes":
-                                if let objectId = self.masterObjectDict["mobiledeviceextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/mobileDeviceExtensionAttributes.html?id=\(objectId)&o=r") {
-                                    NSWorkspace.shared.open(objectURL)
-                                    return
-                                }
+                                case "ebooks":
+                                    if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/eBooks.html/?id=\(objectId)") {
+                                      NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
+                                    
+                                case "mobiledeviceextensionattributes":
+                                    if let objectId = self.masterObjectDict["mobiledeviceextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/mobileDeviceExtensionAttributes.html?id=\(objectId)&o=r") {
+                                        NSWorkspace.shared.open(objectURL)
+                                        return
+                                    }
 
                                 default:
                                     WriteToLog.shared.message(theString: "[viewSelectObject] unknown objectType: \(String(describing: self.removeObject_Action))")
