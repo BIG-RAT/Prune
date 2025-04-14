@@ -16,7 +16,7 @@
 	<true/>
 	<key>com.apple.security.temporary-exception.files.home-relative-path.read-only</key>
 	<array>
-		<string>Library1/Group Containers/group.PS2F6S478M.jamfie.SharedJPMA/Library/Preferences/group.PS2F6S478M.jamfie.SharedJPMA.plist</string>
+		<string>Library/Group Containers/group.PS2F6S478M.jamfie.SharedJPMA/Library/Preferences/group.PS2F6S478M.jamfie.SharedJPMA.plist</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
