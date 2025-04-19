@@ -205,7 +205,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         if (FileManager.default.fileExists(atPath: Log.path!, isDirectory: &isDir)) {
             NSWorkspace.shared.open(URL(fileURLWithPath: Log.path!))
         } else {
-            Alert().display(header: "Alert", message: "There are currently no log files to display.")
+            Alert.shared.display(header: "Alert", message: "There are currently no log files to display.")
         }
     }
     
@@ -289,9 +289,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     // what if we're doing both computer and mobile device groups/EAs
                     let groupEndpoint = (type == "computerGroups" || (type == "mobileDeviceGroups" && computerEAsButtonState == "on" && !computerGroupsScanned)) ? "computergroups":"mobiledevicegroups"
                    
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint) {
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint) {
                         (result: [String:AnyObject]) in
 //                            print("json returned scripts: \(result)")
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
                         let computerGroupsArray = (groupEndpoint == "computergroups") ? result["computer_groups"] as! [[String: Any]]:result["mobile_device_groups"] as! [[String: Any]]
 
                         let computerGroupsArrayCount = computerGroupsArray.count
@@ -380,11 +384,11 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     /*
                     // get list of JCDS2 packages
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "jcds2Packages") {
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "jcds2Packages") {
                         (result: [String:AnyObject]) in
 //                        print("[jcds2] result: \(result)")
                         
-                        Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") { [self]
+                        Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") { [self]
                             (result: [String:AnyObject]) in
 
                             if let _  = result["packages"] {
@@ -431,8 +435,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                     */
                     
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
 
                         if let _  = result["packages"] {
                             let packagesArray = result["packages"] as! [[String:Any]]
@@ -466,8 +474,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Printers..."
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "printers") {
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "printers") {
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
                         if let _  = result[type] {
                             let objectsArray = result[type] as! [[String:Any]]
                             let objectsArrayCount = objectsArray.count
@@ -499,8 +511,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Scripts..."
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "scripts") {
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "scripts") {
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
                         if let _  = result[type] {
                             let objectsArray = result[type] as! [[String:Any]]
                             let objectsArrayCount = objectsArray.count
@@ -535,8 +551,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async { [self] in
                         self.process_TextField.stringValue = "Fetching \(msgText)..."
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") { [self]
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") { [self]
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
     //                    print("json returned eBooks: \(result)")
                         let ebooksArray = result["ebooks"] as! [[String:Any]]
                         let ebooksArrayCount = ebooksArray.count
@@ -586,8 +606,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async { [self] in
                         self.process_TextField.stringValue = "Fetching \(msgText)..."
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "classes") { [self]
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "classes") { [self]
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
     //                    print("json returned classes: \(result)")
                         let classesArray = result["classes"] as! [[String: Any]]
                         let classesArrayCount = classesArray.count
@@ -635,7 +659,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                        DispatchQueue.main.async {
 //                            self.process_TextField.stringValue = "Fetching Computer Configurations..."
 //                        }
-//                        Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations") {
+//                        Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "computerconfigurations") {
 //                            (result: [String:AnyObject]) in
 //                            print("json returned: \(result)")
 //                            self.completed = 0
@@ -668,7 +692,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                                    self.processItems(type: "osxconfigurationprofiles")
 //                                }
 //                            }
-//                        }   //         Json().getRecord - computerConfigurations - end
+//                        }   //         Json.shared.getRecord - computerConfigurations - end
 //                    } else {
 //                        WriteToLog.shared.message(theString: "[processItems] skipping computerConfigurations - call osxconfigurationprofiles")
 //                        DispatchQueue.main.async {
@@ -681,8 +705,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Computer Configuration Profiles..."
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
 //                            self.masterObjectDict["osxconfigurationprofiles"] = [String:[String:String]]()
                         if let _  = result["os_x_configuration_profiles"] {
                             let osxconfigurationprofilesArray = result["os_x_configuration_profiles"] as! [[String: Any]]
@@ -778,8 +806,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             self.process_TextField.stringValue = "Fetching Mobile Device Configuration Profiles..."
                         }
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
 //                            self.masterObjectDict[type] = [String:[String:String]]()
                         if let _ = result[xmlTag] {
                             let mobileDeviceObjectArray = result[xmlTag] as! [[String: Any]]
@@ -865,7 +897,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     self.processItems(type: nextObject)
                                 }
                             }
-                       }   //   Json().getRecord - patchpolicies - end
+                       }   //   Json.shared.getRecord - patchpolicies - end
                     } else {
                        WriteToLog.shared.message(theString: "[processItems] skipping app installers - call \(nextObject)")
                        DispatchQueue.main.async {
@@ -962,7 +994,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                            }
 //                        }
 
-                   }   //         Json().getRecord - patchpolicies - end
+                   }   //         Json.shared.getRecord - patchpolicies - end
                 } else {
                    WriteToLog.shared.message(theString: "[processItems] skipping patch software titles - call \(nextObject)")
                    DispatchQueue.main.async {
@@ -1033,7 +1065,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                    self.processItems(type: nextObject)
                                }
                            }
-                       }   //         Json().getRecord - patchpolicies - end
+                       }   //         Json.shared.getRecord - patchpolicies - end
                     } else {
                        WriteToLog.shared.message(theString: "[processItems] skipping patch policies - call \(nextObject)")
                        DispatchQueue.main.async {
@@ -1052,8 +1084,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         xmlTag = "results"
                         self.process_TextField.stringValue = "Fetching Computer Prestages..."
                     }
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: JamfProServer.authCreds, theEndpoint: type) { [self]
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: JamfProServer.authCreds, theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
 //                                print("json returned prestages: \(result)")
 //                                self.masterObjectDict[type] = [String:[String:String]]()
                         if let _ = result[xmlTag] {
@@ -1351,8 +1387,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         self.process_TextField.stringValue = "Fetching Mac Apps..."
                     }
                     
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
 //                            self.masterObjectDict[type] = [String:[String:String]]()
                         if let _ = result["mac_applications"] {
                             let macAppsArray = result["mac_applications"] as! [[String: Any]]
@@ -1410,9 +1450,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         self.process_TextField.stringValue = "Fetching Policies..."
                     }
                     var policiesArray = [[String:Any]]()
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "policies") {
+                    Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "policies") {
                         (result: [String:AnyObject]) in
             //            print("json returned: \(result)")
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
                         self.completed = 0
                         let allPoliciesArray = result["policies"] as! [[String: Any]]
                         
@@ -1470,7 +1514,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }   // self.backgroundQ.async - end
                         }
-                    }   //         Json().getRecord - policies - end
+                    }   //         Json.shared.getRecord - policies - end
                 } else {
                     // skipped policy check
                     waitFor.policy = false
@@ -1691,8 +1735,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
        
                 default:
                     // lookup complete record, JSON format
-                    Json().getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
+                Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
                         (result: [String:AnyObject]) in
+                        if let _ = result["Alert"] as? String {
+                            self.working(isWorking: false)
+                            return
+                        }
                         if result.count != 0 {
                             var xmlTag = ""
                             switch theEndpoint {
@@ -2173,7 +2221,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             // check the next item
                             self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
                         }
-                    }   //Json().getRecord - end
+                    }   //Json.shared.getRecord - end
             }
             
         } else {   // if let id = theObject["id"], let name = theObject["name"] - end
@@ -2286,7 +2334,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             if failedLookup.count > 0 {
                 let noun = (failedLookup.count) == 1 ? "lookup":"lookups"
                 WriteToLog.shared.message(theString: "[Failed Lookups] \(failedLookup.count) \(noun) failed")
-                _ = Alert().warning(header: "", message: "Some lookups failed, some items may be incorrectly listed.  Search the log for entries containing:\nNothing returned for server:")
+                _ = Alert.shared.warning(header: "", message: "Some lookups failed, some items may be incorrectly listed.  Search the log for entries containing:\nNothing returned for server:")
             }
     //        print("unusedItems_TableDict: \(unusedItems_TableDict ?? [[:]])")
         }
@@ -2514,7 +2562,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     func importFile(fileURL: URL) {
     
         if (fileURL.path.suffix(5) != ".json") {
-            _ = Alert().display(header: "Alert", message: "Import file type must be json")
+            _ = Alert.shared.display(header: "Alert", message: "Import file type must be json")
             return
         }
         var isDir : ObjCBool = false
@@ -2530,7 +2578,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             
             if objectJSON?["jamfServer"] as? String == nil || objectJSON?["username"] as? String == nil {
                 let theFile = fileURL.lastPathComponent
-                Alert().display(header: "Alert:", message: "\(theFile) does not appear to be a Prune file")
+                Alert.shared.display(header: "Alert:", message: "\(theFile) does not appear to be a Prune file")
                 return
             }
             
@@ -2540,7 +2588,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             let serverFromFile = (objectJSON?["jamfServer"] as? String)!.replacingOccurrences(of: "://", with: "/")
             let tmpArray2 = serverFromFile.components(separatedBy: "/")
             if tmpArray[1] != tmpArray2[1] {
-                Alert().display(header: "", message: "The import file is not from the server you are currently logged into.  You must log into \n\(objectJSON?["jamfServer"] as! String) \nto use this file.")
+                Alert.shared.display(header: "", message: "The import file is not from the server you are currently logged into.  You must log into \n\(objectJSON?["jamfServer"] as! String) \nto use this file.")
                 return
             }
             
@@ -2670,9 +2718,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
             do {
                 try unusedObjects.write(to: exportURL, atomically: true, encoding: .utf8)
-                Alert().summary(header: "Export Summary", message: "Report of unused itmes has been saved to ~/Downloads")
+                Alert.shared.summary(header: "Export Summary", message: "Report of unused itmes has been saved to ~/Downloads")
             } catch {
-                Alert().summary(header: "Export Summary", message: "Report of unused itmes failed to save to ~/Downloads")
+                Alert.shared.summary(header: "Export Summary", message: "Report of unused itmes failed to save to ~/Downloads")
             }
             return
         }
@@ -3225,7 +3273,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         exportSummary  = "\(exportSummary)\n\(failedExportLine)"
                     }
                 }
-                Alert().summary(header: "Export Summary", message: exportSummary)
+                Alert.shared.summary(header: "Export Summary", message: exportSummary)
             }
             working(isWorking: false)
         }   // exportQ.sync - end
@@ -3539,7 +3587,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //        print("masterItemsToDeleteArray: \(masterItemsToDeleteArray)")
 
         // alert the user before deleting
-        let continueDelete = Alert().warning(header: "Caution:", message: "You are about to remove \(masterItemsToDeleteArray.count) objects, are you sure you want to continue?")
+        let continueDelete = Alert.shared.warning(header: "Caution:", message: "You are about to remove \(masterItemsToDeleteArray.count) objects, are you sure you want to continue?")
 
         if continueDelete == "OK" {
             theDeleteQ.addOperation { [self] in
@@ -3577,7 +3625,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             if !(statusCode >= 200 && statusCode <= 299) {
                                 if "\(statusCode)" == "401" {
                                     self.working(isWorking: false)
-                                    Alert().display(header: "Alert", message: "Verify username and password.")
+                                    Alert.shared.display(header: "Alert", message: "Verify username and password.")
                                     return
                                 }
                                 failedDeleteCount+=1
@@ -3596,7 +3644,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     let item = (failedDeleteCount == 1) ? "item was":"items were"
                                     extraMessage = "\nNote, \(failedDeleteCount) \(item) not deleted."
                                 }
-                                Alert().display(header: "Removal process complete.\(extraMessage)", message: "")
+                                Alert.shared.display(header: "Removal process complete.\(extraMessage)", message: "")
                                 DispatchQueue.main.async {
                                     self.spinner_ProgressIndicator.isIndeterminate = true
                                 }
@@ -4103,7 +4151,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         let enteredServer = JamfProServer.source.replacingOccurrences(of: "://", with: "/")
         let tmpArray = enteredServer.components(separatedBy: "/")
         if !(tmpArray.count > 1 && JamfProServer.source.contains("://")) {
-            _ = Alert().display(header: "", message: "Invalid server URL.")
+            _ = Alert.shared.display(header: "", message: "Invalid server URL.")
             DispatchQueue.main.async {
                 self.performSegue(withIdentifier: "loginView", sender: nil)
                 self.working(isWorking: false)
@@ -4175,7 +4223,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             do {
                 try FileManager.default.createDirectory(atPath: Log.path!, withIntermediateDirectories: true, attributes: nil )
             } catch {
-                Alert().display(header: "Error:", message: "Unable to create log directory:\n\(String(describing: Log.path))\nTry creating it manually.")
+                Alert.shared.display(header: "Error:", message: "Unable to create log directory:\n\(String(describing: Log.path))\nTry creating it manually.")
                 exit(0)
             }
         }

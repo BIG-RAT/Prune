@@ -10,6 +10,9 @@ import Cocoa
 
 class Json: NSObject, URLSessionDelegate {
     
+    static let shared = Json()
+    private override init() { }
+    
     let getRecordQ = OperationQueue() // DispatchQueue(label: "com.jamf.getRecordQ", qos: DispatchQoS.background)
     
     func getRecord(theServer: String, base64Creds: String, theEndpoint: String, completion: @escaping (_ result: [String:AnyObject]) -> Void) {
@@ -92,13 +95,15 @@ class Json: NSObject, URLSessionDelegate {
                             } else {
                                 WriteToLog.shared.message(theString: "[Json.getRecord] error during GET, HTTP Status Code: \(httpResponse.statusCode)\n")
                                 if "\(httpResponse.statusCode)" == "401" {
-                                    _ = Alert().display(header: "Alert", message: "Verify username and password.")
+                                    _ = Alert.shared.display(header: "Alert", message: "Verify username and password")
+                                } else {
+                                    _ = Alert.shared.display(header: "Alert", message: "Error during GET, HTTP Status Code: \(httpResponse.statusCode)")
                                 }
                                 WriteToLog.shared.message(theString: "[Json.getRecord] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)")
                                 if let theId = Int(destEncodedURL?.lastPathComponent ?? "") {
                                     failedLookupDict(theEndpoint: theEndpoint, theId: "\(theId)")
                                 }
-                                completion([:])
+                                completion(["Alert" : "Error" as AnyObject])
                             }
                         } else {
                             WriteToLog.shared.message(theString: "[Json.getRecord] no response for \(existingDestUrl)")

@@ -324,7 +324,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                             }
                         } else {
                             // server down?
-                            _ = Alert().warning(header: "", message: "Failed to get an expected response from \(String(describing: serverUrl)).")
+                            _ = Alert.shared.warning(header: "", message: "Failed to get an expected response from \(String(describing: serverUrl)).")
                             WriteToLog.shared.message(theString: "[TokenDelegate.getToken] Failed to get an expected response from \(String(describing: serverUrl)).  Status Code: \(httpResponse.statusCode)")
                             JamfProServer.validToken = false
                             completion((httpResponse.statusCode, "failed"))
@@ -332,9 +332,9 @@ class JamfPro: NSObject, URLSessionDelegate {
                         }
                     } else {    // if httpResponse.statusCode <200 or >299
                         if JamfProServer.source.range(of: "/?failover=", options: [.regularExpression, .caseInsensitive]) != nil {
-                            _ = Alert().warning(header: "Authentication Failed", message: "Ensure you are not using the failover URL.")
+                            _ = Alert.shared.warning(header: "Authentication Failed", message: "Ensure you are not using the failover URL.")
                         } else {
-                            _ = Alert().display(header: "\(serverUrl)", message: "Failed to authenticate to \(serverUrl). \nStatus Code: \(httpResponse.statusCode)")
+                            _ = Alert.shared.display(header: "\(serverUrl)", message: "Failed to authenticate to \(serverUrl). \nStatus Code: \(httpResponse.statusCode)")
                             WriteToLog.shared.message(theString: "[getToken] Failed to authenticate to \(serverUrl).  Response error: \(httpResponse.statusCode)")
                         }
                         JamfProServer.validToken  = false
@@ -342,7 +342,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                         return
                     }
                 } else {
-                    _ = Alert().display(header: "\(serverUrl)", message: "Failed to connect. \nUnknown error, verify url and port.")
+                    _ = Alert.shared.display(header: "\(serverUrl)", message: "Failed to connect. \nUnknown error, verify url and port.")
                     WriteToLog.shared.message(theString: "[getToken] token response error from \(serverUrl).  Verify url and port")
                     JamfProServer.validToken  = false
                     completion((0, "failed"))
