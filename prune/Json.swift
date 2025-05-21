@@ -32,7 +32,6 @@ class Json: NSObject, URLSessionDelegate {
             
                 URLCache.shared.removeAllCachedResponses()
                 var existingDestUrl = ""
-                var authType        = "Bearer"
                 
                 switch theEndpoint {
                 case "computer-prestages":
@@ -43,27 +42,23 @@ class Json: NSObject, URLSessionDelegate {
                         existingDestUrl = "\(theServer)/api/v2/\(theEndpoint)"
                         existingDestUrl = existingDestUrl.replacingOccurrences(of: "//api/v2", with: "/api/v2")
                     }
-                    print("existingDestUrl: \(existingDestUrl)")
                 case "jcds2Packages":
                     existingDestUrl = "\(theServer)/api/v1/jcds/files"
                     existingDestUrl = existingDestUrl.replacingOccurrences(of: "//api/v1", with: "/api/v1")
                 default:
                     existingDestUrl = "\(theServer)/JSSResource/\(theEndpoint)"
                     existingDestUrl = existingDestUrl.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
-                    if JamfProServer.authType == "Basic" {
-                        authType = "Basic"
-                    }
                 }
                 
                 WriteToLog.shared.message("[Json.getRecord] get existing endpoints URL: \(existingDestUrl)")
                 let destEncodedURL = URL(string: existingDestUrl)
                 let jsonRequest    = NSMutableURLRequest(url: destEncodedURL! as URL)
+                jsonRequest.httpMethod = "GET"
                 
                 let semaphore = DispatchSemaphore(value: 0)
                 getRecordQ.maxConcurrentOperationCount = 4
                 getRecordQ.addOperation {
                     
-                    jsonRequest.httpMethod = "GET"
                     let destConf = URLSessionConfiguration.default
                     
                     destConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.accessToken)", "Content-Type" : "application/json", "Accept" : "application/json", "User-Agent" : AppInfo.userAgentHeader]

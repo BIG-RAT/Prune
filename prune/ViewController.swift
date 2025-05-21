@@ -111,6 +111,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         JamfPro.shared.jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.accessToken, method: "POST") { [self]
             (returnedJSON: [String:Any]) in
             WriteToLog.shared.message("logging out: \(String(describing: returnedJSON["JPAPI_result"]!))")
+            JamfProServer.validToken = false
+            JamfProServer.version    = ""
             performSegue(withIdentifier: "loginView", sender: nil)
         }
     }

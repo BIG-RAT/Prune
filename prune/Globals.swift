@@ -117,6 +117,7 @@ func runningNewer(_ compareTo: String) -> Bool {
     for i in 0..<maxCount {
         let b1 = i < base1.count ? base1[i] : 0
         let b2 = i < base2.count ? base2[i] : 0
+        print("[runningNewer] i: \(i) - \(b1) \(b2)")
         if b1 != b2 {
             return b1 > b2
         }
