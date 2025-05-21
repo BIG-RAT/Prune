@@ -644,23 +644,23 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
     private func migrateAppGroupSettings() {
         let _sharedContainerUrl     = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.\(appsGroupId)")
         let _sharedSettingsPlistUrl = (_sharedContainerUrl?.appendingPathComponent("Library/Preferences/group.\(appsGroupId).plist"))!
-        WriteToLog.shared.message(theString: "[migrateAppGroupSettings] _sharedSettingsPlistUrl: \(_sharedSettingsPlistUrl.path(percentEncoded: false))")
+        WriteToLog.shared.message("[migrateAppGroupSettings] _sharedSettingsPlistUrl: \(_sharedSettingsPlistUrl.path(percentEncoded: false))")
 //        print("[migrateSettings] sharedSettingsPlistUrl: \(sharedSettingsPlistUrl.path(percentEncoded: false))")
 //        print("[migrateSettings] _sharedSettingsPlistUrl: \(_sharedSettingsPlistUrl.path(percentEncoded: false))")
         
         if !FileManager.default.fileExists(atPath: sharedSettingsPlistUrl.path(percentEncoded: false)) {
-            WriteToLog.shared.message(theString: "creating settings file")
+            WriteToLog.shared.message("creating settings file")
             sharedDefaults!.set(Date(), forKey: "created")
             sharedDefaults!.set([String:AnyObject](), forKey: "serversDict")
         }
         var serversDict = sharedDefaults!.object(forKey: "serversDict") as? [String:AnyObject] ?? [String:AnyObject]()
         
-        WriteToLog.shared.message(theString: "[migrateAppGroupSettings] app group settings file: \(sharedSettingsPlistUrl.path(percentEncoded: false))")
+        WriteToLog.shared.message("[migrateAppGroupSettings] app group settings file: \(sharedSettingsPlistUrl.path(percentEncoded: false))")
         let settingsMigrated = sharedDefaults!.object(forKey: "migrated") as? String ?? "false"
-        WriteToLog.shared.message(theString: "[migrateAppGroupSettings] settingsMigrated: \(settingsMigrated)")
+        WriteToLog.shared.message("[migrateAppGroupSettings] settingsMigrated: \(settingsMigrated)")
         if settingsMigrated != "true" {
             if FileManager.default.fileExists(atPath: _sharedSettingsPlistUrl.path(percentEncoded: false)) {
-                WriteToLog.shared.message(theString: "[migrateAppGroupSettings] legacy settings file exists")
+                WriteToLog.shared.message("[migrateAppGroupSettings] legacy settings file exists")
                 
                 if let oldPrefs = UserDefaults(suiteName: "group.\(appsGroupId)") {
                     let _serversDict = oldPrefs.dictionary(forKey: "serversDict") ?? [String:AnyObject]()
@@ -671,10 +671,10 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
                     }
                     sharedDefaults!.set(serversDict, forKey: "serversDict")
                     sharedDefaults!.set("true" as AnyObject, forKey: "migrated")
-                    WriteToLog.shared.message(theString: "[migrateAppGroupSettings] migrated settings")
+                    WriteToLog.shared.message("[migrateAppGroupSettings] migrated settings")
                 } else {
-                    WriteToLog.shared.message(theString: "[migrateAppGroupSettings] unable to read legacy settings")
-                    WriteToLog.shared.message(theString: "[migrateAppGroupSettings] failed to migrate settings")
+                    WriteToLog.shared.message("[migrateAppGroupSettings] unable to read legacy settings")
+                    WriteToLog.shared.message("[migrateAppGroupSettings] failed to migrate settings")
                 }
             } else {
                 do {

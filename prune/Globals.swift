@@ -51,12 +51,12 @@ struct JamfProServer {
     static var useApiClient = 0
 }
 
-struct Log {
-    static var path: String? = (NSHomeDirectory() + "/Library/Logs/")
-    static var file     = "prune.log"
-    static var maxFiles = 42
-//    static var maxSize  = 5000000 // 5MB
-}
+//struct Log {
+//    static var path: String? = (NSHomeDirectory() + "/Library/Logs/")
+//    static var file     = "prune.log"
+//    static var maxFiles = 42
+////    static var maxSize  = 5000000 // 5MB
+//}
 
 struct LoginWindow {
     static var show = true
@@ -101,6 +101,34 @@ func failedLookupDict(theEndpoint: String, theId: String) {
     } else {
         failedLookup[theEndpoint]?.append(theId)
     }
+}
+
+func runningNewer(_ compareTo: String) -> Bool {
+    // Split into base and suffix parts
+    let parts1 = JamfProServer.version.split(separator: "-", maxSplits: 1).map(String.init)
+    let parts2 = compareTo.split(separator: "-", maxSplits: 1).map(String.init)
+
+    let base1 = parts1[0].split(separator: ".").compactMap { Int($0) }
+    let base2 = parts2[0].split(separator: ".").compactMap { Int($0) }
+
+    let maxCount = max(base1.count, base2.count)
+
+    // Compare numeric version segments
+    for i in 0..<maxCount {
+        let b1 = i < base1.count ? base1[i] : 0
+        let b2 = i < base2.count ? base2[i] : 0
+        if b1 != b2 {
+            return b1 > b2
+        }
+    }
+    return false
+    /*
+    // Compare suffixes if present
+    let suffix1 = parts1.count > 1 ? parts1[1] : ""
+    let suffix2 = parts2.count > 1 ? parts2[1] : ""
+
+    return suffix1.compare(suffix2, options: .numeric)
+     */
 }
 
 func getCurrentTime(theFormat: String = "log") -> String {
