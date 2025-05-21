@@ -73,7 +73,6 @@ class WriteToLog {
             fileHandle.seekToEndOfFile()
             fileHandle.write(logData)
         } catch {
-//            print("[Log Error] Failed to write to log file: \(error.localizedDescription)")
             NSLog("[Log Error] Failed to write to log file: \(error.localizedDescription)")
         }
     }
