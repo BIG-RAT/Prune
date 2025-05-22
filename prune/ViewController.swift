@@ -910,13 +910,11 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 // look for packages used in patch policies
                 WriteToLog.shared.message("[processItems] patchsoftwaretitles")
                 let nextObject = "patchpolicies"
-//                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
                 if packagesButtonState == "on" || computerEAsButtonState == "on" {
                     DispatchQueue.main.async {
                            self.process_TextField.stringValue = "Fetching Patch Software Titles..."
                     }
 
-//                        self.masterObjectDict[type] = [String:[String:String]]()
                     var patchPoliciesArray = [[String:Any]]()
                     
                     JamfPro.shared.apiGetAll(serverUrl: JamfProServer.source, endpoint: "patch-software-title-configurations") {
