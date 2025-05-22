@@ -792,7 +792,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                                             
             case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
                 msgText    = "mobile device profiles"
-//                nextObject = "patchsoftwaretitles"
                 nextObject = "app-installers"
                 
                 if (type == "mobiledeviceapplications" && self.mobileDeviceAppsButtonState == "on") || self.mobileDeviceGroupsButtonState == "on" || (type == "mobiledeviceconfigurationprofiles" && self.configurationProfilesButtonState == "on") {
@@ -910,10 +909,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             case "patchsoftwaretitles":
                 // look for packages used in patch policies
                 WriteToLog.shared.message("[processItems] patchsoftwaretitles")
-        //        let nextObject = "patchsoftwaretitles"
                 let nextObject = "patchpolicies"
 //                    if self.computerGroupsButtonState == "on" || self.packagesButtonState == "on" {
-                if packagesButtonState == "on" {
+                if packagesButtonState == "on" || computerEAsButtonState == "on" {
                     DispatchQueue.main.async {
                            self.process_TextField.stringValue = "Fetching Patch Software Titles..."
                     }
@@ -1655,6 +1653,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             if packageInfo["displayName"] != nil {
 //                                print("packageInfo[\"displayName\"]: \(String(describing: packageInfo["displayName"]))")
                                 self.masterObjectDict["packages"]![packageInfo["displayName"]!]?["used"] = "true"
+                            }
+                        }
+                    }
+                    if let eaInfo = result["extensionAttributes"] as? [[String: Any]] {
+                        for ea in eaInfo {
+//                            print("ea[\"displayName\"]: \(String(describing: ea["eaId"]))")
+                            if let displayName = ea["eaId"] as? String, let accepted = ea["accepted"] as? Bool {
+                                self.masterObjectDict["computerextensionattributes"]![displayName]?["used"] = "true"
                             }
                         }
                     }
