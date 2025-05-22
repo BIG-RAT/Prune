@@ -178,6 +178,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     process_TextField.stringValue = "Starting lookups..."
                 }
                 // initialize masterObjectsDict
+                masterObjectDict.removeAll()
                 for theObject in masterObjects {
                     masterObjectDict[theObject] = [String:[String:String]]()
                 }
