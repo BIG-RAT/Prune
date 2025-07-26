@@ -3448,6 +3448,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         working(isWorking: true)
         
+        let removeDisabledPolicies = NSEvent.modifierFlags.contains(.option) ? true : false
+        
         JamfProServer.source = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
         jamfCreds            = "\(JamfProServer.username):\(JamfProServer.password)"
         let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
@@ -3468,7 +3470,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
         }
 
-//        if (viewing == "All" && scriptsButtonState == "on") || viewing == "Scripts" {
         if (viewing == "All" && scripts_Button.state.rawValue == 1) || viewing == "Scripts" {
             for (key, _) in masterObjectDict["scripts"]! {
                 if masterObjectDict["scripts"]![key]?["used"] == "false" {
@@ -3510,8 +3511,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         }
 
         if (viewing == "All" && policies_Button.state.rawValue == 1) || viewing == "Policies" {
+            print("[remove_Action] removeDisabledPolicies: \(removeDisabledPolicies)")
             for (key, _) in masterObjectDict["policies"]! {
-                if masterObjectDict["policies"]?[key]?["used"] == "false" {
+                if masterObjectDict["policies"]?[key]?["used"] == "false" || (removeDisabledPolicies && masterObjectDict["policies"]?[key]?["enabled"] == "false") {
                     let id = "\(String(describing: masterObjectDict["policies"]![key]!["id"]!))"
                     WriteToLog.shared.message("[remove_Action] remove policy with id: \(id)")
                     masterItemsToDeleteArray.append(["policies":id])

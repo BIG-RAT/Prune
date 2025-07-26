@@ -100,7 +100,7 @@ Once the list of unused items is generated you can edit it within the app.  If y
 <hr><br>
 
 ### Important:
-* This application deletes stuff, <b>use with caution!</b>  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Jamf Migrator](https://github.com/jamf/JamfMigrator) and export the (full) XML of all objects, or do both.
+* This application deletes stuff, <b>use with caution!</b>  It is recommended you have a valid backup before deleting any objects.  You could either perform a database backup (if on prem) or use [Replicator](https://github.com/jamf/Replicator) and export the (full) XML of all objects, or do both.
 * **Policies** scoped only to users and/or user groups will show as unused due to an issue with the API (it doesn't list the users or user groups).
 * **Mac App** enabled/disabled state is not available via the API and thus not used to determine usage.
 * **Bookmarks** are not accessible via the API.  As a result groups that are only used to scope bookmarks will show as unused.
