@@ -25,9 +25,11 @@ Once the list of unused items is generated you can edit it within the app.  If y
 * Click Delete if you wish to delete the listed items from the server.
 * To delete one specific object type after scanning multiple object types change the View option to the desired object type then click Delete.
 * Click Export if you wish to save (to your Downloads folder) the lists of objects, one file per object type, to remove for review/editing later.  These lists can then be imported into the application by either clicking the import button or dragging the file onto the button.
-* Option-click Export to export all items to a single CSV in your downloads folder.
+* Option-click Export to export all items to a single CSV in your downloads folder.<br><br>
+
+**Note:** Blueprints are not scanned. As a result groups used only in blueprints will show as unused.
  
-<br><hr><br>
+
 ### Usage Calculations<br>
 
 <table>
