@@ -5,6 +5,8 @@
 
 Download: [Prune](https://github.com/BIG-RAT/prune/releases/latest/download/prune.zip)
 
+The application will submit basic hardware, OS, and Prune application usage to [TelemetryDeck](https://telemetrydeck.com). The data is sent anamously and used to aid in the development of the application. To opt out of data the sending of data click 'Opt out of analytics' at the bottom of the 'About Prune' window.
+
 As your Jamf server ages it often accumulates more and more unused items, such as outdated packages, unscoped policies, mobile device apps...  Use Prune to help identify and remove those unused items.
 
 ![alt text](./images/pruneApp.png "Prune")
@@ -111,6 +113,8 @@ Logging information is written to: ```~/Library/Containers/com.jamf.pse.prune/Da
 <br><hr><br>
 
 ### History:
+2025-12-24 - v3.4.0: Add basic hardware, OS, and Object Info app useage collection. Data is sent anonymously to [TelemetryDeck](https:telemetrydeck.com) to aid in the development of the app. View 'About Object Info' to opt out of sending the data. Address items in issue #55. Add ability to remove scoped disabled policies.
+
 2025-04-14 - v3.3.0: Include printers as an available object to scan. Update for Sequoia and accessing shared data. Misc fixes and cleanup.
 
 2024-09-26 - v3.2.2: Address crash when exporting after an import. Address title being truncated, full name appears as a tooltip.
