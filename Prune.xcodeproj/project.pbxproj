@@ -86,6 +86,7 @@
 		B58A313223A1397E0023EA63 = {
 			isa = PBXGroup;
 			children = (
+				CEA5E677291E45FE001E0611 /* Notes.md */,
 				B58A313D23A1397E0023EA63 /* prune */,
 				B58A313C23A1397E0023EA63 /* Products */,
 				410D086700EC743CE33D0EA3 /* Pods */,
@@ -122,7 +123,6 @@
 				B58A314423A139810023EA63 /* Main.storyboard */,
 				B58A314723A139810023EA63 /* Info.plist */,
 				B58A314823A139810023EA63 /* prune.entitlements */,
-				CEA5E677291E45FE001E0611 /* Notes.md */,
 			);
 			path = prune;
 			sourceTree = "<group>";

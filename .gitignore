@@ -2,4 +2,5 @@ localOnly/
 *.DS_Store
 *.xcuserstate
 *.xcbkptlist
+**/Notes.md
 **/TelemetryDeckConfig.swift
