@@ -22,6 +22,9 @@
 		B5B3096C23B05120004BA9DB /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B3096B23B05120004BA9DB /* Globals.swift */; };
 		B5BB0D8C29C656350020363A /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BB0D8B29C64ECD0020363A /* ImportView.swift */; };
 		B5DF4D6C23A5771A00225468 /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DF4D6B23A5771A00225468 /* Time.swift */; };
+		CE69FFD62EFB1D66008495DF /* TelemetryDeckConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE69FFD52EFB1D66008495DF /* TelemetryDeckConfig.swift */; };
+		CE69FFD92EFB1D90008495DF /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = CE69FFD82EFB1D90008495DF /* TelemetryDeck */; };
+		CE69FFDE2EFC0B32008495DF /* AboutVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE69FFDD2EFC0B32008495DF /* AboutVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +47,8 @@
 		B5B3096B23B05120004BA9DB /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		B5BB0D8B29C64ECD0020363A /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
 		B5DF4D6B23A5771A00225468 /* Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
+		CE69FFD52EFB1D66008495DF /* TelemetryDeckConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryDeckConfig.swift; sourceTree = "<group>"; };
+		CE69FFDD2EFC0B32008495DF /* AboutVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutVC.swift; sourceTree = "<group>"; };
 		CEA5E677291E45FE001E0611 /* Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Notes.md; sourceTree = "<group>"; };
 		D2FC4023F18644BA239A2BAD /* Pods_Prune.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Prune.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -54,6 +59,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				79E6527585CEA12C7F96FD1C /* Pods_Prune.framework in Frameworks */,
+				CE69FFD92EFB1D90008495DF /* TelemetryDeck in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,6 +104,7 @@
 		B58A313D23A1397E0023EA63 /* prune */ = {
 			isa = PBXGroup;
 			children = (
+				CE69FFDD2EFC0B32008495DF /* AboutVC.swift */,
 				B5B3096523AD3857004BA9DB /* Alert.swift */,
 				B58A313E23A1397E0023EA63 /* AppDelegate.swift */,
 				B58981E823B3DAC700CC3C5B /* Credentials.swift */,
@@ -106,6 +113,7 @@
 				B580FA3E27B8324300E425EC /* JamfPro.swift */,
 				B580FA4A27BA14AB00E425EC /* LoginViewController.swift */,
 				B58A314E23A13CF30023EA63 /* Json.swift */,
+				CE69FFD52EFB1D66008495DF /* TelemetryDeckConfig.swift */,
 				B5DF4D6B23A5771A00225468 /* Time.swift */,
 				B58A314023A1397E0023EA63 /* ViewController.swift */,
 				B5247030252C53A1006CCFD3 /* WriteToLog.swift */,
@@ -166,6 +174,9 @@
 				Base,
 			);
 			mainGroup = B58A313223A1397E0023EA63;
+			packageReferences = (
+				CE69FFD72EFB1D90008495DF /* XCRemoteSwiftPackageReference "SwiftSDK" */,
+			);
 			productRefGroup = B58A313C23A1397E0023EA63 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -257,6 +268,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE69FFDE2EFC0B32008495DF /* AboutVC.swift in Sources */,
 				B5B3096623AD3857004BA9DB /* Alert.swift in Sources */,
 				B5247031252C53A1006CCFD3 /* WriteToLog.swift in Sources */,
 				B5DF4D6C23A5771A00225468 /* Time.swift in Sources */,
@@ -268,6 +280,7 @@
 				B5AE193D2A5740D300F75694 /* XmlParser.swift in Sources */,
 				B580FA3F27B8324300E425EC /* JamfPro.swift in Sources */,
 				B5B3096C23B05120004BA9DB /* Globals.swift in Sources */,
+				CE69FFD62EFB1D66008495DF /* TelemetryDeckConfig.swift in Sources */,
 				B580FA4B27BA14AC00E425EC /* LoginViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -481,6 +494,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CE69FFD72EFB1D90008495DF /* XCRemoteSwiftPackageReference "SwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TelemetryDeck/SwiftSDK";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CE69FFD82EFB1D90008495DF /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE69FFD72EFB1D90008495DF /* XCRemoteSwiftPackageReference "SwiftSDK" */;
+			productName = TelemetryDeck;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B58A313323A1397E0023EA63 /* Project object */;
 }

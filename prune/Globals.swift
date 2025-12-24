@@ -6,6 +6,7 @@
 //  Copyright © 2019 Leslie Helou. All rights reserved.
 //
 
+import Cocoa
 import Foundation
 
 var saveServers            = true
@@ -23,10 +24,18 @@ var failedLookup           = [String:[String]]()
 struct AppInfo {
     static let dict    = Bundle.main.infoDictionary!
     static let version = dict["CFBundleShortVersionString"] as! String
+    static let build   = Bundle.main.infoDictionary!["CFBundleVersion"] as! String
     static let name    = dict["CFBundleExecutable"] as! String
 
     static let userAgentHeader = "\(String(describing: name.addingPercentEncoding(withAllowedCharacters: .alphanumerics)!))/\(AppInfo.version)"
 }
+
+// determine if we're using dark mode
+var isDarkMode: Bool {
+    let mode = defaults.string(forKey: "AppleInterfaceStyle")
+    return mode == "Dark"
+}
+@MainActor var defaultTextColor = isDarkMode ? NSColor.white:NSColor.black
 
 struct JamfProServer {
     static var majorVersion = 0

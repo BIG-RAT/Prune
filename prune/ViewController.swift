@@ -4052,10 +4052,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
             if let displayedName = self.unusedItems_TableArray?[theRow] {
                 let itemName = displayedName.replacingOccurrences(of: ")    [disabled]", with: ")")
-//                print("[\(#line)] itemName: \(String(itemName))")
                 
                 if let itemDict = self.unusedItems_TableDict?[theRow] {
-//                    print("[\(#line)] itemDict: \(itemDict)")
                     if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
                         for (_, objectType) in itemDict as [String:String] {
                             
@@ -4063,94 +4061,81 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             
                             switch objectType {
                                 case "packages":
-                                    if let objectId = self.masterObjectDict["packages"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/packages.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/view/settings/computer-management/\(objectType.lowercased())/\(objectId)?tab=general") {
                                         NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
                                 
                                 case "scripts":
-                                let scriptPath = (JamfProServer.majorVersion == 10 && JamfProServer.minorVersion > 39) ? "computer-management":"computer"
+                                let scriptPath = (JamfProServer.majorVersion == 10 && JamfProServer.minorVersion > 39) || JamfProServer.majorVersion > 10 ? "computer-management":"computer"
                                     if let objectId = self.masterObjectDict["scripts"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/view/settings/\(scriptPath)/scripts/\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
                                 
                                 case "classes":
                                     if let objectId = self.masterObjectDict["classes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/classes.html/?id=\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
                                 
                                 case "computergroups":
                                       if let objectId = self.masterObjectDict["computerGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["computerGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(JamfProServer.source)/\(groupType)s.html/?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
-                                          return
                                       }
                                 
                                 case "osxconfigurationprofiles":
                                       if let objectId = self.masterObjectDict["osxconfigurationprofiles"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/OSXConfigurationProfiles.html?id=\(objectId)&o=r") {
                                           NSWorkspace.shared.open(objectURL)
-                                          return
                                       }
                                 
                                 case "policies":
                                     if let objectId = self.masterObjectDict["policies"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/policies.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
                                 
                                 case "printers":
                                     if let objectId = self.masterObjectDict["printers"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/printers.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
                                 
                                 case "restrictedsoftware":
                                     if let objectId = self.masterObjectDict["restrictedsoftware"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/restrictedSoftware.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
-                                        return
+//
                                     }
                                 
                                 case "computerextensionattributes":
-                                    if let objectId = self.masterObjectDict["computerextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/computerExtensionAttributes.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/view/settings/computer-management/computer-extension-attributes/\(objectId)") {
                                         NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
 
                                 case "mobiledevicegroups":
                                     if let objectId = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(JamfProServer.source)/\(groupType)s.html/?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
 
                                 case "mobiledeviceapplications":
                                     if let objectId = self.masterObjectDict["mobiledeviceapplications"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/mobileDeviceApps.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
                                 
                                 case "mobiledeviceconfigurationprofiles":
                                     if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/iOSConfigurationProfiles.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
                                 
                                 case "ebooks":
                                     if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/eBooks.html/?id=\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
                                     
                                 case "mobiledeviceextensionattributes":
-                                    if let objectId = self.masterObjectDict["mobiledeviceextensionattributes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/mobileDeviceExtensionAttributes.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/view/settings/device-management/mobile-device-extension-attributes/\(objectId)") {
                                         NSWorkspace.shared.open(objectURL)
-                                        return
                                     }
 
                                 default:
                                     WriteToLog.shared.message("[viewSelectObject] unknown objectType: \(String(describing: self.removeObject_Action))")
-                                    return
                             }
+                            return
                         }
                     }
                 }   //if let itemDict - end
