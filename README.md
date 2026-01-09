@@ -73,6 +73,7 @@ Once the list of unused items is generated, you can edit it directly within the 
 
 ---
 
+<a id="setting-up-api-client-credentials"></a>
 ## 🔑 Setting Up API Client Credentials
 
 API Client Credentials are the recommended method for authenticating with your Jamf Pro server. They provide better security and are more suitable for programmatic access than user accounts.
