@@ -100,42 +100,23 @@ API Client Credentials are the recommended method for authenticating with your J
    
    If you want to use Prune with all available object types, you'll need to grant the following privileges in your API role:
    
-   - Delete Static Computer Groups
-   - Read iOS Configuration Profiles
-   - Delete macOS Configuration Profiles
-   - Read Static Computer Groups
-   - Read Mobile Device PreStage Enrollments
-   - Delete Printers
-   - Read Mac Applications
-   - Delete Mobile Device Applications
-   - Read macOS Configuration Profiles
-   - Delete iOS Configuration Profiles
-   - Delete Scripts
-   - Delete eBooks
-   - Read Mobile Device Extension Attributes
-   - Delete Mac Applications
-   - Delete Computer Extension Attributes
-   - Delete Mobile Device Extension Attributes
-   - Delete Static Mobile Device Groups
-   - Read Scripts
-   - Read Computer PreStage Enrollments
-   - Delete Smart Computer Groups
-   - Delete Policies
-   - Read Static Mobile Device Groups
-   - Read Mobile Device Applications
-   - Read Printers
-   - Delete Packages
-   - Read Restricted Software
-   - Read Classes
-   - Read Smart Computer Groups
-   - Delete Restricted Software
-   - Read Smart Mobile Device Groups
-   - Read Packages
-   - Read Computer Extension Attributes
-   - Read eBooks
-   - Delete Smart Mobile Device Groups
-   - Delete Classes
-   - Read Policies
+   - **Classes**: Read Classes, Delete Classes
+   - **Computer Extension Attributes (EAs)**: Read Computer Extension Attributes, Delete Computer Extension Attributes
+   - **Computer Objects (General)**: Read Computer PreStage Enrollments
+   - **Computer Groups**: Read Smart Computer Groups, Delete Smart Computer Groups, Read Static Computer Groups, Delete Static Computer Groups 
+   - **eBooks**: Read eBooks, Delete eBooks
+   - **Mobile Device Configuration Profiles**: Read iOS Configuration Profiles, Delete iOS Configuration Profiles
+   - **Mac Apps**: Read Mac Applications, Delete Mac Applications
+   - **Computer Profiles**: Read macOS Configuration Profiles, Delete macOS Configuration Profiles
+   - **Mobile Device Apps**: Read Mobile Device Applications, Delete Mobile Device Applications
+   - **Mobile Device Extension Attributes (EAs)**: Read Mobile Device Extension Attributes, Delete Mobile Device Extension Attributes
+   - **Mobile Device Objects (General)**: Read Mobile Device PreStage Enrollments
+   - **Mobile Device Groups**: Read Smart Mobile Device Groups, Delete Smart Mobile Device Groups, Read Static Mobile Device Groups, Delete Static Mobile Device Groups
+   - **Packages**: Read Packages, Delete Packages
+   - **Policies**: Read Policies, Delete Policies
+   - **Printerss**: Read Printers, Delete Printers
+   - **Restricted Software**: Read Restricted Software, Delete Restricted Software
+   - **Scripts**: Read Scripts, Delete Scripts
    
    > **Tip**: You can create separate API roles for different use cases (e.g., one for read-only scanning and one for full delete access) and assign them to different API clients as needed.
         
