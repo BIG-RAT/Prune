@@ -9,7 +9,6 @@
 import AppKit
 import Cocoa
 import Foundation
-import SwiftyXMLParser
 
 class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDelegate, URLSessionDelegate {
     
