@@ -18,6 +18,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     var theGetQ    = OperationQueue() // create operation queue for API POST/PUT calls
     var theDeleteQ = OperationQueue() // queue for delete API calls
     
+    private let parser = XMLDotNotationParser()
+    
     @IBOutlet weak var jamfServer_TextField: NSTextField!
     
     @IBOutlet weak var scan_Button: NSButton!
@@ -215,7 +217,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     func processItems(type: String) {
         
         WriteToLog.shared.message("[processItems] Starting to process \(type)")
-//        let semaphore = DispatchSemaphore(value: 0)
+
         theGetQ.maxConcurrentOperationCount = 4
         var groupType = ""
 
@@ -245,20 +247,19 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
                    var eaArray = [[String:Any]]()
                    
-                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                        (result: (Int,String)) in
                         let (statusCode,returnedXml) = result
-                        print("[processItems] returnedXml: \(statusCode)")
-//                        var enabled       = true
-                        let parser = XMLDotNotationParser()
-                        guard let parsedXmlData1 = parser.parse(string: returnedXml) else {
+//                        print("[processItems] returnedXml: \(statusCode)")
+
+                        guard let parsedXmlData = parser.parse(string: returnedXml) else {
                            WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
                            return
                         }
                         
-                        let allEAs1 = (type == "computerextensionattributes") ? parsedXmlData1.all("computer_extension_attribute") : parsedXmlData1.all("mobile_device_extension_attribute")
+                        let allEAs = (type == "computerextensionattributes") ? parsedXmlData.all("computer_extension_attribute") : parsedXmlData.all("mobile_device_extension_attribute")
 
-                        for eaInfo in allEAs1 {
+                        for eaInfo in allEAs {
                             if let id = eaInfo.id?.intValue, let name = eaInfo.name?.value {
 
                                 let enabled = eaInfo.enabled?.boolValue ?? true
@@ -359,9 +360,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
                                 }
                             }
-
                         }
-
                     }
                 } else {
                     if type == "computerGroups" {
@@ -1013,22 +1012,27 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                                self.masterObjectDict[type] = [String:[String:String]]()
                         var patchPoliciesArray = [[String:Any]]()
                         
-                        self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") {
+                        self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") { [self]
                             (result: (Int,String)) in
                             let (statusCode,returnedXml) = result
 //                            print("[processItems] patchpolicies GET statusCode: \(statusCode)")
 //                            print("[processItems]        patchpolicies GET xml: \(returnedXml)")
-                            var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
-                            nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
-                            let xmlData = nameFixedXml.data(using: .utf8)
-                            let parsedXmlData = XML.parse(xmlData!)
+                            
+//                            var nameFixedXml = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
+//                            nameFixedXml = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
+//                            let xmlData = nameFixedXml.data(using: .utf8)
+//                            let parsedXmlData = XML.parse(xmlData!)
+                            
+                            guard let parsedXmlData = parser.parse(string: returnedXml) else {
+                               WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                               return
+                            }
 
-                            for thePolicy in parsedXmlData.patch_policies.patch_policy {
-//                            for thePolicy in parsedXmlData.patch_policies {
-                                if let id = thePolicy.id.text, let name = thePolicy.Name.text {
+                            for thePolicy in parsedXmlData.all("patch_policy") {
+                                if let id = thePolicy.id?.intValue, let name = thePolicy.name?.value {
 
-                                    WriteToLog.shared.message("patchPolicy id: \(thePolicy.id.text!) \t name: \(thePolicy.Name.text!)")
-                                    patchPoliciesArray.append(["id": "\(thePolicy.id.text!)", "name": "\(thePolicy.Name.text!)"])
+                                    WriteToLog.shared.message("patchPolicy id: \(id) \t name: \(name)")
+                                    patchPoliciesArray.append(["id": "\(id)", "name": "\(name)"])
                                     // mark patch policies as unused (reporting only) - start
                                     self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
                                     // mark patch policies as unused (reporting only) - end
@@ -1176,22 +1180,27 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                   self.masterObjectDict[type] = [String:[String:String]]()
                var restrictedsoftwareArray = [[String:Any]]()
                
-                self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                    (result: (Int,String)) in
                    let (statusCode,returnedXml) = result
    //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
    //                                    print("[processItems] restrictedsoftware GET xml: \(returnedXml)")
-                   var nameFixedXml  = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
-                   nameFixedXml      = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
-                   let xmlData       = nameFixedXml.data(using: .utf8)
-                   let parsedXmlData = XML.parse(xmlData!)
+//                   var nameFixedXml  = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
+//                   nameFixedXml      = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
+//                   let xmlData       = nameFixedXml.data(using: .utf8)
+//                   let parsedXmlData = XML.parse(xmlData!)
 
-                   for rsPolicy in parsedXmlData.restricted_software.restricted_software_title {
-                       if let id = rsPolicy.id.text, let name = rsPolicy.Name.text {
+                    guard let parsedXmlData = parser.parse(string: returnedXml) else {
+                       WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                       return
+                    }
+                    
+                   for rsPolicy in parsedXmlData.all("restricted_software_title") {
+                       if let id = rsPolicy.id?.intValue, let name = rsPolicy.name?.value {
 
 //                               print("restricted software title id: \(rsPolicy.id.text!) \t name: \(rsPolicy.Name.text!)")
-                           WriteToLog.shared.message("restricted software title id: \(rsPolicy.id.text!)      name: \(rsPolicy.Name.text!)")
-                           restrictedsoftwareArray.append(["id": "\(rsPolicy.id.text!)", "name": "\(rsPolicy.Name.text!)"])
+                           WriteToLog.shared.message("restricted software title id: \(id)      name: \(name)")
+                           restrictedsoftwareArray.append(["id": "\(id)", "name": "\(name)"])
                            // mark restricted software title as unused (reporting only)
                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
                        }
@@ -1246,22 +1255,27 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   self.masterObjectDict[type] = [String:[String:String]]()
                    var advancedcomputersearchArray = [[String:Any]]()
                    
-                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                        (result: (Int,String)) in
                        let (statusCode,returnedXml) = result
        //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
        //                                    print("[processItems] restrictedsoftware GET xml: \(returnedXml)")
-                       var nameFixedXml  = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
-                       nameFixedXml      = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
-                       let xmlData       = nameFixedXml.data(using: .utf8)
-                       let parsedXmlData = XML.parse(xmlData!)
+//                       var nameFixedXml  = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
+//                       nameFixedXml      = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
+//                       let xmlData       = nameFixedXml.data(using: .utf8)
+//                       let parsedXmlData = XML.parse(xmlData!)
+                        
+                        guard let parsedXmlData = parser.parse(string: returnedXml) else {
+                           WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                           return
+                        }
 
-                       for acsPolicy in parsedXmlData.advanced_computer_searches.advanced_computer_search {
-                           if let id = acsPolicy.id.text, let name = acsPolicy.Name.text {
+                        for acsPolicy in parsedXmlData.all("advanced_computer_search") {
+                            if let id = acsPolicy.id?.intValue, let name = acsPolicy.name?.value {
 
     //                               print("restricted software title id: \(acsPolicy.id.text!) \t name: \(acsPolicy.Name.text!)")
-                               WriteToLog.shared.message("advanced computer search title id: \(acsPolicy.id.text!)      name: \(acsPolicy.Name.text!)")
-                               advancedcomputersearchArray.append(["id": "\(acsPolicy.id.text!)", "name": "\(acsPolicy.Name.text!)"])
+                               WriteToLog.shared.message("advanced computer search title id: \(id)      name: \(name)")
+                               advancedcomputersearchArray.append(["id": "\(id)", "name": "\(name)"])
                                // mark advanced computer search title as unused (reporting only)
                                self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
                            }
@@ -1317,18 +1331,23 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     //                   self.masterObjectDict[type] = [String:[String:String]]()
                    var advancedsearchArray = [[String:Any]]()
                    
-                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
+                    self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                        (result: (Int,String)) in
                        let (statusCode,returnedXml) = result
        //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
        //                                    print("[processItems] restrictedsoftware GET xml: \(returnedXml)")
-                       var nameFixedXml  = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
-                       nameFixedXml      = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
-                       let xmlData       = nameFixedXml.data(using: .utf8)
-                       let parsedXmlData = XML.parse(xmlData!)
+//                       var nameFixedXml  = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
+//                       nameFixedXml      = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
+//                       let xmlData       = nameFixedXml.data(using: .utf8)
+//                       let parsedXmlData = XML.parse(xmlData!)
+                        
+                        guard let parsedXmlData = parser.parse(string: returnedXml) else {
+                           WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                           return
+                        }
 
-                       for amds in parsedXmlData.advanced_mobile_device_searches.advanced_mobile_device_search {
-                           if let id = amds.id.text, let name = amds.Name.text {
+                       for amds in parsedXmlData.all("advanced_mobile_device_search") {
+                           if let id = amds.id?.intValue, let name = amds.name?.value {
 
     //                               print("restricted software title id: \(acsPolicy.id.text!) \t name: \(acsPolicy.Name.text!)")
                                WriteToLog.shared.message("advanced mobile device search title id: \(id)      name: \(name)")
@@ -1687,10 +1706,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                            print("statusCode: \(statusCode)")
                             if statusCode >= 200 && statusCode < 300 {
                                 let patchPolicyXml = self.nameFixedXml(originalXml: returnedXml)
-//                                print("[patchpolicy] returnedXml: \(patchPolicyXml)")
+                                print("[recursiveLookup.patchpolicy] returnedXml: \(patchPolicyXml)")
 
-                                let xmlData = patchPolicyXml.data(using: .utf8)
-                                let parsedXmlData = XML.parse(xmlData!)
+//                                let xmlData = patchPolicyXml.data(using: .utf8)
+//                                let parsedXmlData = XML.parse(xmlData!)
                                 
 //                                if "\(theEndpoint)" == "patchsoftwaretitles" {
 //                                    // check of used packages - start
@@ -1708,23 +1727,27 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                                    // check of used packages - end
 //                                } else {
                                     // check scoped groups
-                                    let patchPolicyScopeArray = parsedXmlData.patch_policy.scope.computer_groups.computer_group
-                                    for scopedGroup in patchPolicyScopeArray {
-                                        if scopedGroup.Name.text != nil {
-    //                                        print("theGroup: \(scopedGroup.Name.text!)")
-    //                                        self.computerGroupsDict["\(scopedGroup.Name.text!)"]?["used"] = "true"
-                                            self.masterObjectDict["computerGroups"]!["\(scopedGroup.Name.text!)"] = ["used":"true"]
+                                
+                                if let parsedXmlData = parser.parse(string: returnedXml) {
+                                    
+//                                        let patchPolicyScopeArray = parsedXmlData.patch_policy.scope.computer_groups.computer_group
+                                    for scopedGroup in parsedXmlData.scope?.computer_groups?.all("computer_group") ?? [] {
+                                        if let name = scopedGroup.name?.value {
+                                            print("[recursiveLookup.patchpolicy] theGroup: \(name)")
+                                            self.masterObjectDict["computerGroups"]!["\(name)"] = ["used":"true"]
                                         }
                                     }
-                                    // check excluded groups
-                                    let patchPolicyExcludeArray = parsedXmlData.patch_policy.scope.exclusions.computer_groups.computer_group
-                                    for excludedGroup in patchPolicyExcludeArray {
-                                        if excludedGroup.Name.text != nil {
+                                        // check excluded groups
+//                                    let patchPolicyExcludeArray = parsedXmlData.patch_policy.scope.exclusions.computer_groups.computer_group
+                                    for excludedGroup in parsedXmlData.scope?.exclusions?.computer_groups?.all("computer_group") ?? [] {
+                                        if let name = excludedGroup.name?.value {
     //                                        print("theExcludedGroup: \(excludedGroup.Name.text!)")
-    //                                        self.computerGroupsDict["\(excludedGroup.Name.text!)"]?["used"] = "true"
-                                            self.masterObjectDict["computerGroups"]!["\(excludedGroup.Name.text!)"] = ["used":"true"]
+                                            self.masterObjectDict["computerGroups"]!["\(name)"] = ["used":"true"]
                                         }
                                     }
+                                    
+                                }
+                                
 //                                }
                             } else {
 //                                WriteToLog.shared.message("[recursiveLookup] Nothing returned for server: \(theServer) endpoint: \(theEndpoint)/\(id).  Status code: \(statusCode)")
