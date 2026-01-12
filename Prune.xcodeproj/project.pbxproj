@@ -25,6 +25,7 @@
 		CE69FFD62EFB1D66008495DF /* TelemetryDeckConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE69FFD52EFB1D66008495DF /* TelemetryDeckConfig.swift */; };
 		CE69FFD92EFB1D90008495DF /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = CE69FFD82EFB1D90008495DF /* TelemetryDeck */; };
 		CE69FFDE2EFC0B32008495DF /* AboutVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE69FFDD2EFC0B32008495DF /* AboutVC.swift */; };
+		CE7734292F153141001860CF /* XmlDotNotationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7734282F153141001860CF /* XmlDotNotationParser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 		B5DF4D6B23A5771A00225468 /* Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
 		CE69FFD52EFB1D66008495DF /* TelemetryDeckConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryDeckConfig.swift; sourceTree = "<group>"; };
 		CE69FFDD2EFC0B32008495DF /* AboutVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutVC.swift; sourceTree = "<group>"; };
+		CE7734282F153141001860CF /* XmlDotNotationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XmlDotNotationParser.swift; sourceTree = "<group>"; };
 		CEA5E677291E45FE001E0611 /* Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Notes.md; sourceTree = "<group>"; };
 		D2FC4023F18644BA239A2BAD /* Pods_Prune.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Prune.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -118,6 +120,7 @@
 				B5DF4D6B23A5771A00225468 /* Time.swift */,
 				B58A314023A1397E0023EA63 /* ViewController.swift */,
 				B5247030252C53A1006CCFD3 /* WriteToLog.swift */,
+				CE7734282F153141001860CF /* XmlDotNotationParser.swift */,
 				B5AE193C2A5740D300F75694 /* XmlParser.swift */,
 				B58A314223A139810023EA63 /* Assets.xcassets */,
 				B58A314423A139810023EA63 /* Main.storyboard */,
@@ -275,6 +278,7 @@
 				B58A314F23A13CF30023EA63 /* Json.swift in Sources */,
 				B5BB0D8C29C656350020363A /* ImportView.swift in Sources */,
 				B58A314123A1397E0023EA63 /* ViewController.swift in Sources */,
+				CE7734292F153141001860CF /* XmlDotNotationParser.swift in Sources */,
 				B58A313F23A1397E0023EA63 /* AppDelegate.swift in Sources */,
 				B58981E923B3DAC800CC3C5B /* Credentials.swift in Sources */,
 				B5AE193D2A5740D300F75694 /* XmlParser.swift in Sources */,

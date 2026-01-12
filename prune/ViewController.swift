@@ -248,24 +248,24 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                        (result: (Int,String)) in
                         let (statusCode,returnedXml) = result
-                        //                                    print("[processItems] restrictedsoftware GET statusCode: \(statusCode)")
+                        print("[processItems] returnedXml: \(statusCode)")
 //                        var enabled       = true
-                        var nameFixedXml  = returnedXml.replacingOccurrences(of: "<name>", with: "<Name>")
-                        nameFixedXml      = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
-                        let xmlData       = nameFixedXml.data(using: .utf8)
-                        let parsedXmlData = XML.parse(xmlData!)
+                        let parser = XMLDotNotationParser()
+                        guard let parsedXmlData1 = parser.parse(string: returnedXml) else {
+                           WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                           return
+                        }
+                        
+                        let allEAs1 = (type == "computerextensionattributes") ? parsedXmlData1.all("computer_extension_attribute") : parsedXmlData1.all("mobile_device_extension_attribute")
 
-                        let allEAs = (type == "computerextensionattributes") ? parsedXmlData.computer_extension_attributes.computer_extension_attribute: parsedXmlData.mobile_device_extension_attributes.mobile_device_extension_attribute
+                        for eaInfo in allEAs1 {
+                            if let id = eaInfo.id?.intValue, let name = eaInfo.name?.value {
 
-                        for eaInfo in allEAs {
-                            if let id = eaInfo.id.text, let name = eaInfo.Name.text {
+                                let enabled = eaInfo.enabled?.boolValue ?? true
 
-//                                if type == "computerextensionattributes" {
-                                let enabled = eaInfo.enabled.bool ?? true
-//                                }
-                                WriteToLog.shared.message("\(deviceText.lowercased()) extension attribute title id: \(eaInfo.id.text!)      name: \(eaInfo.Name.text!)      enabled: \(enabled)")
+                                WriteToLog.shared.message("\(deviceText.lowercased()) extension attribute title id: \(id)      name: \(name)      enabled: \(enabled)")
                                 let eaDisplayName = enabled ? name:"\(name)    [disabled]"
-                               eaArray.append(["id": "\(id)", "name": "\(eaDisplayName)"])
+                                eaArray.append(["id": "\(id)", "name": "\(eaDisplayName)"])
                                // mark advanced search title as unused (reporting only)
                                 self.masterObjectDict[type]!["\(eaDisplayName)"] = ["id":"\(id)", "used":"false", "enabled":"\(enabled)"]
                            }
