@@ -1,5 +1,5 @@
 //
-//  Copyright 2025 Jamf. All rights reserved.
+//  Copyright 2026 Jamf. All rights reserved.
 //
 
 import AppKit

@@ -1,9 +1,5 @@
 //
-//  AppDelegate.swift
-//  prune
-//
-//  Created by Leslie Helou on 12/11/19.
-//  Copyright © 2019 Leslie Helou. All rights reserved.
+//  Copyright 2026 Jamf. All rights reserved.
 //
 
 import Cocoa

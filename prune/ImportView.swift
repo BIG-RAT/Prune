@@ -1,9 +1,5 @@
 //
-//  ImportView.swift
-//  Prune
-//
-//  Created by Leslie Helou on 3/18/23.
-//  Copyright © 2023 Leslie Helou. All rights reserved.
+//  Copyright 2026 Jamf. All rights reserved.
 //
 
 import AppKit

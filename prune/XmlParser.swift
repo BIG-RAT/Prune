@@ -1,9 +1,5 @@
 //
-//  JxmlDelegate.swift
-//  jamfcpr
-//
-//  Created by Leslie Helou on 6/26/19.
-//  Copyright © 2019 jamf. All rights reserved.
+//  Copyright 2026 Jamf. All rights reserved.
 //
 
 import Cocoa

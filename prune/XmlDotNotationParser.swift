@@ -1,27 +1,9 @@
 //
-//  Copyright © 2026 Jamf. All rights reserved.
+//  Copyright 2026 Jamf. All rights reserved.
 //
 
 import Foundation
 
-// MARK: - XML Element with Dot Notation Support
-
-/// XMLElement provides dot notation access to XML child elements
-///
-/// **Important Naming Notes:**
-/// - `element.elementName` → Returns the XML tag name (e.g., "department", "site")
-/// - `element.name` → Returns the child element with tag `<name>` (special accessor)
-/// - `element.id`, `element.version`, etc. → Returns child elements via @dynamicMemberLookup
-///
-/// This avoids conflicts with Swift's built-in String properties while still
-/// allowing natural access to XML elements named "name".
-///
-/// Example:
-/// ```
-/// let dept = departments.all("department").first
-/// print(dept.elementName)  // Prints: "department"
-/// print(dept.name?.value)   // Prints content of <name> child element
-/// ```
 @dynamicMemberLookup
 class XMLElement {
     var elementName: String

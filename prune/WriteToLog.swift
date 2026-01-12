@@ -1,5 +1,5 @@
 //
-//  Copyright 2024 Jamf. All rights reserved.
+//  Copyright 2026 Jamf. All rights reserved.
 //
 
 import Foundation

@@ -1,9 +1,5 @@
 //
-//  LoginViewController.swift
-//  prune
-//
-//  Created by Leslie Helou on 01/17/22.
-//  Copyright © 2022 Leslie Helou. All rights reserved.
+//  Copyright 2026 Jamf. All rights reserved.
 //
 
 import Cocoa

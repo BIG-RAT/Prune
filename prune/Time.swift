@@ -1,9 +1,5 @@
 //
-//  Time.swift
-//  Prune
-//
-//  Created by Leslie Helou on 12/14/19.
-//  Copyright © 2019 Leslie Helou. All rights reserved.
+//  Copyright 2026 Jamf. All rights reserved.
 //
 
 import Cocoa
