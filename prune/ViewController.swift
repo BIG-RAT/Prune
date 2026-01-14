@@ -4266,8 +4266,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         let appBuild          = Bundle.main.infoDictionary!["CFBundleVersion"] as! String
         WriteToLog.shared.message("-------------------------------------------------------")
-        WriteToLog.shared.message("-     Prune Version: \(AppInfo.version) Build: \(appBuild )")
+        WriteToLog.shared.message("-     Prune Version: \(AppInfo.version) Build: \(appBuild)")
         WriteToLog.shared.message("-------------------------------------------------------")
+        TelemetryDeckConfig.optOut = defaults.bool(forKey: "optOut")
+        WriteToLog.shared.message("TelemetryDeck: \(TelemetryDeckConfig.optOut ? "disabled" : "enabled")")
         
         object_TableView.delegate     = self
         object_TableView.dataSource   = self

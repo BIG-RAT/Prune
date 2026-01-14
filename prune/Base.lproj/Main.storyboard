@@ -1266,7 +1266,7 @@ Gw
                                 </connections>
                             </button>
                             <button imageHugsTitle="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Qaq-HO-yMo">
-                                <rect key="frame" x="26" y="491" width="97" height="28"/>
+                                <rect key="frame" x="26" y="491" width="87" height="28"/>
                                 <buttonCell key="cell" type="push" title="Scan" bezelStyle="rounded" image="radar" imagePosition="leading" alignment="center" controlSize="large" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Guz-jY-sqt">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system" size="16"/>
@@ -1321,7 +1321,7 @@ DQ
                                 </connections>
                             </button>
                             <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JcO-81-SqS">
-                                <rect key="frame" x="130" y="494" width="579" height="22"/>
+                                <rect key="frame" x="120" y="494" width="579" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="22" id="73L-18-8qL"/>
                                     <constraint firstAttribute="width" constant="575" id="Tc2-jz-zWG"/>
@@ -1557,7 +1557,7 @@ DQ
     <resources>
         <image name="escape" catalog="system" width="15" height="15"/>
         <image name="info.circle" catalog="system" width="15" height="15"/>
-        <image name="radar" width="36" height="34"/>
+        <image name="radar" width="20" height="19"/>
         <image name="square.and.arrow.down" catalog="system" width="15" height="17"/>
         <image name="square.and.arrow.up" catalog="system" width="15" height="18"/>
         <image name="trash" catalog="system" width="15" height="17"/>
