@@ -1371,6 +1371,19 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="Igf-HA-gyD"/>
                                 </connections>
                             </button>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nEi-ky-DQi">
+                                <rect key="frame" x="688" y="337" width="44" height="19"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="19" id="Qho-hc-nMn"/>
+                                    <constraint firstAttribute="height" constant="19" id="g7h-iE-21K"/>
+                                    <constraint firstAttribute="width" constant="40" id="uZC-0F-kPM"/>
+                                </constraints>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="View:" id="5Oe-R2-26S">
+                                    <font key="font" metaFont="system" size="16"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oNR-de-zKD">
                                 <rect key="frame" x="796" y="67" width="97" height="28"/>
                                 <buttonCell key="cell" type="square" title="Export" bezelStyle="shadowlessSquare" image="square.and.arrow.up" catalog="system" imagePosition="left" alignment="center" controlSize="large" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="byL-pH-BwF">
@@ -1399,19 +1412,13 @@ DQ
                                     <action selector="remove_Action:" target="XfG-lQ-9wD" id="zRH-y9-sRn"/>
                                 </connections>
                             </button>
-                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nEi-ky-DQi">
-                                <rect key="frame" x="688" y="337" width="44" height="19"/>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="nuI-YM-8hF" customClass="ImportView" customModule="Prune" customModuleProvider="target">
+                                <rect key="frame" x="796" y="109" width="97" height="28"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="19" id="Qho-hc-nMn"/>
-                                    <constraint firstAttribute="height" constant="19" id="g7h-iE-21K"/>
-                                    <constraint firstAttribute="width" constant="40" id="uZC-0F-kPM"/>
+                                    <constraint firstAttribute="width" constant="97" id="PaF-43-eza"/>
+                                    <constraint firstAttribute="height" constant="28" id="qCk-YY-tqH"/>
                                 </constraints>
-                                <textFieldCell key="cell" lineBreakMode="clipping" title="View:" id="5Oe-R2-26S">
-                                    <font key="font" metaFont="system" size="16"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
+                            </customView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4Xq-8k-hj4">
                                 <rect key="frame" x="796" y="109" width="97" height="28"/>
                                 <buttonCell key="cell" type="square" title="Import" bezelStyle="shadowlessSquare" image="square.and.arrow.down" catalog="system" imagePosition="leading" alignment="center" controlSize="large" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XOy-vb-pnD">
@@ -1426,13 +1433,6 @@ DQ
                                     <action selector="importButton_Action:" target="XfG-lQ-9wD" id="4kn-ip-xuK"/>
                                 </connections>
                             </button>
-                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="nuI-YM-8hF" customClass="ImportView" customModule="Prune" customModuleProvider="target">
-                                <rect key="frame" x="796" y="109" width="97" height="28"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="97" id="PaF-43-eza"/>
-                                    <constraint firstAttribute="height" constant="28" id="qCk-YY-tqH"/>
-                                </constraints>
-                            </customView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hTd-Q8-3Is">
                                 <rect key="frame" x="796" y="491" width="97" height="28"/>
                                 <buttonCell key="cell" type="square" title="Logout" bezelStyle="shadowlessSquare" image="escape" catalog="system" imagePosition="leading" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ud9-uA-Reh">
