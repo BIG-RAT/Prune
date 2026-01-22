@@ -1,6 +1,6 @@
 ## 📜 Version History
 
-### v3.5.1 (2026-01-15)
+### v3.5.1 (2026-01-21)
 - Address issue #58, import button not working on macOS 26 (Tahoe).
 
 ### v3.5.0 (2026-01-15)
