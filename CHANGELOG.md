@@ -1,5 +1,8 @@
 ## 📜 Version History
 
+### v3.5.2 (2026-02-09)
+- Address issue #60, app hanging if no groups are present.
+
 ### v3.5.1 (2026-01-21)
 - Address issue #58, import button not working on macOS 26 (Tahoe).
 
