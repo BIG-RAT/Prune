@@ -170,7 +170,6 @@ class JamfPro: NSObject, URLSessionDelegate {
         }
     }
     
-        
     var components = DateComponents()
     
     func getToken(serverUrl: String, whichServer: String = "source", base64creds: String, completion: @escaping (_ authResult: (Int,String)) -> Void) {
