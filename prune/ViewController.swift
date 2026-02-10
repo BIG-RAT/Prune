@@ -355,6 +355,20 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
                                 }
                             }
+                        } else {
+                            WriteToLog.shared.message("[processItems] \(type) count is 0")
+                            if type == "computerGroups" {
+                                WriteToLog.shared.message("[processItems] call mobileDeviceGroups")
+                                DispatchQueue.main.async {
+                                    self.processItems(type: "mobileDeviceGroups")
+                                }
+                                
+                            } else {
+                                WriteToLog.shared.message("[processItems] scall packages")
+                                DispatchQueue.main.async {
+                                    self.processItems(type: "packages")
+                                }
+                            }
                         }
                     }
                 } else {

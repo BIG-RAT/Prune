@@ -938,7 +938,7 @@ Gw
                 </viewController>
                 <customObject id="tkT-rh-inx" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="553" y="1176"/>
+            <point key="canvasLocation" x="446" y="1196"/>
         </scene>
         <!--About-->
         <scene sceneID="glR-U0-MCq">
@@ -1551,7 +1551,7 @@ DQ
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="646" y="709"/>
+            <point key="canvasLocation" x="646" y="708.5"/>
         </scene>
     </scenes>
     <resources>

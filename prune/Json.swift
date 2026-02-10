@@ -67,7 +67,7 @@ class Json: NSObject, URLSessionDelegate {
 //                            print("[Json.getRecord] httpResponse for \(theEndpoint): \(String(describing: httpResponse))")
                             if httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
                                     do {
-                                        let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+                                        let json = try JSONSerialization.jsonObject(with: data!, options: .allowFragments)
 //                                        print("[getRecord] json: \(String(describing: json))")
                                         if let endpointJSON = json as? [String:AnyObject] {
                                             //                                WriteToLog.shared.message("[Json.getRecord] returned JSON: \(endpointJSON)")
@@ -87,6 +87,9 @@ class Json: NSObject, URLSessionDelegate {
                                             }
                                             completion([:])
                                         }
+                                    } catch {
+                                        WriteToLog.shared.message("[Json.getRecord] error trying to serialize JSON: \(error)")
+                                        completion([:])
                                     }
 //                                }
                             } else {
