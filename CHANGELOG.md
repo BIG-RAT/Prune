@@ -1,5 +1,8 @@
 ## 📜 Version History
 
+### v3.5.3 (2026-02-27)
+- Address issue #61, issue querying computer EAs.
+
 ### v3.5.2 (2026-02-09)
 - Address issue #60, app hanging if no groups are present.
 
