@@ -228,13 +228,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     nextObject = "mobiledeviceextensionattributes"
                     deviceText = "Computer"
                 case "mobiledeviceextensionattributes":
-                    nextObject = (computerGroupsButtonState == "on") ? "computerGroups":"mobileDeviceGroups"
+//                    nextObject = (computerGroupsButtonState == "on") ? "computerGroups":"mobileDeviceGroups"
+                    nextObject = "computerGroups"
                     deviceText = "Moble Device"
                 default:
                     break
                 }
                 
-                if self.computerEAsButtonState == "on" || mobileDeviceEAsButtonState == "on" {
+                if (self.computerEAsButtonState == "on" && type == "computerextensionattributes") || (mobileDeviceEAsButtonState == "on" && type == "mobiledeviceextensionattributes") {
                 
                    DispatchQueue.main.async {
                           self.process_TextField.stringValue = "Fetching \(deviceText) Extension Attributes..."
@@ -280,7 +281,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 }
             
             case "computerGroups", "mobileDeviceGroups":
-                if self.computerGroupsButtonState == "on" || self.mobileDeviceGroupsButtonState == "on" || self.computerEAsButtonState == "on" || mobileDeviceEAsButtonState == "on" {
+                if (type.localizedCaseInsensitiveContains("computer") && (self.computerGroupsButtonState == "on" || self.computerEAsButtonState == "on")) || (type.localizedCaseInsensitiveContains("mobile") && (self.mobileDeviceGroupsButtonState == "on" || mobileDeviceEAsButtonState == "on")) {
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Groups..."
                     }
@@ -327,7 +328,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             }   // for i in (0..<computerGroupsArrayCount) - end
                             // look for nested device groups
                             DispatchQueue.main.async {
-                                self.process_TextField.stringValue = "Scanning for nested groups and extensions attributes..."
+                                self.process_TextField.stringValue = "Scanning for nested \(type) and extensions attributes..."
                             }
                             WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
                             self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint, theData: computerGroupsArray, index: 0)
@@ -337,8 +338,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     usleep(10)
                                     if !waitFor.deviceGroup {
                                         if type == "computerGroups" || (!computerGroupsScanned && computerEAsButtonState == "on") {
-//                                                print("[processItems] skipping \(type) - call mobileDeviceGroups")
-                                            WriteToLog.shared.message("[processItems] skipping \(type) - call mobileDeviceGroups")
+//                                                print("[processItems] call mobileDeviceGroups")
+                                            WriteToLog.shared.message("[processItems] call mobileDeviceGroups")
                                             computerGroupsScanned = true
                                             DispatchQueue.main.async {
                                                 self.processItems(type: "mobileDeviceGroups")
@@ -346,7 +347,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                             
                                         } else {
 //                                                print("[processItems] skipping \(type) - call packages")
-                                            WriteToLog.shared.message("[processItems] skipping \(type) - call packages")
+                                            WriteToLog.shared.message("[processItems] call packages")
                                             DispatchQueue.main.async {
                                                 self.processItems(type: "packages")
                                             }
@@ -972,6 +973,19 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         } else {
+                            print("patch software titles response: \(result.1)")
+                            let reply = result.1[0]
+                            if let statusCode = reply["JPAPI_response"] as? Int, statusCode == 403 {
+                                var alertMessage = "Error scanning patch software titles. \nStatus code: \(statusCode)"
+                                if statusCode == 403 {
+                                    alertMessage = "Verify you permissions to view patch software titles."
+                                }
+                                let selected = Alert.shared.display(header: "", message: alertMessage, additionalButton: "Stop")
+                                if selected == "Stop" {
+                                    self.working(isWorking: false)
+                                    return
+                                }
+                            }
                             WriteToLog.shared.message("[processItems] error reading patch software titles - call \(nextObject)")
                             DispatchQueue.main.async {
                                 self.processItems(type: nextObject)
@@ -4294,6 +4308,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
     override func viewDidAppear() {
         super.viewDidAppear()
+        
+        view.window?.title = "Prune v\(AppInfo.version)"
 
         if LoginWindow.show {
             performSegue(withIdentifier: "loginView", sender: nil)

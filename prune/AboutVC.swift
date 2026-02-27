@@ -104,6 +104,8 @@ class AboutVC: NSViewController {
         // Do any additional setup after loading the view.
         self.view.wantsLayer = true
         setTheme(darkMode: isDarkMode)
+        
+        
         view.window?.titlebarAppearsTransparent = true
         view.window?.isOpaque = false
         

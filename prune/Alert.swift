@@ -9,26 +9,28 @@ class Alert: NSObject {
     static let shared = Alert()
     private override init() { }
     
-    func display(header: String, message: String, secondButton: String = "") -> String {
+    func display(header: String, message: String, additionalButton: String = "") -> String {
         NSApplication.shared.activate(ignoringOtherApps: true)
         var selected = ""
         let dialog: NSAlert = NSAlert()
         dialog.messageText = header
         dialog.informativeText = message
         dialog.alertStyle = NSAlert.Style.warning
-        let okButton = dialog.addButton(withTitle: "OK")
-        if secondButton != "" {
-            let otherButton = dialog.addButton(withTitle: secondButton)
-            otherButton.keyEquivalent = "v"
-            okButton.keyEquivalent = "\r"
+        let defaultButtonTitle = (additionalButton == "Stop") ? "Stop" : "OK"
+        let additionalButtonTitle = (additionalButton == "Stop") ? "OK" : additionalButton
+        let defaultButton = dialog.addButton(withTitle: defaultButtonTitle)
+        if additionalButton != "" {
+            let otherButton = dialog.addButton(withTitle: additionalButtonTitle)
+            otherButton.keyEquivalent = (additionalButton == "Stop") ? "o" : "v"
+            defaultButton.keyEquivalent = "\r"
         }
         
         let theButton = dialog.runModal()
         switch theButton {
         case .alertFirstButtonReturn:
-            selected = "OK"
+            selected = defaultButtonTitle
         default:
-            selected = secondButton
+            selected = additionalButtonTitle
         }
         return selected
     }

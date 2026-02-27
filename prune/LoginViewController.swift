@@ -58,7 +58,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
 //            header_TextField.frame.size.height = 0.0
             if NSEvent.modifierFlags.contains(.option) {
                     let selectedServer =  selectServer_Button.titleOfSelectedItem!
-                    let response = Alert.shared.display(header: "", message: "Are you sure you want to remove \(selectedServer) from the list?", secondButton: "Cancel")
+                    let response = Alert.shared.display(header: "", message: "Are you sure you want to remove \(selectedServer) from the list?", additionalButton: "Cancel")
                     if response == "Cancel" {
                         return
                     } else {
@@ -174,7 +174,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
         // check for update/removal of server display name
         if jamfProServer_textfield.stringValue == "" {
             let serverToRemove = (theSender == "Login") ? "\(selectServer_Button.titleOfSelectedItem ?? "")":displayName_TextField.stringValue
-            let deleteReply = Alert.shared.display(header: "Attention:", message: "Do you wish to remove \(serverToRemove) from the list?", secondButton: "Cancel")
+            let deleteReply = Alert.shared.display(header: "Attention:", message: "Do you wish to remove \(serverToRemove) from the list?", additionalButton: "Cancel")
             if deleteReply != "Cancel" && serverToRemove != "Add Server..." {
                 if availableServersDict[serverToRemove] != nil {
                     let serverIndex = selectServer_Menu.indexOfItem(withTitle: serverToRemove)
@@ -201,7 +201,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             }
         } else if jamfProServer_textfield.stringValue != availableServersDict[selectServer_Button.titleOfSelectedItem!]?["server"] as? String && selectServer_Button.titleOfSelectedItem ?? "" != "Add Server..." {
             let serverToUpdate = (theSender == "Login") ? "\(selectServer_Button.titleOfSelectedItem ?? "")":displayName_TextField.stringValue.fqdnFromUrl
-            let updateReply = Alert.shared.display(header: "Attention:", message: "Do you wish to update the URL for \(serverToUpdate) to: \(jamfProServer_textfield.stringValue)", secondButton: "Cancel")
+            let updateReply = Alert.shared.display(header: "Attention:", message: "Do you wish to update the URL for \(serverToUpdate) to: \(jamfProServer_textfield.stringValue)", additionalButton: "Cancel")
             if updateReply != "Cancel" && serverToUpdate != "Add Server..." {
                 // update server URL
                 availableServersDict[serverToUpdate]?["server"] = jamfProServer_textfield.stringValue as AnyObject
@@ -222,7 +222,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             dismiss(self)
         } else {
             if displayName_TextField.stringValue == "" {
-                let nameReply = Alert.shared.display(header: "Attention:", message: "Display name cannot be blank.\nUse \(jamfProServer_textfield.stringValue.fqdnFromUrl)?", secondButton: "Cancel")
+                let nameReply = Alert.shared.display(header: "Attention:", message: "Display name cannot be blank.\nUse \(jamfProServer_textfield.stringValue.fqdnFromUrl)?", additionalButton: "Cancel")
                 if nameReply == "Cancel" {
                     spinner_PI.stopAnimation(self)
                     return
@@ -294,7 +294,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
                     login_action("Login")
                 } else {
                     spinner_PI.stopAnimation(self)
-                    _ = Alert.shared.display(header: "Attention:", message: "Failed to generate token. HTTP status code: \(statusCode)", secondButton: "")
+                    _ = Alert.shared.display(header: "Attention:", message: "Failed to generate token. HTTP status code: \(statusCode)", additionalButton: "")
                 }
             }
         }
