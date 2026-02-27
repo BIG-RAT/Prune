@@ -103,7 +103,7 @@ API Client Credentials are the recommended method for authenticating with your J
    | Object Type | Required Privileges |
    |------------|---------------------|
    | **Classes** | Read Classes, Delete Classes |
-   | **Computer Extension Attributes (EAs)** | Read Computer Extension Attributes, Delete Computer Extension Attributes |
+   | **Computer Extension Attributes (EAs)** | Read Computer Extension Attributes, Delete Computer Extension Attributes, Read Patch Software Titles |
    | **Computer Groups** | Read Smart Computer Groups, Delete Smart Computer Groups, Read Static Computer Groups, Delete Static Computer Groups |
    | **Computer Objects (General)** | Read Computer PreStage Enrollments |
    | **Computer Profiles** | Read macOS Configuration Profiles, Delete macOS Configuration Profiles |
