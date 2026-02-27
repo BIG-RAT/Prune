@@ -95,7 +95,7 @@ class Json: NSObject, URLSessionDelegate {
                             } else {
                                 WriteToLog.shared.message("[Json.getRecord] error during GET, HTTP Status Code: \(httpResponse.statusCode)\n")
                                 if "\(httpResponse.statusCode)" == "401" {
-                                    _ = Alert.shared.display(header: "Alert", message: "Verify username and password")
+                                    _ = Alert.shared.display(header: "Alert", message: "Verify you have permission to view the API endpoint: \(theEndpoint)")
                                 } else {
                                     _ = Alert.shared.display(header: "Alert", message: "Error during GET, HTTP Status Code: \(httpResponse.statusCode)")
                                 }
