@@ -130,7 +130,7 @@ class Credentials {
     
     private func itemLookup(service: String) -> [String:String] {
         
-        print("[Credentials.itemLookup] start search for: \(service)")
+//        print("[Credentials.itemLookup] start search for: \(service)")
    
         let keychainQuery: [String: Any] = [kSecClass as String: kSecClassGenericPasswordString,
                                             kSecAttrService as String: service,
@@ -145,7 +145,7 @@ class Credentials {
         let status = SecItemCopyMatching(keychainQuery as CFDictionary, &items_ref)
 //        let status = SecItemCopyMatching(keychainQuery as CFDictionary, &item)
         guard status != errSecItemNotFound else {
-            print("[Credentials.itemLookup] lookup error occurred for \(service): \(status.description)\n")
+            WriteToLog.shared.message("[Credentials.itemLookup] lookup error occurred for \(service): \(status.description)")
             return [:]
             
         }
@@ -159,7 +159,7 @@ class Credentials {
             if let account = item[kSecAttrAccount as String] as? String, let passwordData = item[kSecValueData as String] as? Data {
 //            if let account = item["acct"] as? String, let passwordData = item[kSecValueData as String] as? Data {
                 let password = String(data: passwordData, encoding: String.Encoding.utf8)
-                print("found password for \(account)")
+//                print("found password for \(account)")
                 userPassDict[account] = password ?? ""
             }
         }

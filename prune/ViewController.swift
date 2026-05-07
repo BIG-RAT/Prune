@@ -976,12 +976,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         } else {
-                            print("patch software titles response: \(result.1)")
+//                            print("patch software titles response: \(result.1)")
                             let reply = result.1[0]
                             if let statusCode = reply["JPAPI_response"] as? Int, statusCode == 403 {
                                 var alertMessage = "Error scanning patch software titles. \nStatus code: \(statusCode)"
                                 if statusCode == 403 {
-                                    alertMessage = "Verify you permissions to view patch software titles."
+                                    alertMessage = "Verify you have permissions to read patch software titles."
                                 }
                                 let selected = Alert.shared.display(header: "", message: alertMessage, additionalButton: "Stop")
                                 if selected == "Stop" {
