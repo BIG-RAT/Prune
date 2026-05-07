@@ -104,7 +104,7 @@ API Client Credentials are the recommended method for authenticating with your J
    |------------|---------------------|
    | **Classes** | Read Classes, Delete Classes |
    | **Computer Extension Attributes (EAs)** | Read Computer Extension Attributes, Delete Computer Extension Attributes, Read Patch Software Titles |
-   | **Computer Groups** | Read Smart Computer Groups, Delete Smart Computer Groups, Read Static Computer Groups, Delete Static Computer Groups |
+   | **Computer Groups** | Read Smart Computer Groups, Delete Smart Computer Groups, Read Static Computer Groups, Delete Static Computer Groups, Read Patch Policies, Read Patch Management Software Titles |
    | **Computer Objects (General)** | Read Computer PreStage Enrollments |
    | **Computer Profiles** | Read macOS Configuration Profiles, Delete macOS Configuration Profiles |
    | **eBooks** | Read eBooks, Delete eBooks |
