@@ -289,6 +289,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     // what if we're doing both computer and mobile device groups/EAs
                     let groupEndpoint = (type == "computerGroups" || (type == "mobileDeviceGroups" && computerEAsButtonState == "on" && !computerGroupsScanned)) ? "computergroups":"mobiledevicegroups"
                    
+                    print("[processItmes] theEndpoint: \(groupEndpoint)")
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint) {
                         (result: [String:AnyObject]) in
 //                            print("json returned scripts: \(result)")
@@ -1790,6 +1791,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     // lookup complete record, JSON format
                 Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
                         (result: [String:AnyObject]) in
+                    print("[recursiveLookup.default] returned JSON: \(result.description)")
+                    
                         if let _ = result["Alert"] as? String {
                             self.working(isWorking: false)
                             return
@@ -3739,11 +3742,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         if view_PopUpButton.itemArray.count > 1 {
             setViewButton(setOn: false)
-//            view_PopUpButton.removeAllItems()
-//            view_PopUpButton.addItem(withTitle: "All")
-//            view_PopUpButton.isEnabled = false
-//            unusedItems_TableArray?.removeAll()
-//            object_TableView.reloadData()
         }
         
         let state = (sender.state.rawValue == 1) ? "on":"off"
@@ -4346,7 +4344,6 @@ extension ViewController: NSTableViewDataSource {
     }
 }
 
-
 extension ViewController: NSTableViewDelegate {
 
     fileprivate enum CellIdentifiers {
@@ -4358,7 +4355,7 @@ extension ViewController: NSTableViewDelegate {
         var text: String = ""
         var cellIdentifier: String = ""
     
-//        print("[func tableView] item: \(unusedItems_TableArray?[row] ?? nil)")
+        print("[func tableView] item: \(unusedItems_TableArray?[row] ?? "missiing")")
         guard let item = unusedItems_TableArray?[row] else {
             return nil
         }
