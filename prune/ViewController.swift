@@ -251,7 +251,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         guard let parsedXmlData = parser.parse(string: returnedXml) else {
                            WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
                             working(isWorking: false)
-                            _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
+                            _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type). \n\nVerify you have the correct read permissions.")
                            return
                         }
                         
@@ -1052,7 +1052,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             guard let parsedXmlData = parser.parse(string: returnedXml) else {
                                 WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
                                 working(isWorking: false)
-                                _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
+                                _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type). \n\nVerify you have the correct read permissions.")
                                 return
                             }
 
@@ -1221,7 +1221,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     guard let parsedXmlData = parser.parse(string: returnedXml) else {
                        WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
                         working(isWorking: false)
-                        _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
+                        _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type). \n\nVerify you have the correct read permissions.")
                        return
                     }
                     
@@ -1298,7 +1298,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         guard let parsedXmlData = parser.parse(string: returnedXml) else {
                            WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
                             working(isWorking: false)
-                            _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
+                            _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type). \n\nVerify you have the correct read permissions.")
                            return
                         }
 
@@ -1376,7 +1376,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         guard let parsedXmlData = parser.parse(string: returnedXml) else {
                            WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
                             working(isWorking: false)
-                            _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
+                            _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type). \n\nVerify you have the correct read permissions.")
                            return
                         }
 
@@ -4085,14 +4085,15 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     
     func working(isWorking: Bool) {
         if isWorking {
-            DispatchQueue.main.async {
-                self.scan_Button.isEnabled = false
-                self.spinner_ProgressIndicator.startAnimation(self)
+            DispatchQueue.main.async { [self] in
+                scan_Button.isEnabled = false
+                spinner_ProgressIndicator.startAnimation(self)
             }
         } else {
-            DispatchQueue.main.async {
-                self.scan_Button.isEnabled = true
-                self.spinner_ProgressIndicator.stopAnimation(self)
+            DispatchQueue.main.async { [self] in
+                scan_Button.isEnabled = true
+                process_TextField.stringValue = ""
+                spinner_ProgressIndicator.stopAnimation(self)
             }
         }
         allButtonsEnabledState(theState: !isWorking)
@@ -4232,7 +4233,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     defaults.set(JamfProServer.source, forKey: "currentServer")
                     defaults.set(JamfProServer.username, forKey: "username")
-                    useApiClient = 1
+//                    useApiClient = 1
                     
                     // save password if checked - start
                     if self.saveCreds {

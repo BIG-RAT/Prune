@@ -218,6 +218,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             JamfProServer.validToken = false
             let dataToBeSent = (selectServer_Button.titleOfSelectedItem!, JamfProServer.source, JamfProServer.username, JamfProServer.password, saveCreds_button.state.rawValue)
             spinner_PI.stopAnimation(self)
+            useApiClient = useApiClient_button.state.rawValue
             delegate?.sendLoginInfo(loginInfo: dataToBeSent)
             dismiss(self)
         } else {
@@ -516,7 +517,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        migrateAppGroupSettings()
+//        migrateAppGroupSettings()
         
         // to clear saved list of servers
 //        defaults.set([:] as [String:[String:AnyObject]], forKey: "serversDict")

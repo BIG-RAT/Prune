@@ -45,8 +45,10 @@ class Credentials {
                         if (addStatus != errSecSuccess) {
                             if let addErr = SecCopyErrorMessageString(addStatus, nil) {
                                 print("[addStatus] Write failed for service \(service), account \(account): \(addErr)")
-                                WriteToLog.shared.message("Write failed for service \(service), account \(account): \(addErr).")
+                                WriteToLog.shared.message("[Credentials.save] Write failed for service \(service), account \(account): \(addErr).")
                             }
+                        } else {
+                            WriteToLog.shared.message("[Credentials.save] Write succeeded for service \(service), account \(account).")
                         }
                     } else {
                         // credentials already exist, try to update
@@ -60,13 +62,13 @@ class Credentials {
                             let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
                             if (updateStatus != errSecSuccess) {
                                 if let updateErr = SecCopyErrorMessageString(updateStatus, nil) {
-                                    WriteToLog.shared.message("keychain item for service \(service), account \(account), failed to update.")
+                                    WriteToLog.shared.message("[Credentials.save] keychain item for service \(service), account \(account), failed to update.")
                                 } else {
-                                    WriteToLog.shared.message("keychain item for service \(service), account \(account), has been updated.")
+                                    WriteToLog.shared.message("[Credentials.save] keychain item for service \(service), account \(account), has been updated.")
                                 }
                             }
                         } else {
-                            WriteToLog.shared.message("keychain item for service \(service), account \(account), is up-to-date.")
+                            WriteToLog.shared.message("[Credentials.save] keychain item for service \(service), account \(account), is up-to-date.")
                         }
                     }
                 }
@@ -128,7 +130,7 @@ class Credentials {
     
     private func itemLookup(service: String) -> [String:String] {
         
-//        print("[Credentials.itemLookup] start search for: \(service)")
+        print("[Credentials.itemLookup] start search for: \(service)")
    
         let keychainQuery: [String: Any] = [kSecClass as String: kSecClassGenericPasswordString,
                                             kSecAttrService as String: service,
@@ -155,7 +157,9 @@ class Credentials {
         }
         for item in items {
             if let account = item[kSecAttrAccount as String] as? String, let passwordData = item[kSecValueData as String] as? Data {
+//            if let account = item["acct"] as? String, let passwordData = item[kSecValueData as String] as? Data {
                 let password = String(data: passwordData, encoding: String.Encoding.utf8)
+                print("found password for \(account)")
                 userPassDict[account] = password ?? ""
             }
         }
