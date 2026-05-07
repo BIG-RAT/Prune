@@ -250,6 +250,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
                         guard let parsedXmlData = parser.parse(string: returnedXml) else {
                            WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                            working(isWorking: false)
+                            _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
                            return
                         }
                         
@@ -1048,8 +1050,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                            let parsedXmlData = XML.parse(xmlData!)
                             
                             guard let parsedXmlData = parser.parse(string: returnedXml) else {
-                               WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
-                               return
+                                WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                                working(isWorking: false)
+                                _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
+                                return
                             }
 
                             for thePolicy in parsedXmlData.all("patch_policy") {
@@ -1216,6 +1220,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
                     guard let parsedXmlData = parser.parse(string: returnedXml) else {
                        WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                        working(isWorking: false)
+                        _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
                        return
                     }
                     
@@ -1291,6 +1297,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         
                         guard let parsedXmlData = parser.parse(string: returnedXml) else {
                            WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                            working(isWorking: false)
+                            _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
                            return
                         }
 
@@ -1367,6 +1375,8 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         
                         guard let parsedXmlData = parser.parse(string: returnedXml) else {
                            WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
+                            working(isWorking: false)
+                            _ = Alert.shared.display(header: "Error", message: "Failed to parse data from \(type)")
                            return
                         }
 
