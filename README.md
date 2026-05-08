@@ -114,7 +114,7 @@ API Client Credentials are the recommended method for authenticating with your J
    | **Mobile Device Extension Attributes (EAs)** | Read Mobile Device Extension Attributes, Delete Mobile Device Extension Attributes |
    | **Mobile Device Groups** | Read Smart Mobile Device Groups, Delete Smart Mobile Device Groups, Read Static Mobile Device Groups, Delete Static Mobile Device Groups |
    | **Mobile Device Objects (General)** | Read Mobile Device PreStage Enrollments |
-   | **Packages** | Read Packages, Delete Packages |
+   | **Packages** | Read Packages, Delete Packages, Read Patch Management Software Titles |
    | **Policies** | Read Policies, Delete Policies |
    | **Printers** | Read Printers, Delete Printers |
    | **Restricted Software** | Read Restricted Software, Delete Restricted Software |

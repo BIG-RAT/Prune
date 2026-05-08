@@ -1,5 +1,9 @@
 ## 📜 Version History
 
+### v3.5.3 (2026-05-07)
+- Correct premissions required for packages and computer groups in the readme.
+- Fix issue saving username/password in keychain.
+
 ### v3.5.3 (2026-02-27)
 - Address issue #61, issue querying computer EAs.
 
