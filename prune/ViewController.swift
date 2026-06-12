@@ -1803,11 +1803,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         (result: [String:AnyObject]) in
                     print("[recursiveLookup.default] returned JSON: \(result.description)")
                     
-                        if let _ = result["Alert"] as? String {
-                            self.working(isWorking: false)
-                            return
-                        }
-                        if result.count != 0 {
+                        if result.count != 0 && result["Alert"] == nil {
                             var xmlTag = ""
                             switch theEndpoint {
                             case "computergroups", "mobiledevicegroups","advancedcomputersearches","advancedmobiledevicesearches":
