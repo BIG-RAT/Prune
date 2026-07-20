@@ -47,13 +47,15 @@ struct JamfProServer {
     static var version      = ""    
     static var tokenCreated = Date()
     
-    static var accessToken  = ""    
+    static var accessToken  = ""
     static var currentCred  = ""                   // used if we want to auth with a different account / string used to generate token
     static var source       = ""
     static var username     = ""
-    static var password     = ""    
+    static var password     = ""
     static var saveCreds    = 0
     static var useApiClient = 0
+    static var tenantId     = ""                   // Platform API: UUID from accounts.jamf.com
+    static var region       = "us"                 // Platform API: gateway region prefix
 }
 
 //struct Log {

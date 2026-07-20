@@ -107,7 +107,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         LoginWindow.show = true
         JamfPro.shared.jpapiAction(serverUrl: JamfProServer.source, endpoint: "auth/invalidate-token", apiData: [:], id: "", token: JamfProServer.accessToken, method: "POST") { [self]
             (returnedJSON: [String:Any]) in
-            WriteToLog.shared.message("logging out: \(String(describing: returnedJSON["JPAPI_result"]!))")
+            WriteToLog.shared.message("logging out: \(returnedJSON["JPAPI_result"], default: "unknown error terminating token")")
             JamfProServer.validToken = false
             JamfProServer.version    = ""
             performSegue(withIdentifier: "loginView", sender: nil)
@@ -1702,16 +1702,16 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     (result: [String:Any]) in
                     if let packagesInfo = result["packages"] as? [[String:String]] {
                         for packageInfo in packagesInfo {
-                            if packageInfo["displayName"] != nil {
-//                                print("packageInfo[\"displayName\"]: \(String(describing: packageInfo["displayName"]))")
-                                self.masterObjectDict["packages"]![packageInfo["displayName"]!]?["used"] = "true"
+                            if let displayName = packageInfo["displayName"] {
+                                WriteToLog.shared.message("[patchsoftwaretitles] package in use: \(displayName)")
+                                self.masterObjectDict["packages"]![displayName]?["used"] = "true"
                             }
                         }
                     }
                     if let eaInfo = result["extensionAttributes"] as? [[String: Any]] {
                         for ea in eaInfo {
-//                            print("ea[\"displayName\"]: \(String(describing: ea["eaId"]))")
                             if let displayName = ea["eaId"] as? String, let accepted = ea["accepted"] as? Bool {
+                                WriteToLog.shared.message("[patchsoftwaretitles] EA in use: \(displayName)")
                                 self.masterObjectDict["computerextensionattributes"]![displayName]?["used"] = "true"
                             }
                         }
@@ -4198,47 +4198,50 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     func sendLoginInfo(loginInfo: (String,String,String,String,Int)) {
         
         var saveCredsState: Int?
-        (_, jamfServer_TextField.stringValue, _, _,saveCredsState) = loginInfo
+        (jamfServer_TextField.stringValue, _, _, _,saveCredsState) = loginInfo
 //        (_,jamfServer_TextField.stringValue,uname_TextField.stringValue,passwd_TextField.stringValue,saveCredsState) = loginInfo
         
-        let enteredServer = JamfProServer.source.replacingOccurrences(of: "://", with: "/")
-        let tmpArray = enteredServer.components(separatedBy: "/")
-        if !(tmpArray.count > 1 && JamfProServer.source.contains("://")) {
-            _ = Alert.shared.display(header: "", message: "Invalid server URL.")
-            DispatchQueue.main.async {
-                self.performSegue(withIdentifier: "loginView", sender: nil)
-                self.working(isWorking: false)
+        // Platform mode: JamfProServer.source is a tenant UUID, not a URL — skip URL validation
+        if useApiClient != 0 {
+            let enteredServer = JamfProServer.source.replacingOccurrences(of: "://", with: "/")
+            let tmpArray = enteredServer.components(separatedBy: "/")
+            if !(tmpArray.count > 1 && JamfProServer.source.contains("://")) {
+                _ = Alert.shared.display(header: "", message: "Invalid server URL.")
+                DispatchQueue.main.async {
+                    self.performSegue(withIdentifier: "loginView", sender: nil)
+                    self.working(isWorking: false)
+                }
+                return
             }
         }
-        
-        
-        JamfProServer.source = jamfServer_TextField.stringValue
+
         jamfCreds            = "\(JamfProServer.username):\(JamfProServer.password)"
         let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
-        jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
-        
-        saveCreds = (saveCredsState == 1) ? true:false
-        // check authentication, set auth method - start
+        jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString()) ?? ""
+
+        saveCreds = (saveCredsState == 1) ? true : false
 
         JamfPro.shared.getToken(serverUrl: JamfProServer.source, whichServer: "source", base64creds: jamfBase64Creds) {
             (result: (Int,String)) in
-            let (statusCode, theResult) = result
+            let (_, theResult) = result
             if theResult == "success" {
                 DispatchQueue.main.async {
                     LoginWindow.show = false
-                    
-                    defaults.set(JamfProServer.source, forKey: "currentServer")
-                    defaults.set(JamfProServer.username, forKey: "username")
-//                    useApiClient = 1
-                    
-                    // save password if checked - start
+
+                    if useApiClient == 0 {
+                        defaults.set(JamfProServer.source,   forKey: "lastTenantId")
+                        defaults.set(JamfProServer.username, forKey: "lastClientId")
+                    } else {
+                        defaults.set(JamfProServer.source,   forKey: "currentServer")
+                        defaults.set(JamfProServer.username, forKey: "username")
+                    }
+
                     if self.saveCreds {
                         Credentials().save(service: JamfProServer.source.fqdnFromUrl, account: JamfProServer.username, credential: JamfProServer.password)
                     }
-                    
+
                     self.logout = false
                     WriteToLog.shared.message("[ViewController] successfully authenticated to \(JamfProServer.source)")
-                    // save password if checked - end
                 }
             } else {
                 DispatchQueue.main.async {
@@ -4247,7 +4250,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 }
             }
         }
-            // check authentication - stop
     }
     
     func selectedFile(fileURL: URL) {

@@ -12,9 +12,7 @@ let keychainQ                      = DispatchQueue(label: "com.jamf.prune", qos:
 let prefix                         = AppInfo.name.lowercased()
 let sharedPrefix                   = "JPMA"
 let accessGroup                    = "PS2F6S478M.jamfie.SharedJPMA"
-var useApiClient                   = 0
-
-// old entry: prune - <server fqdn>
+var useApiClient                   = 2    // 0=Platform, 1=Pro, 2=Classic
 
 class Credentials {
     
@@ -24,7 +22,12 @@ class Credentials {
     func save(service: String, account: String, credential: String, whichServer: String = "source") {
         if service != "" && account != "" {
             
-            let keychainItemName = ( useApiClient == 0 ) ? "JPMA-" + service:"\(prefix)-apiClient-" + service
+            var theService = service
+            if useApiClient == 1 {
+                theService = "apiClient-" + theService
+            }
+            let thePrefix = (useApiClient == 0) ? prefix : sharedPrefix
+            let keychainItemName = thePrefix + "-" + theService
             
 //            print("[Credentials.save] save/update keychain item \(keychainItemName)")
 
@@ -61,7 +64,7 @@ class Credentials {
                         if credential != accountCheck[account] {
                             let updateStatus = SecItemUpdate(keychainQuery as CFDictionary, [kSecValueDataString:password] as [NSString : Any] as CFDictionary)
                             if (updateStatus != errSecSuccess) {
-                                if let updateErr = SecCopyErrorMessageString(updateStatus, nil) {
+                                if let _ = SecCopyErrorMessageString(updateStatus, nil) {
                                     WriteToLog.shared.message("[Credentials.save] keychain item for service \(service), account \(account), failed to update.")
                                 } else {
                                     WriteToLog.shared.message("[Credentials.save] keychain item for service \(service), account \(account), has been updated.")
@@ -111,16 +114,19 @@ class Credentials {
 //        print("[Credentials.retrieve] start search for: \(service)")
 
         var keychainResult = [String:String]()
-        var theService = service
-             
+
         userPassDict.removeAll()
-        
-        var keychainItemName = ( useApiClient == 0 ) ? "JPMA-" + service:"\(prefix)-apiClient-" + service
-//        print("[credentials] keychainItemName: \(keychainItemName)")
+
+        var theRetrieveService = service
+        if useApiClient == 1 {
+            theRetrieveService = "apiClient-" + theRetrieveService
+        }
+        let thePrefix = (useApiClient == 0) ? prefix : sharedPrefix
+        var keychainItemName = thePrefix + "-" + theRetrieveService
         // look for common keychain item
         keychainResult = itemLookup(service: keychainItemName)
-        // look for legacy keychain item
-        if keychainResult.count == 0 && useApiClient == 0 {
+        // look for legacy keychain item (Classic mode only)
+        if keychainResult.count == 0 && useApiClient == 2 {
             keychainItemName = "\(prefix) - \(service)"
             keychainResult   = oldItemLookup(service: keychainItemName)
         }
