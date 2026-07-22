@@ -144,6 +144,11 @@ extension PlatformAPIClient {
         return result["version"] as? String ?? ""
     }
 
+    func getJamfProServerURL() async throws -> String {
+        let result = try await get(version: "v1", resource: "jamf-pro-server-url", id: "")
+        return result["url"] as? String ?? ""
+    }
+
     // MARK: - Classic tunnel endpoints (openapi.yaml)
     // Used for resources without a modern versioned equivalent.
     // Path pattern: /tenant/{tenantId}/{resource} (no version prefix)
@@ -207,8 +212,10 @@ extension PlatformAPIClient {
         request.setValue("Bearer \(JamfProServer.accessToken)", forHTTPHeaderField: "authorization")
         request.setValue(AppInfo.userAgentHeader, forHTTPHeaderField: "User-Agent")
 
+        WriteToLog.shared.message("[classicDelete] DELETE \(url.absoluteString)")
         let (_, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw PlatformAPIError.decodingError }
+        WriteToLog.shared.message("[classicDelete] \(resource)/\(id) → HTTP \(http.statusCode)")
         guard httpSuccess.contains(http.statusCode) else { throw PlatformAPIError.httpError(http.statusCode) }
     }
 

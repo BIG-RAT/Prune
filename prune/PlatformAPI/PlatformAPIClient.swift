@@ -269,8 +269,10 @@ struct PlatformAPIClient {
         request.setValue("Bearer \(JamfProServer.accessToken)", forHTTPHeaderField: "authorization")
         request.setValue(AppInfo.userAgentHeader, forHTTPHeaderField: "User-Agent")
 
+        WriteToLog.shared.message("[delete] DELETE \(url.absoluteString)")
         let (_, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw PlatformAPIError.decodingError }
+        WriteToLog.shared.message("[delete] \(resource)/\(id) → HTTP \(http.statusCode)")
         guard httpSuccess.contains(http.statusCode) else { throw PlatformAPIError.httpError(http.statusCode) }
     }
 }

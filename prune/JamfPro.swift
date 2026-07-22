@@ -262,7 +262,16 @@ class JamfPro: NSObject, URLSessionDelegate {
                                     if JamfProServer.version == "" {
                                         Task {
                                             do {
-                                                WriteToLog.shared.message("[getVersion] Attempting GET on https://\(JamfProServer.region).apigw.jamf.com/api/pro/v1/tenant/\(JamfProServer.tenantId)/jamf-pro-version.")
+                                                let url = try await PlatformAPIClient.shared.getJamfProServerURL()
+                                                if !url.isEmpty {
+                                                    JamfProServer.serverURL = url
+                                                    WriteToLog.shared.message("[JamfPro.getServerURL] Jamf Pro server URL: \(url)")
+                                                }
+                                            } catch {
+                                                WriteToLog.shared.message("[JamfPro.getServerURL] Platform API server URL fetch failed: \(error)")
+                                            }
+                                            do {
+//                                                WriteToLog.shared.message("[getVersion] Attempting GET on https://\(JamfProServer.region).apigw.jamf.com/api/pro/v1/tenant/\(JamfProServer.tenantId)/jamf-pro-version.")
                                                 let versionString = try await PlatformAPIClient.shared.getJamfProVersion()
                                                 if !versionString.isEmpty {
                                                     WriteToLog.shared.message("[JamfPro.getVersion] Jamf Pro Version: \(versionString)")
@@ -282,6 +291,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                                         }
                                     }
                                     completion((200, "success"))
+
                                     return
                                 }
                                 if JamfProServer.version == "" {

@@ -1,0 +1,9 @@
+Target dependency graph (4 targets)
+Target 'Prune' in project 'Prune'
+➜ Explicit dependency on target 'TelemetryDeck' in project 'TelemetryDeck'
+Target 'TelemetryDeck' in project 'TelemetryDeck'
+➜ Explicit dependency on target 'TelemetryDeck' in project 'TelemetryDeck'
+➜ Explicit dependency on target 'TelemetryDeck_TelemetryDeck' in project 'TelemetryDeck'
+Target 'TelemetryDeck' in project 'TelemetryDeck'
+➜ Explicit dependency on target 'TelemetryDeck_TelemetryDeck' in project 'TelemetryDeck'
+Target 'TelemetryDeck_TelemetryDeck' in project 'TelemetryDeck' (no dependencies)

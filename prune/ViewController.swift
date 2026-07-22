@@ -4791,41 +4791,116 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                        if category == "packages" {
 //                            WriteToLog.shared.message("[remove_Action] removing \(category) from JCDS")
 //                        }
-                        xmlAction(action: "DELETE", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theCategory: category, theEndpoint: "\(category)/id/\(id)") {
-                            (xmlResult: (Int,String)) in
-//
-                            let (statusCode, _) = xmlResult
-                            if !(statusCode >= 200 && statusCode <= 299) {
-                                if "\(statusCode)" == "401" {
-                                    self.working(isWorking: false)
-                                    Alert.shared.display(header: "Alert", message: "Verify username and password.")
-                                    return
+                        if useApiClient == 0 {
+                            Task { [self] in
+                                var success = false
+                                do {
+                                    switch category {
+                                    case "packages":
+                                        try await PlatformAPIClient.shared.deletePackage(id: id)
+                                    case "scripts":
+                                        try await PlatformAPIClient.shared.deleteScript(id: id)
+                                    case "computergroups":
+                                        let groupType = masterObjectDict["computerGroups"]?.first(where: { $0.value["id"] == id })?.value["groupType"] ?? "smartComputerGroup"
+                                        if groupType == "staticComputerGroup" {
+                                            try await PlatformAPIClient.shared.deleteComputerStaticGroup(id: id)
+                                        } else {
+                                            try await PlatformAPIClient.shared.deleteComputerSmartGroup(id: id)
+                                        }
+                                    case "mobiledevicegroups":
+                                        let groupType = masterObjectDict["mobileDeviceGroups"]?.first(where: { $0.value["id"] == id })?.value["groupType"] ?? "smartMobileDeviceGroup"
+                                        if groupType == "staticMobileDeviceGroup" {
+                                            try await PlatformAPIClient.shared.deleteMobileDeviceStaticGroup(id: id)
+                                        } else {
+                                            try await PlatformAPIClient.shared.deleteMobileDeviceSmartGroup(id: id)
+                                        }
+                                    case "osxconfigurationprofiles":
+                                        try await PlatformAPIClient.shared.deleteOsxConfigurationProfile(id: id)
+                                    case "ebooks":
+                                        try await PlatformAPIClient.shared.deleteEbook(id: id)
+                                    case "policies":
+                                        try await PlatformAPIClient.shared.deletePolicy(id: id)
+                                    case "printers":
+                                        try await PlatformAPIClient.shared.deletePrinter(id: id)
+                                    case "restrictedsoftware":
+                                        try await PlatformAPIClient.shared.deleteRestrictedSoftwareItem(id: id)
+                                    case "computerextensionattributes":
+                                        try await PlatformAPIClient.shared.deleteComputerExtensionAttribute(id: id)
+                                    case "mobiledeviceapplications":
+                                        try await PlatformAPIClient.shared.deleteMobileDeviceApplication(id: id)
+                                    case "mobiledeviceconfigurationprofiles":
+                                        try await PlatformAPIClient.shared.deleteMobileDeviceConfigurationProfile(id: id)
+                                    case "classes":
+                                        try await PlatformAPIClient.shared.deleteClass(id: id)
+                                    case "mobiledeviceextensionattributes":
+                                        try await PlatformAPIClient.shared.deleteMobileDeviceExtensionAttribute(id: id)
+                                    default:
+                                        WriteToLog.shared.message("[remove_Action] Platform API: no delete handler for \(category)")
+                                        throw PlatformAPIError.invalidURL
+                                    }
+                                    success = true
+                                } catch {
+                                    WriteToLog.shared.message("[remove_Action] Platform API delete failed for \(category) id \(id): \(error)")
                                 }
-                                failedDeleteCount+=1
-                                WriteToLog.shared.message("[remove_Action] failed to removed category \(category) with id: \(id)")
-                            } else {
-                                deleteCount+=1
-                                WriteToLog.shared.message("[remove_Action] removed category \(category) with id: \(id)")
+                                if success {
+                                    deleteCount += 1
+                                    WriteToLog.shared.message("[remove_Action] removed category \(category) with id: \(id)")
+                                } else {
+                                    failedDeleteCount += 1
+                                    WriteToLog.shared.message("[remove_Action] failed to remove category \(category) with id: \(id)")
+                                }
+                                self.counter += 1
+                                completed = true
+                                if self.counter == masterItemsToDeleteArray.count {
+                                    if failedDeleteCount > 0 {
+                                        let item = (failedDeleteCount == 1) ? "item was":"items were"
+                                        extraMessage = "\nNote, \(failedDeleteCount) \(item) not deleted."
+                                    }
+                                    Alert.shared.display(header: "Removal process complete.\(extraMessage)", message: "")
+                                    DispatchQueue.main.async {
+                                        self.spinner_ProgressIndicator.isIndeterminate = true
+                                    }
+                                    self.working(isWorking: false)
+                                    self.process_TextField.isHidden = true
+                                }
                             }
-                            self.counter += 1
-                            
-                            completed = true
+                        } else {
+                            xmlAction(action: "DELETE", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theCategory: category, theEndpoint: "\(category)/id/\(id)") {
+                                (xmlResult: (Int,String)) in
+//
+                                let (statusCode, _) = xmlResult
+                                if !(statusCode >= 200 && statusCode <= 299) {
+                                    if "\(statusCode)" == "401" {
+                                        self.working(isWorking: false)
+                                        Alert.shared.display(header: "Alert", message: "Verify username and password.")
+                                        return
+                                    }
+                                    failedDeleteCount+=1
+                                    WriteToLog.shared.message("[remove_Action] failed to removed category \(category) with id: \(id)")
+                                } else {
+                                    deleteCount+=1
+                                    WriteToLog.shared.message("[remove_Action] removed category \(category) with id: \(id)")
+                                }
+                                self.counter += 1
+
+                                completed = true
 
         //                        print("json returned packages: \(result)")
-                            if self.counter == masterItemsToDeleteArray.count {
-                                if failedDeleteCount > 0 {
-                                    let item = (failedDeleteCount == 1) ? "item was":"items were"
-                                    extraMessage = "\nNote, \(failedDeleteCount) \(item) not deleted."
+                                if self.counter == masterItemsToDeleteArray.count {
+                                    if failedDeleteCount > 0 {
+                                        let item = (failedDeleteCount == 1) ? "item was":"items were"
+                                        extraMessage = "\nNote, \(failedDeleteCount) \(item) not deleted."
+                                    }
+                                    Alert.shared.display(header: "Removal process complete.\(extraMessage)", message: "")
+                                    DispatchQueue.main.async {
+                                        self.spinner_ProgressIndicator.isIndeterminate = true
+                                    }
+                                    self.working(isWorking: false)
+                                    self.process_TextField.isHidden = true
                                 }
-                                Alert.shared.display(header: "Removal process complete.\(extraMessage)", message: "")
-                                DispatchQueue.main.async {
-                                    self.spinner_ProgressIndicator.isIndeterminate = true
-                                }
-                                self.working(isWorking: false)
-                                self.process_TextField.isHidden = true
-                            }
 
-                        }   // Xml().action - end
+                            }   // Xml().action - end
+                        }
                         while !completed {
                             usleep(50000)
                         }
@@ -5209,86 +5284,86 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
         DispatchQueue.main.async {
             let theRow = self.object_TableView.selectedRow
+            let webBase = useApiClient == 0 ? JamfProServer.serverURL : JamfProServer.source
 
             if let displayedName = self.unusedItems_TableArray?[theRow] {
                 let itemName = displayedName.replacingOccurrences(of: ")    [disabled]", with: ")")
-                
+
                 if let itemDict = self.unusedItems_TableDict?[theRow] {
                     if (self.itemSeperators.firstIndex(of: itemName) ?? -1) == -1 {
                         for (_, objectType) in itemDict as [String:String] {
-                            
+
                             WriteToLog.shared.message("[viewSelectObject] open itemDict: \(itemName) of type \(objectType) in browser")
-                            
+
                             switch objectType {
                                 case "packages":
-                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/view/settings/computer-management/\(objectType.lowercased())/\(objectId)?tab=general") {
+                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/view/settings/computer-management/\(objectType.lowercased())/\(objectId)?tab=general") {
                                         NSWorkspace.shared.open(objectURL)
                                     }
                                 
                                 case "scripts":
                                 let scriptPath = (JamfProServer.majorVersion == 10 && JamfProServer.minorVersion > 39) || JamfProServer.majorVersion > 10 ? "computer-management":"computer"
-                                    if let objectId = self.masterObjectDict["scripts"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/view/settings/\(scriptPath)/scripts/\(objectId)") {
+                                    if let objectId = self.masterObjectDict["scripts"]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/view/settings/\(scriptPath)/scripts/\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                     }
-                                
+
                                 case "classes":
-                                    if let objectId = self.masterObjectDict["classes"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/classes.html/?id=\(objectId)") {
+                                    if let objectId = self.masterObjectDict["classes"]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/classes.html/?id=\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                     }
-                                
+
                                 case "computergroups":
-                                      if let objectId = self.masterObjectDict["computerGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["computerGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(JamfProServer.source)/\(groupType)s.html/?id=\(objectId)&o=r") {
+                                      if let objectId = self.masterObjectDict["computerGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["computerGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(webBase)/\(groupType)s.html/?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                       }
-                                
+
                                 case "osxconfigurationprofiles":
-                                      if let objectId = self.masterObjectDict["osxconfigurationprofiles"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/OSXConfigurationProfiles.html?id=\(objectId)&o=r") {
+                                      if let objectId = self.masterObjectDict["osxconfigurationprofiles"]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/OSXConfigurationProfiles.html?id=\(objectId)&o=r") {
                                           NSWorkspace.shared.open(objectURL)
                                       }
-                                
+
                                 case "policies":
-                                    if let objectId = self.masterObjectDict["policies"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/policies.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["policies"]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/policies.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                     }
-                                
+
                                 case "printers":
-                                    if let objectId = self.masterObjectDict["printers"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/printers.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["printers"]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/printers.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                     }
-                                
+
                                 case "restrictedsoftware":
-                                    if let objectId = self.masterObjectDict["restrictedsoftware"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/restrictedSoftware.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["restrictedsoftware"]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/restrictedSoftware.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
-//
                                     }
-                                
+
                                 case "computerextensionattributes":
-                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/view/settings/computer-management/computer-extension-attributes/\(objectId)") {
+                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/view/settings/computer-management/computer-extension-attributes/\(objectId)") {
                                         NSWorkspace.shared.open(objectURL)
                                     }
 
                                 case "mobiledevicegroups":
-                                    if let objectId = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(JamfProServer.source)/\(groupType)s.html/?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["id"], let groupType = self.masterObjectDict["mobileDeviceGroups"]?[itemName]?["groupType"], let objectURL = URL(string: "\(webBase)/\(groupType)s.html/?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                     }
 
                                 case "mobiledeviceapplications":
-                                    if let objectId = self.masterObjectDict["mobiledeviceapplications"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/mobileDeviceApps.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict["mobiledeviceapplications"]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/mobileDeviceApps.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                     }
-                                
+
                                 case "mobiledeviceconfigurationprofiles":
-                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/iOSConfigurationProfiles.html?id=\(objectId)&o=r") {
+                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/iOSConfigurationProfiles.html?id=\(objectId)&o=r") {
                                         NSWorkspace.shared.open(objectURL)
                                     }
-                                
+
                                 case "ebooks":
-                                    if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/eBooks.html/?id=\(objectId)") {
+                                    if let objectId = self.masterObjectDict["ebooks"]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/eBooks.html/?id=\(objectId)") {
                                       NSWorkspace.shared.open(objectURL)
                                     }
-                                    
+
                                 case "mobiledeviceextensionattributes":
-                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(JamfProServer.source)/view/settings/device-management/mobile-device-extension-attributes/\(objectId)") {
+                                    if let objectId = self.masterObjectDict[objectType]?[itemName]?["id"], let objectURL = URL(string: "\(webBase)/view/settings/device-management/mobile-device-extension-attributes/\(objectId)") {
                                         NSWorkspace.shared.open(objectURL)
                                     }
 

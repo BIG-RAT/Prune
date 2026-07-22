@@ -55,6 +55,7 @@ struct JamfProServer {
     static var saveCreds    = 0
     static var useApiClient = 0
     static var tenantId     = ""                   // Platform API: UUID from accounts.jamf.com
+    static var serverURL    = ""                   // Platform API: Jamf Pro web UI base URL (from jamf-pro-server-url endpoint)
     static var region       = "us"                 // Platform API: gateway region prefix
 }
 

@@ -266,7 +266,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
                         lastTenantId      = JamfProServer.source
                         lastIntegrationDN = displayName
                         lastClientId      = JamfProServer.username
-                        JamfProServer.tenantId = JamfProServer.source
+                            JamfProServer.tenantId = JamfProServer.source
 
                         setSelectServerButton(listOfNames: sortedIntegrationNames + [displayName])
                         selectServer_Button.selectItem(withTitle: displayName)

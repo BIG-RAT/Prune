@@ -1,5 +1,9 @@
 ## 📜 Version History
 
+### v4.0.0 (2026-07-22)
+- Add Platform API support.
+- Add blueprints scan for computer and mobile device groups.
+
 ### v3.5.3 (2026-05-07)
 - Correct premissions required for packages and computer groups in the readme.
 - Fix issue saving username/password in keychain.

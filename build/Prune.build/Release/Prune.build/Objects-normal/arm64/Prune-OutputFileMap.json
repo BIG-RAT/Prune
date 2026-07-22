@@ -1,0 +1,101 @@
+{
+  "" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Prune-primary.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Prune-primary.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Prune-primary.dia",
+    "emit-module-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Prune-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Prune-primary-emit-module.dia",
+    "pch" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Prune-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Prune-primary.swiftdeps"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/AboutVC.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/AboutVC.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/AboutVC.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/AboutVC.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Alert.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/Alert.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Alert.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Alert.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/AppDelegate.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/AppDelegate.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/AppDelegate.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/AppDelegate.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Credentials.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/Credentials.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Credentials.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Credentials.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Globals.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/Globals.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Globals.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Globals.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/ImportView.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/ImportView.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/ImportView.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/ImportView.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/JamfPro.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/JamfPro.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/JamfPro.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/JamfPro.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Json.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/Json.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Json.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Json.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/LoginViewController.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/LoginViewController.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/LoginViewController.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/LoginViewController.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/PlatformAPI/PlatformAPIClient.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/PlatformAPIClient.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/PlatformAPIClient.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/PlatformAPIClient.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/PlatformAPI/PlatformAPIEndpoints.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/PlatformAPIEndpoints.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/PlatformAPIEndpoints.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/PlatformAPIEndpoints.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/TelemetryDeckConfig.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/TelemetryDeckConfig.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/TelemetryDeckConfig.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/TelemetryDeckConfig.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Time.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/Time.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Time.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/Time.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/ViewController.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/ViewController.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/ViewController.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/ViewController.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/WriteToLog.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/WriteToLog.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/WriteToLog.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/WriteToLog.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/XmlDotNotationParser.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/XmlDotNotationParser.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/XmlDotNotationParser.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/XmlDotNotationParser.o"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/XmlParser.swift" : {
+    "index-unit-output-path" : "/Prune.build/Release/Prune.build/Objects-normal/arm64/XmlParser.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/XmlParser.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Release/Prune.build/Objects-normal/arm64/XmlParser.o"
+  }
+}
