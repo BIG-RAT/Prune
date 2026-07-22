@@ -3,6 +3,7 @@
 ### v4.0.0 (2026-07-22)
 - Add Platform API support.
 - Add blueprints scan for computer and mobile device groups.
+- Delete workflow changed. Now you select (shift and cmd keys support) what you want to delete rather than filtering the list and delete what’s left.
 
 ### v3.5.3 (2026-05-07)
 - Correct premissions required for packages and computer groups in the readme.

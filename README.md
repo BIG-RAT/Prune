@@ -19,8 +19,8 @@
 
 1. **Scan**: Prune connects to your Jamf Pro server and scans for unused items across multiple object types.
 2. **Review**: The app generates a list of potentially unused items that you can review and edit.
-3. **Edit**: Remove items from the deletion list or open them directly on your Jamf server.
-4. **Delete**: Once you're confident, delete the unused items to clean up your server.
+3. **Select**: Select items to remove from the server. Cmd+A (once at least one item is selected) selects all. Shift and Cmd+click work as expected to select multiple items. Option+click removes an item from the list without deleting it from Jamf Pro.
+4. **Delete**: Once you're confident, delete the selected unused items to clean up your server.
 
 > **⚠️ Error Handling**: If the server indicates an error while reading an object, it will be logged and you'll receive an alert indicating the results may be inaccurate.
 
@@ -30,7 +30,7 @@
 
 Once the list of unused items is generated, you can edit it directly within the app:
 
-- **Remove an item from the deletion list**: Option-click the item to keep it (it won't be deleted from the server)
+- **Remove an item from the deletion list**: Option-click the item to remove it from the list keep it in Jamf Pro
 - **Review an item on the server**: Double-click any item to open it directly on your Jamf server (you may need to authenticate first)
 
 ![Edit Interface](./images/edit.png "Editing and Review Interface")
@@ -57,6 +57,7 @@ Once the list of unused items is generated, you can edit it directly within the 
    - Review the generated list of unused items
    - **Option-click** any item to remove it from the deletion list (keeps it on your server)
    - **Double-click** any item to open it on your Jamf server for detailed review
+   - **Select** the object(s) to be deleted. You can use cmd+A, once an object has been selected, to select all objects in the list. The standard selection keys, cmd and shift, can be used while clicking to select multiple objects.
 
 5. **Delete Items** (Optional)
    - Click **Delete** to remove the listed items from your server
@@ -69,16 +70,44 @@ Once the list of unused items is generated, you can edit it directly within the 
 
 ### ⚠️ Important Notes
 
-- **Blueprints are not scanned**: Groups used only in blueprints will show as unused since blueprints aren't analyzed.
+- **Blueprints**: Blueprints are only scanned when using the Platform API. When using the Jamf Pro API groups used only in blueprints will show as unused since blueprints aren't analyzed.
 
 ---
 
 <a id="setting-up-api-client-credentials"></a>
-## 🔑 Setting Up API Client Credentials
+## 🔑 Setting Up API Client Credentials / Integration
 
-API Client Credentials are the recommended method for authenticating with your Jamf Pro server. They provide better security and are more suitable for programmatic access than user accounts.
+API Client Credentials (Jamf Pro) or an Integration (Platform API) are the recommended methods for authenticating with Prune. They provide better security and are more suitable for programmatic access than user accounts.
 
-### Step-by-Step Setup
+### Complete List of Required Privileges for Full Functionality
+
+If you want to use Prune with all available object types, grant the following privileges when creating your API role or integration:
+
+| Object Type | Required Privileges |
+|------------|---------------------|
+| **Classes** | Read Classes, Delete Classes |
+| **Computer Extension Attributes (EAs)** | Read Computer Extension Attributes, Delete Computer Extension Attributes, Read Patch Software Titles |
+| **Computer Groups** | Read Smart Computer Groups, Delete Smart Computer Groups, Read Static Computer Groups, Delete Static Computer Groups, Read Patch Policies, Read Patch Management Software Titles, Read Blueprints |
+| **Computer Objects (General)** | Read Computer PreStage Enrollments |
+| **Computer Profiles** | Read macOS Configuration Profiles, Delete macOS Configuration Profiles |
+| **eBooks** | Read eBooks, Delete eBooks |
+| **Mac Apps** | Read Mac Applications, Delete Mac Applications |
+| **Mobile Device Apps** | Read Mobile Device Applications, Delete Mobile Device Applications |
+| **Mobile Device Configuration Profiles** | Read iOS Configuration Profiles, Delete iOS Configuration Profiles |
+| **Mobile Device Extension Attributes (EAs)** | Read Mobile Device Extension Attributes, Delete Mobile Device Extension Attributes |
+| **Mobile Device Groups** | Read Smart Mobile Device Groups, Delete Smart Mobile Device Groups, Read Static Mobile Device Groups, Delete Static Mobile Device Groups, Read Blueprints |
+| **Mobile Device Objects (General)** | Read Mobile Device PreStage Enrollments |
+| **Packages** | Read Packages, Delete Packages, Read Patch Management Software Titles |
+| **Policies** | Read Policies, Delete Policies |
+| **Printers** | Read Printers, Delete Printers |
+| **Restricted Software** | Read Restricted Software, Delete Restricted Software |
+| **Scripts** | Read Scripts, Delete Scripts |
+
+> **Tip**: You can create separate roles for different use cases (e.g., one for read-only scanning and one for full delete access) and assign them to different clients as needed.
+
+---
+
+### Step-by-Step Setup — Jamf Pro API Client
 
 1. **Log into Jamf Pro**
    - Open your Jamf Pro web interface
@@ -94,43 +123,16 @@ API Client Credentials are the recommended method for authenticating with your J
      - **Display Name**: Enter a descriptive name (e.g., "Prune.app - Read & Delete Objects")
      - **Privileges**: Choose the appropriate privileges based on your needs:
        - **For read-only access** (scanning only): Grant Read permissions for all object types you want to scan
-       - **For full functionality** (scanning and deleting): Grant both Read and Delete permissions for the object types you want to manage
-   
-   #### Complete List of Required Privileges for Full Functionality
-   
-   If you want to use Prune with all available object types, you'll need to grant the following privileges in your API role:
-   
-   | Object Type | Required Privileges |
-   |------------|---------------------|
-   | **Classes** | Read Classes, Delete Classes |
-   | **Computer Extension Attributes (EAs)** | Read Computer Extension Attributes, Delete Computer Extension Attributes, Read Patch Software Titles |
-   | **Computer Groups** | Read Smart Computer Groups, Delete Smart Computer Groups, Read Static Computer Groups, Delete Static Computer Groups, Read Patch Policies, Read Patch Management Software Titles |
-   | **Computer Objects (General)** | Read Computer PreStage Enrollments |
-   | **Computer Profiles** | Read macOS Configuration Profiles, Delete macOS Configuration Profiles |
-   | **eBooks** | Read eBooks, Delete eBooks |
-   | **Mac Apps** | Read Mac Applications, Delete Mac Applications |
-   | **Mobile Device Apps** | Read Mobile Device Applications, Delete Mobile Device Applications |
-   | **Mobile Device Configuration Profiles** | Read iOS Configuration Profiles, Delete iOS Configuration Profiles |
-   | **Mobile Device Extension Attributes (EAs)** | Read Mobile Device Extension Attributes, Delete Mobile Device Extension Attributes |
-   | **Mobile Device Groups** | Read Smart Mobile Device Groups, Delete Smart Mobile Device Groups, Read Static Mobile Device Groups, Delete Static Mobile Device Groups |
-   | **Mobile Device Objects (General)** | Read Mobile Device PreStage Enrollments |
-   | **Packages** | Read Packages, Delete Packages, Read Patch Management Software Titles |
-   | **Policies** | Read Policies, Delete Policies |
-   | **Printers** | Read Printers, Delete Printers |
-   | **Restricted Software** | Read Restricted Software, Delete Restricted Software |
-   | **Scripts** | Read Scripts, Delete Scripts |
-   
-   > **Tip**: You can create separate API roles for different use cases (e.g., one for read-only scanning and one for full delete access) and assign them to different API clients as needed.
-        
+       - **For full functionality** (scanning and deleting): Grant both Read and Delete permissions for the object types you want to manage — see the table above
 
 4. **Create a New API Client**
    - Navigate back to the **API roles and clients** section in Jamf Pro
    - On the **API Clients** tab, click the **New** button (+) to create a new API client
-    - Fill in the required information:
-        - **Display Name**: Enter a descriptive name (e.g., "Prune.app")
-        - **API roles**: Select the API role you created in the previous step
-    - Enable API client: Click the **Enable API client** button
-    - Click **Save** to create the client
+   - Fill in the required information:
+     - **Display Name**: Enter a descriptive name (e.g., "Prune.app")
+     - **API roles**: Select the API role you created in the previous step
+   - Enable API client: Click the **Enable API client** button
+   - Click **Save** to create the client
 
 5. **Generate Client Secret and Copy Credentials**
    - Click **Generate client secret** > **Create secret**
@@ -139,8 +141,43 @@ API Client Credentials are the recommended method for authenticating with your J
    - Store these credentials securely (consider using a password manager)
 
 6. **Use in Prune**
-   - When connecting in Prune, check the box for **Use API client**:
-     - Paste your **Client ID** and **Client Secret** into the relevant fields
+   - In Prune's login window, select **Pro** as the API type
+   - Paste your **Client ID** and **Client Secret** into the relevant fields
+
+---
+
+### Step-by-Step Setup — Platform API Integration
+
+The Platform API option provides access to additional features such as Blueprints. Integrations are created and managed at [account.jamf.com](https://account.jamf.com).
+
+1. **Log into account.jamf.com**
+   - Sign in with your Jamf account credentials
+
+2. **Navigate to Integrations**
+   - Select **Integrations** from the left-hand navigation
+
+3. **Create a New Integration**
+   - Click **+ Create Integration**
+   - Fill in the required information:
+     - **Name**: Enter a descriptive name (e.g., "Prune.app")
+     - **Description**: Optionally describe the integration's purpose
+     - **Region**: Select the region that matches your Jamf tenant
+     - **Tenants**: Select the tenant(s) this integration should have access to — one tenant per integration is recommended
+     - **Permissions**: Select the permissions required for the object types you want to manage - see the table above
+   - Click **Create Integration**
+
+4. **Copy Credentials**
+   - After creation, copy the **Client ID** and **Client Secret** immediately
+   - **Important**: The Client Secret will not be displayed again — store it securely
+
+5. **Find Your Tenant ID**
+   - In the integration's **Details** section, locate the **Tenants** field
+   - Click the name of your tenant, the id is copied to your clipboard - you will need this when logging in with Prune
+
+6. **Use in Prune**
+   - In Prune's login window, select **Platform** as the API type
+   - If you have existing servers already configured selet Add Integration... from the Integration dropdown
+   - Paste your **Tenant ID**, **Client ID**, and **Client Secret** into the relevant fields
 
 ---
 
@@ -152,7 +189,7 @@ Prune analyzes each object type by checking specific usage locations in your Jam
 |------------|------------------------|
 | **Packages** | Checked for usage in policies, patch policies, and computer prestages |
 | **Scripts** | Checked for usage in policies |
-| **Computer Groups** | Checked for usage in policies, computer configuration profiles, computer groups, eBooks, restricted software, advanced searches, app installers, and enabled state |
+| **Computer Groups** | Checked for usage in blueprints (Platform API only), policies, computer configuration profiles, computer groups, eBooks, restricted software, advanced searches, app installers, and enabled state |
 | **Computer Profiles** | Checked for scope and usage in computer prestages |
 | **Policies** | Checked for scope |
 | **Printers** | Checked for usage in policies and macOS configuration profiles |
@@ -160,7 +197,7 @@ Prune analyzes each object type by checking specific usage locations in your Jam
 | **Restricted Software** | Checked for scope of computer groups |
 | **Computer Extension Attributes** | Checked for scope of computer groups, advanced searches (including display tab), and enabled state |
 | **eBooks** | Checked for scope |
-| **Mobile Device Groups** | Checked for usage in mobile device apps, mobile device configuration profiles, mobile device groups, eBooks, and classes |
+| **Mobile Device Groups** | Checked for usage in blueprints (Platform API only), mobile device apps, mobile device configuration profiles, mobile device groups, eBooks, and classes |
 | **Mobile Device Profiles** | Checked for scope |
 | **Classes** | Checked for scope (only looks for students/student groups/mobile device assignments) |
 | **Mobile Device Extension Attributes** | Checked for scope of mobile device groups and advanced searches |
