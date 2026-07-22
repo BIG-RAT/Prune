@@ -100,6 +100,7 @@ struct waitFor {
     static var ebook                   = true
     static var classes                 = true
     static var advancedsearch          = true
+    static var blueprints              = true
 }
 
 func failedLookupDict(theEndpoint: String, theId: String) {
@@ -111,9 +112,10 @@ func failedLookupDict(theEndpoint: String, theId: String) {
 }
 
 func runningNewer(_ compareTo: String) -> Bool {
-    // Split into base and suffix parts
     let parts1 = JamfProServer.version.split(separator: "-", maxSplits: 1).map(String.init)
     let parts2 = compareTo.split(separator: "-", maxSplits: 1).map(String.init)
+
+    guard !parts1.isEmpty, !parts2.isEmpty else { return false }
 
     let base1 = parts1[0].split(separator: ".").compactMap { Int($0) }
     let base2 = parts2[0].split(separator: ".").compactMap { Int($0) }

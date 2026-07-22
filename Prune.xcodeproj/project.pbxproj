@@ -25,6 +25,8 @@
 		CE69FFD92EFB1D90008495DF /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = CE69FFD82EFB1D90008495DF /* TelemetryDeck */; };
 		CE69FFDE2EFC0B32008495DF /* AboutVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE69FFDD2EFC0B32008495DF /* AboutVC.swift */; };
 		CE7734292F153141001860CF /* XmlDotNotationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7734282F153141001860CF /* XmlDotNotationParser.swift */; };
+		CEA5E6782F200001001E0611 /* PlatformAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA5E6762F200001001E0611 /* PlatformAPIClient.swift */; };
+		CEA5E6792F200001001E0611 /* PlatformAPIEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA5E6772F200001001E0611 /* PlatformAPIEndpoints.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,7 +50,9 @@
 		CE69FFD52EFB1D66008495DF /* TelemetryDeckConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryDeckConfig.swift; sourceTree = "<group>"; };
 		CE69FFDD2EFC0B32008495DF /* AboutVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutVC.swift; sourceTree = "<group>"; };
 		CE7734282F153141001860CF /* XmlDotNotationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XmlDotNotationParser.swift; sourceTree = "<group>"; };
+		CEA5E6762F200001001E0611 /* PlatformAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformAPIClient.swift; sourceTree = "<group>"; };
 		CEA5E677291E45FE001E0611 /* Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Notes.md; sourceTree = "<group>"; };
+		CEA5E6772F200001001E0611 /* PlatformAPIEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformAPIEndpoints.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,12 +110,22 @@
 				B5247030252C53A1006CCFD3 /* WriteToLog.swift */,
 				CE7734282F153141001860CF /* XmlDotNotationParser.swift */,
 				B5AE193C2A5740D300F75694 /* XmlParser.swift */,
+				CEA5E67A2F200001001E0611 /* PlatformAPI */,
 				B58A314223A139810023EA63 /* Assets.xcassets */,
 				B58A314423A139810023EA63 /* Main.storyboard */,
 				B58A314723A139810023EA63 /* Info.plist */,
 				B58A314823A139810023EA63 /* prune.entitlements */,
 			);
 			path = prune;
+			sourceTree = "<group>";
+		};
+		CEA5E67A2F200001001E0611 /* PlatformAPI */ = {
+			isa = PBXGroup;
+			children = (
+				CEA5E6762F200001001E0611 /* PlatformAPIClient.swift */,
+				CEA5E6772F200001001E0611 /* PlatformAPIEndpoints.swift */,
+			);
+			path = PlatformAPI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -225,6 +239,8 @@
 				B5B3096C23B05120004BA9DB /* Globals.swift in Sources */,
 				CE69FFD62EFB1D66008495DF /* TelemetryDeckConfig.swift in Sources */,
 				B580FA4B27BA14AC00E425EC /* LoginViewController.swift in Sources */,
+				CEA5E6782F200001001E0611 /* PlatformAPIClient.swift in Sources */,
+				CEA5E6792F200001001E0611 /* PlatformAPIEndpoints.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,7 +394,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = "3.5.5-b1";
+				MARKETING_VERSION = "4.0.0-b1";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -405,7 +421,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = "3.5.5-b1";
+				MARKETING_VERSION = "4.0.0-b1";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.prune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

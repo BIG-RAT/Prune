@@ -245,7 +245,8 @@ class JamfPro: NSObject, URLSessionDelegate {
                                     JamfProServer.authExpires = endpointJSON["expires_in"] as? Double ?? 60
                                 }
                                 if useApiClient == 0 {
-                                    JamfProServer.tenantId = serverUrl
+                                    JamfProServer.tenantId = Self.tenantIdFromJWT(JamfProServer.accessToken) ?? serverUrl
+                                    WriteToLog.shared.message("[getToken] Platform API tenantId: \(JamfProServer.tenantId)")
                                 }
                                 JamfProServer.authExpires *= 0.75
 //                                print("[getToken] \(#line) \(whichServer) token expires in: \(String(describing: JamfProServer.authExpires))")
@@ -257,8 +258,29 @@ class JamfPro: NSObject, URLSessionDelegate {
                                 WriteToLog.shared.message("[getToken] new token created for \(serverUrl)")
                                 
                                 if useApiClient == 0 {
-                                    // Platform API — no Jamf Pro version endpoint on the gateway
                                     JamfProServer.authType = "Bearer"
+                                    if JamfProServer.version == "" {
+                                        Task {
+                                            do {
+                                                WriteToLog.shared.message("[getVersion] Attempting GET on https://\(JamfProServer.region).apigw.jamf.com/api/pro/v1/tenant/\(JamfProServer.tenantId)/jamf-pro-version.")
+                                                let versionString = try await PlatformAPIClient.shared.getJamfProVersion()
+                                                if !versionString.isEmpty {
+                                                    WriteToLog.shared.message("[JamfPro.getVersion] Jamf Pro Version: \(versionString)")
+                                                    JamfProServer.version = versionString
+                                                    let tmpArray = versionString.components(separatedBy: ".")
+                                                    if tmpArray.count > 2 {
+                                                        JamfProServer.majorVersion = Int(tmpArray[0]) ?? 0
+                                                        JamfProServer.minorVersion = Int(tmpArray[1]) ?? 0
+                                                        let tmp = tmpArray[2].components(separatedBy: "-")
+                                                        JamfProServer.patchVersion = Int(tmp[0]) ?? 0
+                                                        if tmp.count > 1 { JamfProServer.build = tmp[1] }
+                                                    }
+                                                }
+                                            } catch {
+                                                WriteToLog.shared.message("[JamfPro.getVersion] Platform API version fetch failed: \(error)")
+                                            }
+                                        }
+                                    }
                                     completion((200, "success"))
                                     return
                                 }
@@ -349,6 +371,19 @@ class JamfPro: NSObject, URLSessionDelegate {
         }
     }
     
+    static func tenantIdFromJWT(_ token: String) -> String? {
+        let parts = token.split(separator: ".", omittingEmptySubsequences: false)
+        guard parts.count >= 2 else { return nil }
+        var base64 = String(parts[1])
+        // JWT base64url — pad to a multiple of 4
+        let rem = base64.count % 4
+        if rem != 0 { base64 += String(repeating: "=", count: 4 - rem) }
+        base64 = base64.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+        guard let data = Data(base64Encoded: base64),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+        return json["tid"] as? String ?? json["tenant_id"] as? String
+    }
+
     func getVersion(serverUrl: String, endpoint: String, apiData: [String:Any], id: String, token: String, method: String, completion: @escaping (_ returnedJSON: [String: Any]) -> Void) {
         
         if method.lowercased() == "skip" {

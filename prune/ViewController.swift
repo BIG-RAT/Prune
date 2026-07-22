@@ -19,17 +19,19 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     
     @IBOutlet weak var scan_Button: NSButton!
     @IBOutlet weak var view_PopUpButton: NSPopUpButton!
+    
     @IBOutlet weak var packages_Button: NSButton!
     @IBOutlet weak var scripts_Button: NSButton!
-    @IBOutlet weak var ebooks_Button: NSButton!
-    @IBOutlet weak var classes_Button: NSButton!
     @IBOutlet weak var computerGroups_Button: NSButton!
     @IBOutlet weak var computerProfiles_Button: NSButton!
-    @IBOutlet weak var macApps_Button: NSButton!
     @IBOutlet weak var policies_Button: NSButton!
-    @IBOutlet weak var printers_Button: NSButton!
+    @IBOutlet weak var macApps_Button: NSButton!
     @IBOutlet weak var restrictedSoftware_Button: NSButton!
     @IBOutlet weak var computerEAs_Button: NSButton!
+    @IBOutlet weak var printers_Button: NSButton!
+    @IBOutlet weak var blueprints_Button: NSButton!
+    @IBOutlet weak var classes_Button: NSButton!
+    @IBOutlet weak var ebooks_Button: NSButton!
     @IBOutlet weak var mobileDeviceGroups_Button: NSButton!
     @IBOutlet weak var mobileDeviceApps_Button: NSButton!
     @IBOutlet weak var configurationProfiles_Button: NSButton!
@@ -58,7 +60,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     // define master dictionary of items
     // ex. masterObjectDict["packages"] = [package1Name:["id":id1,"name":name1],package2Name:["id":id2,"name":name2]]
     var masterObjectDict = [String:[String:[String:String]]]()
-    var masterObjects    = ["advancedcomputersearches", "advancedmobiledevicesearches", "packages", "osxconfigurationprofiles", "scripts", "ebooks", "classes", "computerGroups", "macapplications", "policies", "printers", "restrictedsoftware", "computerextensionattributes", "mobileDeviceGroups", "mobiledeviceapplications", "mobiledeviceconfigurationprofiles", "computer-prestages", "patchpolicies", "patchsoftwaretitles", "mobiledeviceextensionattributes"]
+    var masterObjects    = ["advancedcomputersearches", "advancedmobiledevicesearches", "packages", "osxconfigurationprofiles", "scripts", "ebooks", "classes", "computerGroups", "macapplications", "policies", "printers", "restrictedsoftware", "computerextensionattributes", "mobileDeviceGroups", "mobiledeviceapplications", "mobiledeviceconfigurationprofiles", "computer-prestages", "patchpolicies", "patchsoftwaretitles", "mobiledeviceextensionattributes", "blueprints"]
     
     var unusedItems_TableArray: [String]?
     var unusedItems_TableDict: [[String:String]]?
@@ -86,8 +88,11 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     var mobileDeviceAppsButtonState      = "off"
     var configurationProfilesButtonState = "off"
     var mobileDeviceEAsButtonState       = "off"
-    
+    var blueprintsButtonState            = "off"
+
     var computerGroupsScanned            = false
+    // UUID → name map for blueprint group scoping (modern API returns UUIDs for groups)
+    var groupUUIDToNameDict              = [String:String]()
     
     var msgText    = ""
     var nextObject = ""
@@ -139,8 +144,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         waitFor.ebook                   = true
         waitFor.classes                 = true
         waitFor.advancedsearch          = true
-        
+        waitFor.blueprints              = true
+
         computerGroupsScanned           = false
+        groupUUIDToNameDict.removeAll()
         view_PopUpButton.isEnabled      = false
         setViewButton(setOn: true)
         view_PopUpButton.selectItem(at: 0)
@@ -242,7 +249,31 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                    }
 
                    var eaArray = [[String:Any]]()
-                   
+
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let allEAs = type == "computerextensionattributes"
+                                    ? try await PlatformAPIClient.shared.getComputerExtensionAttributes()
+                                    : try await PlatformAPIClient.shared.getMobileDeviceExtensionAttributes()
+                                for eaInfo in allEAs {
+                                    if let id = eaInfo["id"] as? String, let name = eaInfo["name"] as? String, !id.isEmpty, !name.isEmpty {
+                                        let enabled = eaInfo["enabled"] as? Bool ?? true
+                                        WriteToLog.shared.message("\(deviceText.lowercased()) extension attribute title id: \(id)      name: \(name)      enabled: \(enabled)")
+                                        let eaDisplayName = enabled ? name : "\(name)    [disabled]"
+                                        eaArray.append(["id": id, "name": eaDisplayName])
+                                        self.masterObjectDict[type]![eaDisplayName] = ["id": id, "used": "false", "enabled": "\(enabled)"]
+                                    }
+                                }
+                                self.masterObjectDict[type]!["AD Users"]?["used"] = "true"
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (\(type)): \(error)")
+                            }
+                            DispatchQueue.main.async { self.processItems(type: nextObject) }
+                        }
+                        return
+                    }
+
                     self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                        (result: (Int,String)) in
                         let (statusCode,returnedXml) = result
@@ -290,8 +321,62 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         
                     // what if we're doing both computer and mobile device groups/EAs
                     let groupEndpoint = (type == "computerGroups" || (type == "mobileDeviceGroups" && computerEAsButtonState == "on" && !computerGroupsScanned)) ? "computergroups":"mobiledevicegroups"
-                   
+
                     print("[processItmes] theEndpoint: \(groupEndpoint)")
+
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                // Use classic tunnel — returns integer IDs and is_smart, matching downstream expectations
+                                let groupsArray = groupEndpoint == "computergroups"
+                                    ? try await PlatformAPIClient.shared.getComputerGroupsClassic()
+                                    : try await PlatformAPIClient.shared.getMobileDeviceGroupsClassic()
+                                for group in groupsArray {
+                                    guard let id = group["id"], let name = group["name"], let isSmart = group["is_smart"] else { continue }
+                                    if (isSmart as! Bool) {
+                                        groupType = (type == "computerGroups") ? "smartComputerGroup" : "smartMobileDeviceGroup"
+                                    } else {
+                                        groupType = (type == "computerGroups") ? "staticComputerGroup" : "staticMobileDeviceGroup"
+                                    }
+                                    if type == "computerGroups" {
+                                        if "\(name)" != "All Managed Clients" && "\(name)" != "All Managed Servers" {
+                                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
+                                        }
+                                    } else {
+                                        if "\(name)" != "All Managed iPads" && "\(name)" != "All Managed iPhones" && "\(name)" != "All Managed iPod touches" {
+                                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false", "groupType":"\(groupType)"]
+                                            self.mobileGroupNameByIdDict[id as! Int] = "\(name)"
+                                        }
+                                    }
+                                }
+                                DispatchQueue.main.async { self.process_TextField.stringValue = "Scanning for nested \(type) and extensions attributes..." }
+                                WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint, theData: groupsArray, index: 0)
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (\(type)): \(error)")
+                                waitFor.deviceGroup = false
+                            }
+                        }
+                        waitFor.deviceGroup = true
+                        self.backgroundQ.async { [self] in
+                            while true {
+                                usleep(10)
+                                if !waitFor.deviceGroup {
+                                    DispatchQueue.main.async { [self] in
+                                        if type == "computerGroups" || (!computerGroupsScanned && computerEAsButtonState == "on") {
+                                            computerGroupsScanned = true
+                                            self.processItems(type: "mobileDeviceGroups")
+                                        } else {
+                                            self.processItems(type: "blueprints")
+                                        }
+                                    }
+                                    break
+                                }
+                            }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: groupEndpoint) {
                         (result: [String:AnyObject]) in
 //                            print("json returned scripts: \(result)")
@@ -349,10 +434,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                             }
                                             
                                         } else {
-//                                                print("[processItems] skipping \(type) - call packages")
-                                            WriteToLog.shared.message("[processItems] call packages")
+                                            WriteToLog.shared.message("[processItems] call blueprints")
                                             DispatchQueue.main.async {
-                                                self.processItems(type: "packages")
+                                                self.processItems(type: "blueprints")
                                             }
                                         }
                                         break
@@ -366,11 +450,11 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 DispatchQueue.main.async {
                                     self.processItems(type: "mobileDeviceGroups")
                                 }
-                                
+
                             } else {
-                                WriteToLog.shared.message("[processItems] scall packages")
+                                WriteToLog.shared.message("[processItems] call blueprints")
                                 DispatchQueue.main.async {
-                                    self.processItems(type: "packages")
+                                    self.processItems(type: "blueprints")
                                 }
                             }
                         }
@@ -381,16 +465,92 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         DispatchQueue.main.async {
                             self.processItems(type: "mobileDeviceGroups")
                         }
-                        
+
                     } else {
-                        WriteToLog.shared.message("[processItems] skipping \(type) - call packages")
+                        WriteToLog.shared.message("[processItems] skipping \(type) - call blueprints")
                         DispatchQueue.main.async {
-                            self.processItems(type: "packages")
+                            self.processItems(type: "blueprints")
                         }
                     }
                 }   // if self.computerGroupsButtonState == "on" - end
-                     
-                
+
+            case "blueprints":
+                // Blueprints are Platform API only — skip silently for Pro/Classic modes.
+                guard useApiClient == 0 else {
+                    WriteToLog.shared.message("[processItems] skipping blueprints (not Platform API mode) - call packages")
+                    DispatchQueue.main.async { self.processItems(type: "packages") }
+                    break
+                }
+                let scanningComputerGroups  = computerGroupsButtonState == "on"
+                let scanningMobileGroups    = mobileDeviceGroupsButtonState == "on"
+                let scanningBlueprintsOnly  = blueprintsButtonState == "on"
+                let shouldScanBlueprints    = scanningBlueprintsOnly || scanningComputerGroups || scanningMobileGroups
+
+                if shouldScanBlueprints {
+                    DispatchQueue.main.async {
+                        self.process_TextField.stringValue = "Fetching Blueprints..."
+                    }
+                    Task { [self] in
+                        do {
+                            // Build UUID → group name map whenever groups are being scanned,
+                            // so blueprint scope can mark those groups as used.
+                            if (scanningComputerGroups || scanningMobileGroups) && groupUUIDToNameDict.isEmpty {
+                                WriteToLog.shared.message("[processItems] blueprints: fetching all groups (modern) for UUID→name map...")
+                                let allGroups = try await PlatformAPIClient.shared.getAllGroupsModern()
+                                for group in allGroups {
+                                    if let uuid = group["id"] as? String, let name = group["name"] as? String {
+                                        groupUUIDToNameDict[uuid] = name
+                                    }
+                                }
+                                WriteToLog.shared.message("[processItems] blueprints: built UUID→name map with \(groupUUIDToNameDict.count) groups")
+                            }
+
+                            WriteToLog.shared.message("[processItems] blueprints: fetching blueprint list...")
+                            let blueprintList = try await PlatformAPIClient.shared.getBlueprints()
+                            WriteToLog.shared.message("[processItems] blueprints: found \(blueprintList.count) blueprints")
+
+                            for blueprint in blueprintList {
+                                guard let blueprintId = blueprint["id"] as? String else { continue }
+                                let blueprintName = blueprint["name"] as? String ?? blueprintId
+
+                                let detail = try await PlatformAPIClient.shared.getBlueprint(id: blueprintId)
+                                if let scope = detail["scope"] as? [String: Any],
+                                   let deviceGroups = scope["deviceGroups"] as? [String] {
+                                    for groupUUID in deviceGroups {
+                                        if let groupName = self.groupUUIDToNameDict[groupUUID] {
+                                            if scanningComputerGroups && self.masterObjectDict["computerGroups"]?[groupName] != nil {
+                                                self.masterObjectDict["computerGroups"]![groupName]!["used"] = "true"
+                                                WriteToLog.shared.message("blueprint \"\(blueprintName)\" scopes computer group \"\(groupName)\"")
+                                            }
+                                            if scanningMobileGroups && self.masterObjectDict["mobileDeviceGroups"]?[groupName] != nil {
+                                                self.masterObjectDict["mobileDeviceGroups"]![groupName]!["used"] = "true"
+                                                WriteToLog.shared.message("blueprint \"\(blueprintName)\" scopes mobile device group \"\(groupName)\"")
+                                            }
+                                        } else {
+                                            WriteToLog.shared.message("[processItems] blueprints: unknown group UUID \(groupUUID) in blueprint \"\(blueprintName)\"")
+                                        }
+                                    }
+                                    if scanningBlueprintsOnly {
+                                        self.masterObjectDict["blueprints"]![blueprintName] = ["id": blueprintId, "used": "true"]
+                                    }
+                                } else {
+                                    if scanningBlueprintsOnly {
+                                        self.masterObjectDict["blueprints"]![blueprintName] = ["id": blueprintId, "used": "false"]
+                                        WriteToLog.shared.message("blueprint \"\(blueprintName)\" has no scope (unused)")
+                                    }
+                                }
+                            }
+                            WriteToLog.shared.message("[processItems] blueprints complete - call packages")
+                        } catch {
+                            WriteToLog.shared.message("[processItems] Platform API error (blueprints): \(error)")
+                        }
+                        DispatchQueue.main.async { self.processItems(type: "packages") }
+                    }
+                } else {
+                    WriteToLog.shared.message("[processItems] skipping blueprints - call packages")
+                    DispatchQueue.main.async { self.processItems(type: "packages") }
+                }
+
             case "packages":
                 if self.packagesButtonState == "on" {
                     DispatchQueue.main.async {
@@ -450,6 +610,25 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
                     */
                     
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let packagesArray = try await PlatformAPIClient.shared.getPackages()
+                                for pkg in packagesArray {
+                                    if let id = pkg["id"], let name = pkg["packageName"] as? String ?? pkg["fileName"] as? String, name != "" {
+                                        self.masterObjectDict["packages"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        self.packagesByIdDict["\(id)"] = "\(name)"
+                                    }
+                                }
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (packages): \(error)")
+                            }
+                            WriteToLog.shared.message("[processItems] call printers")
+                            DispatchQueue.main.async { self.processItems(type: "printers") }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "packages") {
                         (result: [String:AnyObject]) in
                         if let _ = result["Alert"] as? String {
@@ -489,6 +668,24 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Printers..."
                     }
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let objectsArray = try await PlatformAPIClient.shared.getPrinters()
+                                for obj in objectsArray {
+                                    if let id = obj["id"], let name = obj["name"] as? String, name != "" {
+                                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    }
+                                }
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (printers): \(error)")
+                            }
+                            WriteToLog.shared.message("[processItems] printers complete - call scripts")
+                            DispatchQueue.main.async { self.processItems(type: "scripts") }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "printers") {
                         (result: [String:AnyObject]) in
                         if let _ = result["Alert"] as? String {
@@ -508,7 +705,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         }
-                        
+
                         WriteToLog.shared.message("[processItems] printers complete - call scripts")
                         DispatchQueue.main.async {
                             self.processItems(type: "scripts")
@@ -526,6 +723,24 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Scripts..."
                     }
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let objectsArray = try await PlatformAPIClient.shared.getScripts()
+                                for obj in objectsArray {
+                                    if let id = obj["id"], let name = obj["name"] as? String, name != "" {
+                                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    }
+                                }
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (scripts): \(error)")
+                            }
+                            WriteToLog.shared.message("[processItems] scripts complete - call eBooks")
+                            DispatchQueue.main.async { self.processItems(type: "ebooks") }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "scripts") {
                         (result: [String:AnyObject]) in
                         if let _ = result["Alert"] as? String {
@@ -545,7 +760,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
                             }
                         }
-                        
+
                         WriteToLog.shared.message("[processItems] scripts complete - call eBooks")
                         DispatchQueue.main.async {
                             self.processItems(type: "ebooks")
@@ -566,6 +781,42 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async { [self] in
                         self.process_TextField.stringValue = "Fetching \(msgText)..."
                     }
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let ebooksArray = try await PlatformAPIClient.shared.getEbooks()
+                                if ebooksArray.isEmpty {
+                                    WriteToLog.shared.message("[processItems] \(msgText) complete - call \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    return
+                                }
+                                for ebook in ebooksArray {
+                                    if let id = ebook["id"], let name = ebook["name"] as? String, name != "" {
+                                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    }
+                                }
+                                WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: ebooksArray, index: 0)
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (ebooks): \(error)")
+                                DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                return
+                            }
+                        }
+                        waitFor.ebook = true
+                        self.backgroundQ.async { [self] in
+                            while true {
+                                usleep(10)
+                                if !waitFor.ebook {
+                                    WriteToLog.shared.message("[processItems] \(msgText) complete - next object: \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    break
+                                }
+                            }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "ebooks") { [self]
                         (result: [String:AnyObject]) in
                         if let _ = result["Alert"] as? String {
@@ -583,7 +834,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
                                 }
                             }
-                            
+
                             WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
                             self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: ebooksArray, index: 0)
                             waitFor.ebook = true
@@ -621,6 +872,42 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async { [self] in
                         self.process_TextField.stringValue = "Fetching \(msgText)..."
                     }
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let classesArray = try await PlatformAPIClient.shared.getClasses()
+                                if classesArray.isEmpty {
+                                    WriteToLog.shared.message("[processItems] \(msgText) complete - call \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    return
+                                }
+                                for cls in classesArray {
+                                    if let id = cls["id"], let name = cls["name"] as? String, name != "" {
+                                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    }
+                                }
+                                WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: classesArray, index: 0)
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (classes): \(error)")
+                                DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                return
+                            }
+                        }
+                        waitFor.classes = true
+                        self.backgroundQ.async { [self] in
+                            while true {
+                                usleep(10)
+                                if !waitFor.classes {
+                                    WriteToLog.shared.message("[processItems] \(msgText) complete - next object: \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    break
+                                }
+                            }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "classes") { [self]
                         (result: [String:AnyObject]) in
                         if let _ = result["Alert"] as? String {
@@ -638,7 +925,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                     }
                                 }
                             }
-                            
+
                             WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
                             self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: classesArray, index: 0)
                             waitFor.classes = true
@@ -720,6 +1007,50 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     DispatchQueue.main.async {
                         self.process_TextField.stringValue = "Fetching Computer Configuration Profiles..."
                     }
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let profilesArray = try await PlatformAPIClient.shared.getOsxConfigurationProfiles()
+                                if profilesArray.isEmpty {
+                                    waitFor.osxconfigurationprofile = false
+                                    WriteToLog.shared.message("[processItems] computer configuration profiles complete - call mobiledeviceapplications")
+                                    DispatchQueue.main.async {
+                                        self.processItems(type: self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGroupsButtonState == "on" ? "mobiledeviceapplications" : "mobiledeviceconfigurationprofiles")
+                                    }
+                                    return
+                                }
+                                for profile in profilesArray {
+                                    if let id = profile["id"], let name = profile["name"] as? String {
+                                        self.masterObjectDict["osxconfigurationprofiles"]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        self.computerProfilesByIdDict["\(id)"] = "\(name)"
+                                    }
+                                }
+                                waitFor.osxconfigurationprofile = true
+                                WriteToLog.shared.message("[processItems] call recursiveLookup for osxconfigurationprofiles")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "osxconfigurationprofiles", theData: profilesArray, index: 0)
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (osxconfigurationprofiles): \(error)")
+                                waitFor.osxconfigurationprofile = false
+                                DispatchQueue.main.async {
+                                    self.processItems(type: self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGroupsButtonState == "on" ? "mobiledeviceapplications" : "mobiledeviceconfigurationprofiles")
+                                }
+                            }
+                        }
+                        self.backgroundQ.async { [self] in
+                            while true {
+                                usleep(10)
+                                if !waitFor.osxconfigurationprofile {
+                                    WriteToLog.shared.message("[processItems] osxconfigurationprofiles complete - call mobiledeviceapplications")
+                                    DispatchQueue.main.async {
+                                        self.processItems(type: self.mobileDeviceAppsButtonState == "on" || self.mobileDeviceGroupsButtonState == "on" ? "mobiledeviceapplications" : "mobiledeviceconfigurationprofiles")
+                                    }
+                                    break
+                                }
+                            }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) {
                         (result: [String:AnyObject]) in
                         if let _ = result["Alert"] as? String {
@@ -820,6 +1151,45 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             self.process_TextField.stringValue = "Fetching Mobile Device Configuration Profiles..."
                         }
                     }
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let objectsArray = type == "mobiledeviceapplications"
+                                    ? try await PlatformAPIClient.shared.getMobileDeviceApplications()
+                                    : try await PlatformAPIClient.shared.getMobileDeviceConfigurationProfiles()
+                                if objectsArray.isEmpty {
+                                    WriteToLog.shared.message("[processItems] \(msgText) complete - \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    return
+                                }
+                                for obj in objectsArray {
+                                    if let id = obj["id"], let name = obj["name"] as? String {
+                                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    }
+                                }
+                                waitFor.mobiledeviceobject = true
+                                WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: objectsArray, index: 0)
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (\(type)): \(error)")
+                                DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                return
+                            }
+                        }
+                        waitFor.mobiledeviceobject = true
+                        self.backgroundQ.async { [self] in
+                            while true {
+                                usleep(10)
+                                if !waitFor.mobiledeviceobject {
+                                    WriteToLog.shared.message("[processItems] \(msgText) complete - next object: \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    break
+                                }
+                            }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
                         if let _ = result["Alert"] as? String {
@@ -832,7 +1202,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             let mobileDeviceObjectArrayCount = mobileDeviceObjectArray.count
                             if mobileDeviceObjectArrayCount > 0 {
                                 for i in (0..<mobileDeviceObjectArrayCount) {
-                                    
+
                                     if let id = mobileDeviceObjectArray[i]["id"], let name = mobileDeviceObjectArray[i]["name"] {
                                         self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
                                     }
@@ -882,13 +1252,43 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     WriteToLog.shared.message("[processItems] app-installers")
                     let nextObject = "patchsoftwaretitles"
                 
+                    if useApiClient == 0 {
+                        if computerGroupsButtonState == "on" {
+                            DispatchQueue.main.async {
+                                self.process_TextField.stringValue = "Fetching App Installers..."
+                            }
+                            Task { [self] in
+                                do {
+                                    let allAppInstallers = try await PlatformAPIClient.shared.getAppInstallerDeployments()
+                                    for appInstaller in allAppInstallers {
+                                        let appInstallerName = appInstaller["name"] ?? "unknown"
+                                        if let smartGroup = appInstaller["smartGroup"] as? [String: String],
+                                           let smartGroupName = smartGroup["name"],
+                                           let smartGroupId = smartGroup["id"] {
+                                            WriteToLog.shared.message("\(appInstallerName) is scoped to group \(smartGroupName)")
+                                            self.masterObjectDict["computerGroups"]![smartGroupName] = ["id": smartGroupId, "used": "true"]
+                                        }
+                                    }
+                                    WriteToLog.shared.message("[processItems] app installers complete - call \(nextObject)")
+                                } catch {
+                                    WriteToLog.shared.message("[processItems] Platform API error (app-installers): \(error)")
+                                }
+                                DispatchQueue.main.async { self.processItems(type: nextObject) }
+                            }
+                        } else {
+                            WriteToLog.shared.message("[processItems] skipping app installers - call \(nextObject)")
+                            DispatchQueue.main.async { self.processItems(type: nextObject) }
+                        }
+                        return
+                    }
+
                     if computerGroupsButtonState == "on" {
                         DispatchQueue.main.async {
                                self.process_TextField.stringValue = "Fetching App Installers..."
                         }
 
                         var appInstallersArray = [[String:Any]]()
-                        
+
                         JamfPro.shared.jpapiAction(serverUrl: JamfProServer.source, endpoint: "app-installers/deployments", apiData: [:], method: "GET") {
                             (returnedJSON: [String: Any]) in
     //                        print("[processItems] patchsoftwaretitles apiGetAll result: \(result)")
@@ -929,7 +1329,48 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     }
 
                     var patchPoliciesArray = [[String:Any]]()
-                    
+
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let configs = try await PlatformAPIClient.shared.getPatchSoftwareTitleConfigurations()
+                                for config in configs {
+                                    let id   = "\(config["id"] ?? "")"
+                                    let name = "\(config["displayName"] ?? "")"
+                                    if id != "" && name != "" {
+                                        WriteToLog.shared.message("software patch policy id: \(id) \t name: \(name)")
+                                        patchPoliciesArray.append(["id": id, "name": name])
+                                        self.masterObjectDict[type]!["\(name)"] = ["id":id, "used":"false"]
+                                    }
+                                }
+                                if patchPoliciesArray.isEmpty {
+                                    WriteToLog.shared.message("[processItems] no patch software titles - call \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    return
+                                }
+                                DispatchQueue.main.async { self.process_TextField.stringValue = "Scanning Patch Software Titles for packages..." }
+                                WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (patchsoftwaretitles): \(error)")
+                                DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                return
+                            }
+                        }
+                        waitFor.patchSoftwareTitles = true
+                        self.backgroundQ.async { [self] in
+                            while true {
+                                usleep(10)
+                                if !waitFor.patchSoftwareTitles {
+                                    WriteToLog.shared.message("[processItems] patch software titles complete - call \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    break
+                                }
+                            }
+                        }
+                        return
+                    }
+
                     JamfPro.shared.apiGetAll(serverUrl: JamfProServer.source, endpoint: "patch-software-title-configurations") {
                         (result: (String,[[String: Any]])) in
 //                        print("[processItems] patchsoftwaretitles apiGetAll result: \(result)")
@@ -1037,7 +1478,46 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
 //                                self.masterObjectDict[type] = [String:[String:String]]()
                         var patchPoliciesArray = [[String:Any]]()
-                        
+
+                        if useApiClient == 0 {
+                            Task { [self] in
+                                do {
+                                    let policies = try await PlatformAPIClient.shared.getPatchPolicies()
+                                    for policy in policies {
+                                        if let id = policy["id"], let name = policy["name"] as? String {
+                                            WriteToLog.shared.message("patchPolicy id: \(id) \t name: \(name)")
+                                            patchPoliciesArray.append(["id": "\(id)", "name": name])
+                                            self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                        }
+                                    }
+                                    if patchPoliciesArray.isEmpty {
+                                        WriteToLog.shared.message("[processItems] no patch policies - call \(nextObject)")
+                                        DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                        return
+                                    }
+                                    DispatchQueue.main.async { self.process_TextField.stringValue = "Scanning Patch Policies for groups..." }
+                                    WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                                    self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: patchPoliciesArray, index: 0)
+                                } catch {
+                                    WriteToLog.shared.message("[processItems] Platform API error (patchpolicies): \(error)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    return
+                                }
+                            }
+                            waitFor.policy = true
+                            self.backgroundQ.async { [self] in
+                                while true {
+                                    usleep(10)
+                                    if !waitFor.policy {
+                                        WriteToLog.shared.message("[processItems] patch policies complete - call \(nextObject)")
+                                        DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                        break
+                                    }
+                                }
+                            }
+                            return
+                        }
+
                         self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies") { [self]
                             (result: (Int,String)) in
                             let (statusCode,returnedXml) = result
@@ -1115,6 +1595,51 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         xmlTag = "results"
                         self.process_TextField.stringValue = "Fetching Computer Prestages..."
                     }
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let prestageObjectArray = try await PlatformAPIClient.shared.getComputerPrestages()
+                                WriteToLog.shared.message("[processItems] scanning computer prestages for packages and configuration profiles.")
+                                WriteToLog.shared.message("[processItems] found \(prestageObjectArray.count) prestages.")
+                                for (i, prestage) in prestageObjectArray.enumerated() {
+                                    self.updateProcessTextfield(currentCount: "\n(\(i+1)/\(prestageObjectArray.count))")
+                                    if let id = prestage["id"], let displayName = prestage["displayName"] as? String {
+                                        self.masterObjectDict[type]!["\(displayName)"] = ["id":"\(id)", "used":"false"]
+                                        if self.packagesButtonState == "on" {
+                                            if let customPackageIds = prestage["customPackageIds"] as? [String] {
+                                                WriteToLog.shared.message("[processItems] prestage \(displayName) has \(customPackageIds.count) packages")
+                                                for prestagePackageId in customPackageIds {
+                                                    if self.packagesByIdDict[prestagePackageId] != nil {
+                                                        self.masterObjectDict["packages"]!["\(String(describing: self.packagesByIdDict[prestagePackageId]!))"]?["used"] = "true"
+                                                    } else {
+                                                        WriteToLog.shared.message("[processItems] Appears package id \(prestagePackageId) does not exist.")
+                                                    }
+                                                }
+                                            } else {
+                                                WriteToLog.shared.message("[processItems] prestage \(displayName) has no packages")
+                                            }
+                                        }
+                                        if self.computerProfilesButtonState == "on" {
+                                            if let customProfileIds = prestage["prestageInstalledProfileIds"] as? [String] {
+                                                for prestageProfileId in customProfileIds {
+                                                    if let profileName = self.computerProfilesByIdDict[prestageProfileId] {
+                                                        self.masterObjectDict["osxconfigurationprofiles"]!["\(profileName)"]?["used"] = "true"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                WriteToLog.shared.message("[processItems] \(msgText) complete - next object: \(nextObject)")
+                                DispatchQueue.main.async { self.processItems(type: nextObject) }
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (computer-prestages): \(error)")
+                                DispatchQueue.main.async { self.processItems(type: nextObject) }
+                            }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: JamfProServer.authCreds, theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
                         if let _ = result["Alert"] as? String {
@@ -1207,7 +1732,46 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
 //                   self.masterObjectDict[type] = [String:[String:String]]()
                var restrictedsoftwareArray = [[String:Any]]()
-               
+
+               if useApiClient == 0 {
+                   Task { [self] in
+                       do {
+                           let items = try await PlatformAPIClient.shared.getRestrictedSoftware()
+                           for item in items {
+                               if let id = item["id"], let name = item["name"] as? String {
+                                   WriteToLog.shared.message("restricted software title id: \(id)      name: \(name)")
+                                   restrictedsoftwareArray.append(["id": "\(id)", "name": name])
+                                   self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                               }
+                           }
+                           if restrictedsoftwareArray.isEmpty {
+                               WriteToLog.shared.message("[processItems] no restricted software configurations - call \(nextObject)")
+                               DispatchQueue.main.async { self.processItems(type: nextObject) }
+                               return
+                           }
+                           DispatchQueue.main.async { self.process_TextField.stringValue = "Scanning Restricted Software for groups..." }
+                           WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                           self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: restrictedsoftwareArray, index: 0)
+                       } catch {
+                           WriteToLog.shared.message("[processItems] Platform API error (restrictedsoftware): \(error)")
+                           DispatchQueue.main.async { self.processItems(type: nextObject) }
+                           return
+                       }
+                   }
+                   waitFor.policy = true
+                   self.backgroundQ.async { [self] in
+                       while true {
+                           usleep(10)
+                           if !waitFor.policy {
+                               WriteToLog.shared.message("[processItems] restricted software configurations complete - call \(nextObject)")
+                               DispatchQueue.main.async { self.processItems(type: nextObject) }
+                               break
+                           }
+                       }
+                   }
+                   return
+               }
+
                 self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                    (result: (Int,String)) in
                    let (statusCode,returnedXml) = result
@@ -1284,7 +1848,47 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
     //                   self.masterObjectDict[type] = [String:[String:String]]()
                    var advancedcomputersearchArray = [[String:Any]]()
-                   
+
+                   if useApiClient == 0 {
+                       Task { [self] in
+                           do {
+                               let items = try await PlatformAPIClient.shared.getAdvancedComputerSearches()
+                               for item in items {
+                                   if let id = item["id"], let name = item["name"] as? String {
+                                       WriteToLog.shared.message("advanced computer search title id: \(id)      name: \(name)")
+                                       advancedcomputersearchArray.append(["id": "\(id)", "name": name])
+                                       self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                   }
+                               }
+                               if advancedcomputersearchArray.isEmpty {
+                                   WriteToLog.shared.message("[processItems] no advanced computer searches - call \(nextObject)")
+                                   DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                   return
+                               }
+                               DispatchQueue.main.async { self.process_TextField.stringValue = "Scanning Advanced Computer Searches for groups..." }
+                               WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                               self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: advancedcomputersearchArray, index: 0)
+                           } catch {
+                               WriteToLog.shared.message("[processItems] Platform API error (advancedcomputersearches): \(error)")
+                               DispatchQueue.main.async { self.processItems(type: nextObject) }
+                               return
+                           }
+                       }
+                       waitFor.advancedsearch = true
+                       self.backgroundQ.async { [self] in
+                           while true {
+                               usleep(10)
+                               if !waitFor.advancedsearch {
+                                   WriteToLog.shared.message("[processItems] advanced computer searches complete - call \(nextObject)")
+                                   DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                   waitFor.advancedsearch = true
+                                   break
+                               }
+                           }
+                       }
+                       return
+                   }
+
                     self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                        (result: (Int,String)) in
                        let (statusCode,returnedXml) = result
@@ -1294,7 +1898,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 //                       nameFixedXml      = nameFixedXml.replacingOccurrences(of: "</name>", with: "</Name>")
 //                       let xmlData       = nameFixedXml.data(using: .utf8)
 //                       let parsedXmlData = XML.parse(xmlData!)
-                        
+
                         guard let parsedXmlData = parser.parse(string: returnedXml) else {
                            WriteToLog.shared.message("[processItme] failed to parse returnedXml: \(returnedXml)")
                             working(isWorking: false)
@@ -1362,7 +1966,47 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
     //                   self.masterObjectDict[type] = [String:[String:String]]()
                    var advancedsearchArray = [[String:Any]]()
-                   
+
+                   if useApiClient == 0 {
+                       Task { [self] in
+                           do {
+                               let items = try await PlatformAPIClient.shared.getAdvancedMobileDeviceSearches()
+                               for item in items {
+                                   if let id = item["id"], let name = item["name"] as? String {
+                                       WriteToLog.shared.message("advanced mobile device search title id: \(id)      name: \(name)")
+                                       advancedsearchArray.append(["id": "\(id)", "name": name])
+                                       self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                   }
+                               }
+                               if advancedsearchArray.isEmpty {
+                                   WriteToLog.shared.message("[processItems] no advanced mobile device searches - call \(nextObject)")
+                                   DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                   return
+                               }
+                               DispatchQueue.main.async { self.process_TextField.stringValue = "Scanning Advanced Mobile Device Searches for groups..." }
+                               WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                               self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: advancedsearchArray, index: 0)
+                           } catch {
+                               WriteToLog.shared.message("[processItems] Platform API error (advancedmobiledevicesearches): \(error)")
+                               DispatchQueue.main.async { self.processItems(type: nextObject) }
+                               return
+                           }
+                       }
+                       waitFor.advancedsearch = true
+                       self.backgroundQ.async { [self] in
+                           while true {
+                               usleep(10)
+                               if !waitFor.advancedsearch {
+                                   WriteToLog.shared.message("[processItems] advanced mobile device searches complete - call \(nextObject)")
+                                   DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                   waitFor.advancedsearch = true
+                                   break
+                               }
+                           }
+                       }
+                       return
+                   }
+
                     self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                        (result: (Int,String)) in
                        let (statusCode,returnedXml) = result
@@ -1439,6 +2083,43 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         self.process_TextField.stringValue = "Fetching Mac Apps..."
                     }
                     
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let macAppsArray = try await PlatformAPIClient.shared.getMacApplications()
+                                if macAppsArray.isEmpty {
+                                    WriteToLog.shared.message("[processItems] \(msgText) complete - \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    return
+                                }
+                                for app in macAppsArray {
+                                    if let id = app["id"] as? Int, let name = app["name"] as? String {
+                                        self.masterObjectDict[type]!["\(name)"] = ["id":"\(id)", "used":"false"]
+                                    }
+                                }
+                                waitFor.macApps = true
+                                WriteToLog.shared.message("[processItems] call recursiveLookup for \(type)")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type, theData: macAppsArray, index: 0)
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (macapplications): \(error)")
+                                DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                return
+                            }
+                        }
+                        waitFor.macApps = true
+                        self.backgroundQ.async { [self] in
+                            while true {
+                                usleep(10)
+                                if !waitFor.macApps {
+                                    WriteToLog.shared.message("[processItems] \(msgText) complete - next object: \(nextObject)")
+                                    DispatchQueue.main.async { self.processItems(type: nextObject) }
+                                    break
+                                }
+                            }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: type) { [self]
                         (result: [String:AnyObject]) in
                         if let _ = result["Alert"] as? String {
@@ -1502,6 +2183,58 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         self.process_TextField.stringValue = "Fetching Policies..."
                     }
                     var policiesArray = [[String:Any]]()
+
+                    if useApiClient == 0 {
+                        Task { [self] in
+                            do {
+                                let allPoliciesArray = try await PlatformAPIClient.shared.getPolicies()
+                                self.completed = 0
+                                for thePolicy in allPoliciesArray {
+                                    if let id = thePolicy["id"], let name = thePolicy["name"] {
+                                        let policyName = "\(name)"
+                                        if policyName.range(of:"[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] at", options: .regularExpression) == nil && policyName != "Update Inventory" && policyName != "" {
+                                            policiesArray.append(thePolicy)
+                                            self.masterObjectDict["policies"]!["\(name) - (\(id))"] = ["id":"\(id)", "used":"false", "enabled":"false"]
+                                        }
+                                    }
+                                }
+                                if policiesArray.isEmpty {
+                                    WriteToLog.shared.message("[processItems] no policies found or policies not searched")
+                                    waitFor.policy = false
+                                    self.backgroundQ.async { [self] in
+                                        while true {
+                                            usleep(10)
+                                            if !waitFor.policy && !waitFor.osxconfigurationprofile {
+                                                WriteToLog.shared.message("[processItems] policies complete - call unused")
+                                                generateReportItems()
+                                                break
+                                            }
+                                        }
+                                    }
+                                    return
+                                }
+                                DispatchQueue.main.async { self.process_TextField.stringValue = "Scanning policies for packages, scripts, computer groups..." }
+                                WriteToLog.shared.message("[processItems] call recursiveLookup for policies")
+                                self.recursiveLookup(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "policies", theData: policiesArray, index: 0)
+                            } catch {
+                                WriteToLog.shared.message("[processItems] Platform API error (policies): \(error)")
+                                waitFor.policy = false
+                            }
+                        }
+                        waitFor.policy = true
+                        self.backgroundQ.async { [self] in
+                            while true {
+                                usleep(10)
+                                if !waitFor.policy && !waitFor.osxconfigurationprofile {
+                                    WriteToLog.shared.message("[processItems] policies complete - call unused")
+                                    generateReportItems()
+                                    break
+                                }
+                            }
+                        }
+                        return
+                    }
+
                     Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "policies") {
                         (result: [String:AnyObject]) in
             //            print("json returned: \(result)")
@@ -1640,9 +2373,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         if self.mobileDeviceEAsButtonState == "on" {
             reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
         }
+        if self.blueprintsButtonState == "on" {
+            reportItems.append(["blueprints":self.masterObjectDict["blueprints"]!])
+        }
         self.unused(itemDictionary: reportItems)
     }
-    
+
         // get the full record for each comuter group, policy, computer configuration profile...
     func recursiveLookup(theServer: String, base64Creds: String, theEndpoint: String, theData: [[String:Any]], index: Int) {
         
@@ -1697,7 +2433,40 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
             switch theEndpoint {
                 case "patchsoftwaretitles":
-                // search for used packages using api/v2/patch-software-title-configurations/<id> endpoint
+                // search for used packages using patch-software-title-configurations/<id> endpoint
+                let advancePatch = {
+                    if index == objectArrayCount-1 {
+                        waitFor.patchSoftwareTitles = false
+                    } else {
+                        self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
+                    }
+                }
+                if useApiClient == 0 {
+                    Task { [self] in
+                        do {
+                            let result = try await PlatformAPIClient.shared.getPatchSoftwareTitleConfiguration(id: "\(id)")
+                            if let packagesInfo = result["packages"] as? [[String:String]] {
+                                for packageInfo in packagesInfo {
+                                    if let displayName = packageInfo["displayName"] {
+                                        WriteToLog.shared.message("[patchsoftwaretitles] package in use: \(displayName)")
+                                        self.masterObjectDict["packages"]![displayName]?["used"] = "true"
+                                    }
+                                }
+                            }
+                            if let eaInfo = result["extensionAttributes"] as? [[String: Any]] {
+                                for ea in eaInfo {
+                                    if let displayName = ea["eaId"] as? String {
+                                        WriteToLog.shared.message("[patchsoftwaretitles] EA in use: \(displayName)")
+                                        self.masterObjectDict["computerextensionattributes"]![displayName]?["used"] = "true"
+                                    }
+                                }
+                            }
+                        } catch {
+                            WriteToLog.shared.message("[recursiveLookup] Platform API error (patchsoftwaretitles \(id)): \(error)")
+                        }
+                        advancePatch()
+                    }
+                } else {
                 JamfPro.shared.jpapiAction(serverUrl: JamfProServer.source, endpoint: "patch-software-title-configurations", apiData: [:], id: "\(id)", token: JamfProServer.accessToken, method: "GET") {
                     (result: [String:Any]) in
                     if let packagesInfo = result["packages"] as? [[String:String]] {
@@ -1716,23 +2485,42 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             }
                         }
                     }
+                    advancePatch()
                 }
-                
-//                print("[patchSoftwareTitles] index: \(index), objectArrayCount: \(objectArrayCount)")
-                if index == objectArrayCount-1 {
-//                    print("[patchSoftwareTitles] done waiting")
-                    waitFor.patchSoftwareTitles = false
-                } else {
-                    // check the next item
-                    self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
                 }
                 
                 case "patchpolicies":
-//                    print("hello \(theEndpoint)")
-                    
-                        // lookup complete record, XML format looking for groups
-//                        Xml().action(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "patchpolicies/id/\(id)") {
-//                    print("[recursiveLookup] patchpolicies: \(objectEndpoint)/\(id)")
+                let advancePatchPolicy = {
+                    if index == objectArrayCount-1 {
+                        waitFor.policy = false
+                    } else {
+                        self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
+                    }
+                }
+                if useApiClient == 0 {
+                    Task { [self] in
+                        do {
+                            let json = try await PlatformAPIClient.shared.getPatchPolicy(id: "\(id)")
+                            if let policy = json["patch_policy"] as? [String: Any],
+                               let scope = policy["scope"] as? [String: Any] {
+                                let groupKeys: [(String, String)] = [("computer_groups", "computer_group"), ("exclusions", "computer_group")]
+                                for (section, groupKey) in groupKeys {
+                                    let container = section == "exclusions"
+                                        ? (scope["exclusions"] as? [String: Any])?["computer_groups"] as? [[String: Any]]
+                                        : scope["computer_groups"] as? [[String: Any]]
+                                    for group in container ?? [] {
+                                        if let gname = group["name"] as? String {
+                                            self.masterObjectDict["computerGroups"]!["\(gname)"] = ["used":"true"]
+                                        }
+                                    }
+                                }
+                            }
+                        } catch {
+                            WriteToLog.shared.message("[recursiveLookup] Platform API error (patchpolicies \(id)): \(error)")
+                        }
+                        advancePatchPolicy()
+                    }
+                } else {
                 self.xmlAction(action: "GET", theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
                             (xmlResult: (Int,String)) in
                             let (statusCode, returnedXml) = xmlResult
@@ -1789,16 +2577,23 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             }
 
                             
-                            if index == objectArrayCount-1 {
-                                waitFor.policy = false
-                            } else {
-                                // check the next item
-                                self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
-                            }
-                    }   // Xml().action patch software titles - end
-       
+                            advancePatchPolicy()
+                    }   // xmlAction patchpolicies - end
+                }   // if useApiClient == 0 else - end
+
                 default:
                     // lookup complete record, JSON format
+                if useApiClient == 0 {
+                    Task { [self] in
+                        do {
+                            let result = try await self.platformGetRecord(endpoint: theEndpoint, id: "\(id)") as [String: AnyObject]
+                            self.processRecursiveLookupResult(result: result, theEndpoint: theEndpoint, name: "\(name)", id: "\(id)", theServer: theServer, base64Creds: base64Creds, theData: theData, index: index, objectArrayCount: objectArrayCount)
+                        } catch {
+                            WriteToLog.shared.message("[recursiveLookup] Platform API error (\(theEndpoint) \(id)): \(error)")
+                            self.advanceRecursiveLookup(theEndpoint: theEndpoint, theServer: theServer, base64Creds: base64Creds, theData: theData, index: index, objectArrayCount: objectArrayCount)
+                        }
+                    }
+                } else {
                 Json.shared.getRecord(theServer: JamfProServer.source, base64Creds: self.jamfBase64Creds, theEndpoint: "\(objectEndpoint)/\(id)") { [self]
                         (result: [String:AnyObject]) in
                     print("[recursiveLookup.default] returned JSON: \(result.description)")
@@ -2284,8 +3079,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
                         }
                     }   //Json.shared.getRecord - end
+                }   // if useApiClient == 0 else - end
             }
-            
+
         } else {   // if let id = theObject["id"], let name = theObject["name"] - end
             WriteToLog.shared.message("[recursiveLookup] unable to identify id and/or name of object")
             if index == objectArrayCount-1 {
@@ -2315,6 +3111,307 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 // check the next item
                 self.recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index+1)
             }
+        }
+    }
+
+    func platformGetRecord(endpoint: String, id: String) async throws -> [String: AnyObject] {
+        let raw: [String: Any]
+        switch endpoint {
+        case "computergroups":
+            raw = try await PlatformAPIClient.shared.getComputerGroup(id: id)
+        case "mobiledevicegroups":
+            raw = try await PlatformAPIClient.shared.getMobileDeviceGroup(id: id)
+        case "advancedcomputersearches":
+            raw = try await PlatformAPIClient.shared.getAdvancedComputerSearch(id: id)
+        case "advancedmobiledevicesearches":
+            raw = try await PlatformAPIClient.shared.getAdvancedMobileDeviceSearch(id: id)
+        case "osxconfigurationprofiles":
+            raw = try await PlatformAPIClient.shared.getOsxConfigurationProfile(id: id)
+        case "ebooks":
+            raw = try await PlatformAPIClient.shared.getEbook(id: id)
+        case "classes":
+            raw = try await PlatformAPIClient.shared.getClass(id: id)
+        case "macapplications":
+            raw = try await PlatformAPIClient.shared.getMacApplication(id: id)
+        case "packages":
+            raw = try await PlatformAPIClient.shared.getPackage(id: id)
+        case "policies":
+            raw = try await PlatformAPIClient.shared.getPolicy(id: id)
+        case "printers":
+            raw = try await PlatformAPIClient.shared.getPrinter(id: id)
+        case "mobiledeviceapplications":
+            raw = try await PlatformAPIClient.shared.getMobileDeviceApplication(id: id)
+        case "mobiledeviceconfigurationprofiles":
+            raw = try await PlatformAPIClient.shared.getMobileDeviceConfigurationProfile(id: id)
+        case "restrictedsoftware":
+            raw = try await PlatformAPIClient.shared.getRestrictedSoftwareItem(id: id)
+        default:
+            throw PlatformAPIError.invalidURL
+        }
+        return raw as [String: AnyObject]
+    }
+
+    func processRecursiveLookupResult(result: [String: AnyObject], theEndpoint: String, name: String, id: String, theServer: String, base64Creds: String, theData: [[String: Any]], index: Int, objectArrayCount: Int) {
+        if result.count != 0 && result["Alert"] == nil {
+            var xmlTag = ""
+            switch theEndpoint {
+            case "computergroups", "mobiledevicegroups", "advancedcomputersearches", "advancedmobiledevicesearches":
+                switch theEndpoint {
+                case "computergroups":
+                    xmlTag = "computer_group"
+                case "mobiledevicegroups":
+                    xmlTag = "mobile_device_group"
+                case "advancedcomputersearches":
+                    xmlTag = "advanced_computer_search"
+                case "advancedmobiledevicesearches":
+                    xmlTag = "advanced_mobile_device_search"
+                default:
+                    break
+                }
+                let computerGroupInfo = result[xmlTag] as! [String: AnyObject]
+                let criterion = computerGroupInfo["criteria"] as! [[String: Any]]
+                for theCriteria in criterion {
+                    if let cname = theCriteria["name"], let value = theCriteria["value"] {
+                        switch (cname as! String) {
+                        case "Computer Group":
+                            masterObjectDict["computerGroups"]!["\(value)"]?["used"] = "true"
+                        case "Mobile Device Group":
+                            masterObjectDict["mobileDeviceGroups"]!["\(value)"]?["used"] = "true"
+                        default:
+                            if computerEAsButtonState == "on" {
+                                if masterObjectDict["computerextensionattributes"]!["\(cname)"] != nil {
+                                    masterObjectDict["computerextensionattributes"]!["\(cname)"]!["used"] = "true"
+                                }
+                            }
+                            if mobileDeviceEAsButtonState == "on" {
+                                if masterObjectDict["mobiledeviceextensionattributes"]!["\(cname)"] != nil {
+                                    masterObjectDict["mobiledeviceextensionattributes"]!["\(cname)"]!["used"] = "true"
+                                }
+                            }
+                        }
+                    }
+                }
+                if ["advancedcomputersearches", "advancedmobiledevicesearches"].contains(theEndpoint) {
+                    if let displayFields = computerGroupInfo["display_fields"] as? [[String: Any]] {
+                        for theDisplayField in displayFields {
+                            let displayFieldName = theDisplayField["name"] as! String
+                            if computerEAsButtonState == "on" {
+                                if masterObjectDict["computerextensionattributes"]!["\(displayFieldName)"] != nil {
+                                    masterObjectDict["computerextensionattributes"]!["\(displayFieldName)"]!["used"] = "true"
+                                }
+                            }
+                            if mobileDeviceEAsButtonState == "on" {
+                                if masterObjectDict["mobiledeviceextensionattributes"]!["\(displayFieldName)"] != nil {
+                                    masterObjectDict["mobiledeviceextensionattributes"]!["\(displayFieldName)"]!["used"] = "true"
+                                }
+                            }
+                        }
+                    }
+                }
+
+            case "ebooks":
+                let theEbook = result["ebook"] as! [String: AnyObject]
+                let eBookScope = theEbook["scope"] as! [String: AnyObject]
+                if isScoped(scope: eBookScope) {
+                    masterObjectDict["ebooks"]!["\(name)"]!["used"] = "true"
+                }
+                let computer_groupList = eBookScope["computer_groups"] as! [[String: Any]]
+                for theComputerGroup in computer_groupList {
+                    masterObjectDict["computerGroups"]!["\(theComputerGroup["name"]!)"]?["used"] = "true"
+                }
+                let computer_groupExcl = eBookScope["exclusions"] as! [String: AnyObject]
+                let computer_groupListExcl = computer_groupExcl["computer_groups"] as! [[String: Any]]
+                for theComputerGroupExcl in computer_groupListExcl {
+                    masterObjectDict["computerGroups"]!["\(theComputerGroupExcl["name"]!)"]?["used"] = "true"
+                }
+                let mda_groupList = eBookScope["mobile_device_groups"] as! [[String: Any]]
+                for theMdaGroup in mda_groupList {
+                    masterObjectDict["mobileDeviceGroups"]!["\(theMdaGroup["name"]!)"]?["used"] = "true"
+                }
+                let mobileDevice_groupExcl = eBookScope["exclusions"] as! [String: AnyObject]
+                let mobileDevice_groupListExcl = mobileDevice_groupExcl["mobile_device_groups"] as! [[String: Any]]
+                for theMdaGroupExcl in mobileDevice_groupListExcl {
+                    masterObjectDict["mobileDeviceGroups"]!["\(theMdaGroupExcl["name"]!)"]?["used"] = "true"
+                }
+
+            case "classes":
+                let theClass = result["class"] as! [String: AnyObject]
+                let studentScope = theClass["students"] as! [String]
+                let studentGroupScope = theClass["student_group_ids"] as! [Int]
+                let mobileDeviceScope = theClass["mobile_devices"] as! [AnyObject]
+                let mobileDevicGroupsScope = theClass["mobile_device_group_ids"] as! [Int]
+                if (studentScope.count + studentGroupScope.count + mobileDeviceScope.count + mobileDevicGroupsScope.count) > 0 {
+                    masterObjectDict["classes"]!["\(name)"]!["used"] = "true"
+                }
+                if mobileDevicGroupsScope.count > 0 && mobileDeviceGroupsButtonState == "on" {
+                    for mobileDeviceGroupID in mobileDevicGroupsScope {
+                        masterObjectDict["mobileDeviceGroups"]![mobileGroupNameByIdDict[mobileDeviceGroupID]!]!["used"] = "true"
+                    }
+                }
+
+            case "osxconfigurationprofiles":
+                masterObjectDict["osxconfigurationprofiles"]!["\(name)"] = ["id": "\(id)", "used": "false"]
+                let theConfigProfile = result["os_x_configuration_profile"] as! [String: AnyObject]
+                let profileScope = theConfigProfile["scope"] as! [String: AnyObject]
+                if isScoped(scope: profileScope) {
+                    masterObjectDict["osxconfigurationprofiles"]!["\(name)"]!["used"] = "true"
+                    if let general = theConfigProfile["general"] as? [String: AnyObject],
+                       let payloads = general["payloads"] as? String,
+                       let payloadData = Data(payloads.utf8) as? Data,
+                       let plist = try? PropertyListSerialization.propertyList(from: payloadData, format: nil),
+                       let plistDict = plist as? [String: Any],
+                       let payloadContent = plistDict["PayloadContent"] as? [[String: Any]] {
+                        for thePayload in payloadContent {
+                            if printersButtonState == "on" && thePayload["PayloadType"] as? String == "com.apple.mcxprinting" {
+                                let userPrinterList = thePayload["UserPrinterList"] as? [String: Any] ?? [:]
+                                for (printerName, _) in userPrinterList {
+                                    masterObjectDict["printers"]!["\(printerName)"]?["used"] = "true"
+                                }
+                            }
+                        }
+                    }
+                }
+                let ocp_groupList = profileScope["computer_groups"] as! [[String: Any]]
+                for theComputerGroup in ocp_groupList {
+                    masterObjectDict["computerGroups"]!["\(theComputerGroup["name"] as! String)"]?["used"] = "true"
+                }
+                let ocp_groupExcl = profileScope["exclusions"] as! [String: AnyObject]
+                let ocp_groupListExcl = ocp_groupExcl["computer_groups"] as! [[String: Any]]
+                for theComputerGroupExcl in ocp_groupListExcl {
+                    masterObjectDict["computerGroups"]!["\(theComputerGroupExcl["name"] as! String)"]?["used"] = "true"
+                }
+
+            case "macapplications":
+                let macAppsXml = result["mac_application"] as! [String: AnyObject]
+                let macAppScope = macAppsXml["scope"] as! [String: AnyObject]
+                if isScoped(scope: macAppScope) {
+                    masterObjectDict[theEndpoint]!["\(name)"]!["used"] = "true"
+                }
+                let ma_groupList = macAppScope["computer_groups"] as! [[String: Any]]
+                if masterObjectDict["computerGroups"]?.count ?? 0 > 0 {
+                    for theComputerGroup in ma_groupList {
+                        masterObjectDict["computerGroups"]!["\(String(describing: theComputerGroup["name"]!))"]?["used"] = "true"
+                    }
+                    let ma_groupExcl = macAppScope["exclusions"] as! [String: AnyObject]
+                    let ma_groupListExcl = ma_groupExcl["computer_groups"] as! [[String: Any]]
+                    for theComputerGroupExcl in ma_groupListExcl {
+                        masterObjectDict["computerGroups"]!["\(theComputerGroupExcl["name"]!)"]?["used"] = "true"
+                    }
+                }
+
+            case "packages":
+                // Classic tunnel wraps under "package"; Platform API returns fields directly
+                let packageInfo = result["package"] as? [String: AnyObject] ?? result
+                let pkgId = packageInfo["id"] as? Int ?? -1
+                let displayName = packageInfo["packageName"] as? String
+                    ?? packageInfo["filename"] as? String
+                    ?? ""
+                if pkgId != -1 && displayName != "" {
+                    packageIdFileNameDict["\(pkgId)"] = displayName
+                }
+
+            case "policies":
+                let thePolicy = result["policy"] as! [String: AnyObject]
+                let policyScope = thePolicy["scope"] as! [String: AnyObject]
+                if isScoped(scope: policyScope) {
+                    masterObjectDict["policies"]!["\(name) - (\(id))"]!["used"] = "true"
+                }
+                let policyEnabled = thePolicy["general"]!["enabled"] as! Bool
+                if policyEnabled {
+                    masterObjectDict["policies"]!["\(name) - (\(id))"]!["enabled"] = "true"
+                }
+                let packageList = thePolicy["package_configuration"] as! [String: AnyObject]
+                let policyPackageList = packageList["packages"] as! [[String: Any]]
+                for thePackage in policyPackageList {
+                    masterObjectDict["packages"]!["\(thePackage["name"]!)"]?["used"] = "true"
+                }
+                let policyScriptList = thePolicy["scripts"] as? [[String: Any]] ?? []
+                for theScript in policyScriptList {
+                    masterObjectDict["scripts"]!["\(theScript["name"]!)"]?["used"] = "true"
+                }
+                let policyPrinterList = thePolicy["printers"] as? [AnyObject] ?? []
+                for theObject in policyPrinterList {
+                    if let thePrinter = theObject as? [String: Any] {
+                        masterObjectDict["printers"]!["\(thePrinter["name"]!)"]?["used"] = "true"
+                    }
+                }
+                let pol_groupList = policyScope["computer_groups"] as! [[String: Any]]
+                if masterObjectDict["computerGroups"]?.count ?? 0 > 0 {
+                    for theComputerGroup in pol_groupList {
+                        masterObjectDict["computerGroups"]!["\(String(describing: theComputerGroup["name"]!))"]?["used"] = "true"
+                    }
+                    let pol_groupExcl = policyScope["exclusions"] as! [String: AnyObject]
+                    let pol_groupListExcl = pol_groupExcl["computer_groups"] as! [[String: Any]]
+                    for theComputerGroupExcl in pol_groupListExcl {
+                        masterObjectDict["computerGroups"]!["\(theComputerGroupExcl["name"]!)"]?["used"] = "true"
+                    }
+                }
+
+            case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
+                let theMobileDeviceObjectXml = (theEndpoint == "mobiledeviceapplications") ? result["mobile_device_application"] as! [String: AnyObject] : result["configuration_profile"] as! [String: AnyObject]
+                let mobileDeviceAppScope = theMobileDeviceObjectXml["scope"] as! [String: AnyObject]
+                if isScoped(scope: mobileDeviceAppScope) {
+                    masterObjectDict[theEndpoint]!["\(name)"]!["used"] = "true"
+                }
+                let mda_groupList2 = mobileDeviceAppScope["mobile_device_groups"] as! [[String: Any]]
+                for theMdaGroup in mda_groupList2 {
+                    masterObjectDict["mobileDeviceGroups"]!["\(theMdaGroup["name"]!)"]?["used"] = "true"
+                }
+                let mobileDevice_groupExcl2 = mobileDeviceAppScope["exclusions"] as! [String: AnyObject]
+                let mobileDevice_groupListExcl2 = mobileDevice_groupExcl2["mobile_device_groups"] as! [[String: Any]]
+                for theMdaGroupExcl in mobileDevice_groupListExcl2 {
+                    masterObjectDict["mobileDeviceGroups"]!["\(theMdaGroupExcl["name"]!)"]?["used"] = "true"
+                }
+
+            case "restrictedsoftware":
+                let restrictedsoftwareObjectXml = result["restricted_software"] as! [String: AnyObject]
+                let restrictedsoftwareScope = restrictedsoftwareObjectXml["scope"] as! [String: AnyObject]
+                if isScoped(scope: restrictedsoftwareScope) {
+                    masterObjectDict[theEndpoint]!["\(name)"]!["used"] = "true"
+                }
+                let rs_groupList = restrictedsoftwareScope["computer_groups"] as! [[String: Any]]
+                for theRstGroup in rs_groupList {
+                    masterObjectDict["computerGroups"]!["\(theRstGroup["name"]!)"]?["used"] = "true"
+                }
+                let rs_groupExcl = restrictedsoftwareScope["exclusions"] as! [String: AnyObject]
+                let rs_groupListExcl = rs_groupExcl["computer_groups"] as! [[String: Any]]
+                for theRstGroupExcl in rs_groupListExcl {
+                    masterObjectDict["computerGroups"]!["\(theRstGroupExcl["name"]!)"]?["used"] = "true"
+                }
+
+            default:
+                WriteToLog.shared.message("[recursiveLookup] unknown endpoint: \(theEndpoint)")
+            }
+        }
+        advanceRecursiveLookup(theEndpoint: theEndpoint, theServer: theServer, base64Creds: base64Creds, theData: theData, index: index, objectArrayCount: objectArrayCount)
+    }
+
+    func advanceRecursiveLookup(theEndpoint: String, theServer: String, base64Creds: String, theData: [[String: Any]], index: Int, objectArrayCount: Int) {
+        if index == objectArrayCount - 1 {
+            switch theEndpoint {
+            case "advancedcomputersearches", "advancedmobiledevicesearches":
+                waitFor.advancedsearch = false
+            case "computergroups", "mobiledevicegroups":
+                waitFor.deviceGroup = false
+            case "ebooks":
+                waitFor.ebook = false
+            case "classes":
+                waitFor.classes = false
+            case "osxconfigurationprofiles":
+                waitFor.osxconfigurationprofile = false
+            case "macapplications":
+                waitFor.macApps = false
+            case "packages":
+                waitFor.packages = false
+            case "policies", "patchpolicies", "patchsoftwaretitles", "restrictedsoftware":
+                waitFor.policy = false
+            case "mobiledeviceapplications", "mobiledeviceconfigurationprofiles":
+                waitFor.mobiledeviceobject = false
+            default:
+                WriteToLog.shared.message("[advanceRecursiveLookup] unknown endpoint: \(theEndpoint)")
+            }
+        } else {
+            recursiveLookup(theServer: theServer, base64Creds: base64Creds, theEndpoint: theEndpoint, theData: theData, index: index + 1)
         }
     }
 
@@ -2590,9 +3687,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             guard let _ = self.masterObjectDict["mobiledeviceextensionattributes"] else { return }
             reportItems.append(["mobiledeviceextensionattributes":self.masterObjectDict["mobiledeviceextensionattributes"]!])
         }
+        if sender.title == "Blueprints" || (sender.title == "All" && blueprintsButtonState == "on") {
+            guard let _ = self.masterObjectDict["blueprints"] else { return }
+            reportItems.append(["blueprints":self.masterObjectDict["blueprints"]!])
+        }
         self.unused(itemDictionary: reportItems)
     }
-    
+
     @IBAction func importButton_Action(_ sender: Any) {
         didRun = true
         var objPath: URL! = nil
@@ -3798,14 +4899,16 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 ebooksButtonState = "\(state)"
             case "Mobile Device EAs":
                 mobileDeviceEAsButtonState = "\(state)"
+            case "Blueprints":
+                blueprintsButtonState = "\(state)"
             default:
                 if state == "on" {
-                    
+
                 }
             }
         }
     }
-    
+
     func xmlAction(action: String, theServer: String, base64Creds: String, theCategory: String = "", theEndpoint: String, completion: @escaping (_ result: (Int,String)) -> Void) {
         
 
@@ -3924,8 +5027,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         classes_Button.isEnabled               = theState
         ebooks_Button.isEnabled                = theState
         mobileDeviceEAs_Button.isEnabled       = theState
+        blueprints_Button.isEnabled            = theState && useApiClient == 0
     }
-    
+
     func setAllButtonsState(theState: String) {
         let state = (theState == "on") ? 1:0
         
@@ -3944,9 +5048,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         mobileDeviceApps_Button.state = NSControl.StateValue(rawValue: state)
         configurationProfiles_Button.state = NSControl.StateValue(rawValue: state)
         mobileDeviceEAs_Button.state = NSControl.StateValue(rawValue: state)
-        
+        blueprints_Button.state = NSControl.StateValue(rawValue: state)
+
         if theState == "on" {
-            let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Mac Apps", "Policies", "Printers", "Restricted Software", "Computer EAs", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles", "Mobile Device EAs"]
+            let availableButtons = ["Packages", "Scripts", "eBooks", "Classes", "Computer Groups", "Computer Profiles", "Mac Apps", "Policies", "Printers", "Restricted Software", "Computer EAs", "Mobile Device Groups", "Mobile Device Apps", "Mobile Device Config. Profiles", "Mobile Device EAs", "Blueprints"]
             for theButton in availableButtons {
                 view_PopUpButton.addItem(withTitle: "\(theButton)")
             }
@@ -3970,8 +5075,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         mobileDeviceAppsButtonState      = "\(theState)"
         configurationProfilesButtonState = "\(theState)"
         mobileDeviceEAsButtonState       = "\(theState)"
+        blueprintsButtonState            = "\(theState)"
     }
-    
+
     func setViewButton(setOn: Bool) {
         if setOn {
             if packagesButtonState == "on" {
@@ -4018,6 +5124,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
             if mobileDeviceEAsButtonState == "on" {
                 view_PopUpButton.addItem(withTitle: "Mobile Device EAs")
+            }
+            if blueprintsButtonState == "on" {
+                view_PopUpButton.addItem(withTitle: "Blueprints")
             }
         } else {
             view_PopUpButton.removeAllItems()
@@ -4225,6 +5334,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             (result: (Int,String)) in
             let (_, theResult) = result
             if theResult == "success" {
+                if useApiClient == 0 {
+                    JamfProServer.tenantId = JamfPro.tenantIdFromJWT(JamfProServer.accessToken) ?? JamfProServer.source
+                }
                 DispatchQueue.main.async {
                     LoginWindow.show = false
 
@@ -4242,6 +5354,11 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
                     self.logout = false
                     WriteToLog.shared.message("[ViewController] successfully authenticated to \(JamfProServer.source)")
+                    let apiLabel = useApiClient == 0 ? "Platform" : "Pro"
+                    self.view.window?.title = "Prune v\(AppInfo.version)          API: \(apiLabel)"
+                    let isPlatformAPI = useApiClient == 0
+                    self.blueprints_Button.isEnabled = isPlatformAPI
+                    self.blueprints_Button.toolTip = isPlatformAPI ? nil : "Blueprints are only available with the Platform API"
                 }
             } else {
                 DispatchQueue.main.async {

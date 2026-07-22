@@ -1211,8 +1211,8 @@ Gw
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="lHj-Ea-3Is"/>
                                 </connections>
                             </button>
-                            <button identifier="mobiledeviceapplications" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="U1z-r5-Qn3">
-                                <rect key="frame" x="399" y="395" width="168" height="20"/>
+                            <button identifier="mobiledeviceapplications" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="U1z-r5-Qn3">
+                                <rect key="frame" x="538" y="395" width="168" height="20"/>
                                 <buttonCell key="cell" type="check" title="Mobile Device Apps" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="SLJ-Mg-8Ys">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system" size="16"/>
@@ -1225,13 +1225,14 @@ Gw
                                 </connections>
                             </button>
                             <button identifier="mobiledeviceconfigurationprofiles" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="AJ3-ix-IV2">
-                                <rect key="frame" x="399" y="365" width="241" height="20"/>
+                                <rect key="frame" x="538" y="365" width="252" height="20"/>
                                 <buttonCell key="cell" type="check" title="Mobile Device Config. Profiles" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="2XT-QI-s27">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system" size="16"/>
                                 </buttonCell>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="20" id="7gS-W4-LO4"/>
+                                    <constraint firstAttribute="width" constant="252" id="pis-dM-9Hn"/>
                                 </constraints>
                                 <connections>
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="hYZ-Tj-yR2"/>
@@ -1261,8 +1262,8 @@ Gw
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button identifier="mobiledevicegroups" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1KQ-oR-uJ5">
-                                <rect key="frame" x="399" y="425" width="183" height="20"/>
+                            <button identifier="mobiledevicegroups" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1KQ-oR-uJ5">
+                                <rect key="frame" x="538" y="425" width="183" height="20"/>
                                 <buttonCell key="cell" type="check" title="Mobile Device Groups" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="x3P-Hy-Mkr">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system" size="16"/>
@@ -1290,43 +1291,18 @@ DQ
                                     <action selector="scan_action:" target="XfG-lQ-9wD" id="rNa-wd-IrR"/>
                                 </connections>
                             </button>
-                            <button identifier="classes" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fOf-HA-C5s">
-                                <rect key="frame" x="675" y="455" width="80" height="20"/>
-                                <buttonCell key="cell" type="check" title="Classes" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="PGK-yM-lA2">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system" size="16"/>
-                                </buttonCell>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="20" id="3dX-pl-Rde"/>
-                                </constraints>
-                                <connections>
-                                    <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="ZPC-57-mZs"/>
-                                </connections>
-                            </button>
                             <button identifier="restrictedsoftware" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dGD-4U-MeH">
-                                <rect key="frame" x="206" y="395" width="167" height="20"/>
+                                <rect key="frame" x="206" y="395" width="175" height="20"/>
                                 <buttonCell key="cell" type="check" title="Restricted Software" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="zP7-Hf-DAf">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system" size="16"/>
                                 </buttonCell>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="20" id="OSm-Eb-zCF"/>
+                                    <constraint firstAttribute="width" constant="175" id="WXY-Pq-J3a"/>
                                 </constraints>
                                 <connections>
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="uoN-df-3ms"/>
-                                </connections>
-                            </button>
-                            <button identifier="ebooks" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="J3O-WP-1zj">
-                                <rect key="frame" x="676" y="425" width="77" height="20"/>
-                                <buttonCell key="cell" type="check" title="eBooks" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="fcz-VY-zGI">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system" size="16"/>
-                                </buttonCell>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="20" id="FZ9-G9-3Pp"/>
-                                </constraints>
-                                <connections>
-                                    <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="vFI-Zw-3tR"/>
                                 </connections>
                             </button>
                             <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JcO-81-SqS">
@@ -1354,8 +1330,8 @@ DQ
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="rdd-Qp-vc5"/>
                                 </connections>
                             </button>
-                            <button identifier="mobiledeviceextensionattributes" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dQt-a4-axV">
-                                <rect key="frame" x="675" y="395" width="158" height="20"/>
+                            <button identifier="mobiledeviceextensionattributes" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dQt-a4-axV">
+                                <rect key="frame" x="538" y="455" width="158" height="20"/>
                                 <buttonCell key="cell" type="check" title="Mobile Device EAs" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="OxJ-ud-1Q4">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system" size="16"/>
@@ -1458,21 +1434,70 @@ DQ
                                 </constraints>
                             </button>
                             <button identifier="printers" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gLp-d3-e1N">
-                                <rect key="frame" x="399" y="455" width="80" height="38"/>
+                                <rect key="frame" x="399" y="455" width="87" height="20"/>
                                 <buttonCell key="cell" type="check" title="Printers" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="2iL-9e-986">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system" size="16"/>
                                 </buttonCell>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="87" id="GSi-Cy-U0y"/>
+                                    <constraint firstAttribute="height" constant="20" id="Wks-5d-auG"/>
+                                </constraints>
                                 <connections>
                                     <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="ehj-MS-WUr"/>
+                                </connections>
+                            </button>
+                            <button identifier="printers" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="2LZ-zy-RWG">
+                                <rect key="frame" x="399" y="425" width="105" height="20"/>
+                                <buttonCell key="cell" type="check" title="Blueprints" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="zP5-4j-6V0">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system" size="16"/>
+                                </buttonCell>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="20" id="8d3-7c-e4n"/>
+                                    <constraint firstAttribute="height" constant="20" id="PgR-xY-1hv"/>
+                                    <constraint firstAttribute="width" constant="105" id="e8r-OL-7C2"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="IVE-ZT-SEm"/>
+                                </connections>
+                            </button>
+                            <button identifier="classes" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fOf-HA-C5s">
+                                <rect key="frame" x="399" y="395" width="86" height="20"/>
+                                <buttonCell key="cell" type="check" title="Classes" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="PGK-yM-lA2">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system" size="16"/>
+                                </buttonCell>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="3dX-pl-Rde"/>
+                                    <constraint firstAttribute="width" constant="86" id="5yB-bm-XOj"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="ZPC-57-mZs"/>
+                                </connections>
+                            </button>
+                            <button identifier="ebooks" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="J3O-WP-1zj">
+                                <rect key="frame" x="399" y="365" width="84" height="20"/>
+                                <buttonCell key="cell" type="check" title="eBooks" bezelStyle="regularSquare" imagePosition="left" controlSize="large" inset="2" id="fcz-VY-zGI">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system" size="16"/>
+                                </buttonCell>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="FZ9-G9-3Pp"/>
+                                    <constraint firstAttribute="width" constant="84" id="dDR-1W-fIk"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="updateViewButton_Action:" target="XfG-lQ-9wD" id="vFI-Zw-3tR"/>
                                 </connections>
                             </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="Yhh-9W-VQU" firstAttribute="leading" secondItem="CHT-iK-owq" secondAttribute="trailing" constant="106" id="0dm-Sl-HvF"/>
-                            <constraint firstItem="AJ3-ix-IV2" firstAttribute="leading" secondItem="gLp-d3-e1N" secondAttribute="leading" id="47H-AQ-LIL"/>
+                            <constraint firstItem="AJ3-ix-IV2" firstAttribute="leading" secondItem="gLp-d3-e1N" secondAttribute="leading" constant="139" id="47H-AQ-LIL"/>
+                            <constraint firstItem="dQt-a4-axV" firstAttribute="centerY" secondItem="gLp-d3-e1N" secondAttribute="centerY" id="5G3-gu-54l"/>
                             <constraint firstItem="oNR-de-zKD" firstAttribute="top" secondItem="4Xq-8k-hj4" secondAttribute="bottom" constant="14" id="5iG-g2-AuL"/>
                             <constraint firstItem="DX4-YY-TMA" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="25" id="5s2-Om-elO"/>
+                            <constraint firstItem="J3O-WP-1zj" firstAttribute="leading" secondItem="2LZ-zy-RWG" secondAttribute="leading" id="6kx-cM-Uym"/>
                             <constraint firstItem="dlw-9C-Dvf" firstAttribute="leading" secondItem="DX4-YY-TMA" secondAttribute="trailing" constant="87" id="6ne-R7-gdB"/>
                             <constraint firstItem="qlD-45-RoB" firstAttribute="top" secondItem="dGD-4U-MeH" secondAttribute="bottom" constant="10" id="7R9-oL-KcU"/>
                             <constraint firstAttribute="trailing" secondItem="kcG-Eg-S6o" secondAttribute="trailing" constant="13" id="7pO-wB-MPl"/>
@@ -1481,35 +1506,32 @@ DQ
                             <constraint firstItem="nEi-ky-DQi" firstAttribute="top" secondItem="AJ3-ix-IV2" secondAttribute="bottom" constant="9" id="8nA-fj-e4k"/>
                             <constraint firstItem="cnQ-TA-ZNH" firstAttribute="centerY" secondItem="IPy-ls-na8" secondAttribute="centerY" constant="-10" id="9NA-Fz-hQn"/>
                             <constraint firstItem="3Ur-1I-4K7" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="25" id="AJl-x3-KYh"/>
-                            <constraint firstItem="U1z-r5-Qn3" firstAttribute="leading" secondItem="gLp-d3-e1N" secondAttribute="leading" id="Ccb-yi-bFP"/>
                             <constraint firstItem="3Ur-1I-4K7" firstAttribute="top" secondItem="CHT-iK-owq" secondAttribute="bottom" constant="10" id="Djd-8b-dJ5"/>
                             <constraint firstItem="hTd-Q8-3Is" firstAttribute="centerY" secondItem="Qaq-HO-yMo" secondAttribute="centerY" id="EVx-0u-ozp"/>
                             <constraint firstItem="wAV-VD-ITG" firstAttribute="leading" secondItem="IPy-ls-na8" secondAttribute="leading" id="ExM-11-HFa"/>
                             <constraint firstAttribute="bottom" secondItem="kcG-Eg-S6o" secondAttribute="bottom" constant="23" id="Fdg-TC-CxD"/>
                             <constraint firstItem="DX4-YY-TMA" firstAttribute="top" secondItem="Qaq-HO-yMo" secondAttribute="bottom" constant="16" id="GuU-xj-loG"/>
                             <constraint firstItem="JcO-81-SqS" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="23" id="Imm-jd-09e"/>
-                            <constraint firstItem="dQt-a4-axV" firstAttribute="top" secondItem="J3O-WP-1zj" secondAttribute="bottom" constant="10" id="In4-J9-SrE"/>
                             <constraint firstItem="IPy-ls-na8" firstAttribute="top" secondItem="iIu-PQ-eWL" secondAttribute="bottom" constant="34" id="JIS-ea-42u"/>
                             <constraint firstItem="AJ3-ix-IV2" firstAttribute="top" secondItem="U1z-r5-Qn3" secondAttribute="bottom" constant="10" id="JSg-za-kaA"/>
-                            <constraint firstItem="fOf-HA-C5s" firstAttribute="leading" secondItem="1KQ-oR-uJ5" secondAttribute="trailing" constant="93" id="Jut-Kg-O2q"/>
+                            <constraint firstItem="fOf-HA-C5s" firstAttribute="leading" secondItem="2LZ-zy-RWG" secondAttribute="leading" id="KvY-Vg-3YQ"/>
                             <constraint firstItem="Yhh-9W-VQU" firstAttribute="top" secondItem="dlw-9C-Dvf" secondAttribute="bottom" constant="10" id="LFD-cn-syF"/>
-                            <constraint firstItem="dQt-a4-axV" firstAttribute="leading" secondItem="AJ3-ix-IV2" secondAttribute="trailing" constant="35" id="LSh-3R-vRB"/>
                             <constraint firstItem="CHT-iK-owq" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="25" id="LvT-cx-GNR"/>
                             <constraint firstItem="gLp-d3-e1N" firstAttribute="bottom" secondItem="dlw-9C-Dvf" secondAttribute="bottom" id="MRK-o2-f7s"/>
                             <constraint firstItem="Qaq-HO-yMo" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="SNN-ac-aHd"/>
                             <constraint firstItem="J3O-WP-1zj" firstAttribute="top" secondItem="fOf-HA-C5s" secondAttribute="bottom" constant="10" id="Tp7-1h-Ab8"/>
                             <constraint firstAttribute="trailing" secondItem="nuI-YM-8hF" secondAttribute="trailing" constant="13" id="WFK-c7-B5l"/>
-                            <constraint firstItem="1KQ-oR-uJ5" firstAttribute="leading" secondItem="gLp-d3-e1N" secondAttribute="leading" id="Z1M-AW-ftK"/>
+                            <constraint firstItem="2LZ-zy-RWG" firstAttribute="leading" secondItem="gLp-d3-e1N" secondAttribute="leading" id="WeL-Dg-qNP"/>
+                            <constraint firstItem="fOf-HA-C5s" firstAttribute="centerY" secondItem="dGD-4U-MeH" secondAttribute="centerY" id="YV3-19-S9x"/>
                             <constraint firstItem="iIu-PQ-eWL" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="25" id="Zlr-ZJ-9uJ"/>
                             <constraint firstItem="qlD-45-RoB" firstAttribute="leading" secondItem="iIu-PQ-eWL" secondAttribute="trailing" constant="26" id="aLa-Y9-pPO"/>
-                            <constraint firstItem="fOf-HA-C5s" firstAttribute="top" secondItem="hTd-Q8-3Is" secondAttribute="bottom" constant="16" id="aqj-dA-yuS"/>
                             <constraint firstItem="Qaq-HO-yMo" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="26" id="bHF-IC-eNv"/>
                             <constraint firstItem="gLp-d3-e1N" firstAttribute="leading" secondItem="dlw-9C-Dvf" secondAttribute="trailing" constant="113" id="bIT-51-bhJ"/>
-                            <constraint firstItem="J3O-WP-1zj" firstAttribute="leading" secondItem="U1z-r5-Qn3" secondAttribute="trailing" constant="109" id="cUk-SN-avr"/>
                             <constraint firstItem="kcG-Eg-S6o" firstAttribute="trailing" secondItem="oNR-de-zKD" secondAttribute="trailing" id="cfd-Tq-eEe"/>
                             <constraint firstItem="IPy-ls-na8" firstAttribute="top" secondItem="gaw-sp-OyP" secondAttribute="bottom" constant="4" id="chg-vs-Gcw"/>
                             <constraint firstItem="nuI-YM-8hF" firstAttribute="leading" secondItem="IPy-ls-na8" secondAttribute="trailing" constant="22" id="cta-Ab-W5A"/>
                             <constraint firstItem="IPy-ls-na8" firstAttribute="trailing" secondItem="wAV-VD-ITG" secondAttribute="trailing" constant="-2" id="dHP-xA-yGJ"/>
+                            <constraint firstItem="2LZ-zy-RWG" firstAttribute="centerY" secondItem="Yhh-9W-VQU" secondAttribute="centerY" id="dwO-3o-KOF"/>
                             <constraint firstItem="dGD-4U-MeH" firstAttribute="top" secondItem="Yhh-9W-VQU" secondAttribute="bottom" constant="10" id="eMA-Y4-vO8"/>
                             <constraint firstItem="gaw-sp-OyP" firstAttribute="leading" secondItem="nEi-ky-DQi" secondAttribute="trailing" constant="7" id="evV-2n-F4B"/>
                             <constraint firstItem="oNR-de-zKD" firstAttribute="top" secondItem="nuI-YM-8hF" secondAttribute="bottom" constant="14" id="fcd-el-zjK"/>
@@ -1520,18 +1542,19 @@ DQ
                             <constraint firstAttribute="trailing" secondItem="hTd-Q8-3Is" secondAttribute="trailing" constant="13" id="i4C-MC-tql"/>
                             <constraint firstItem="U1z-r5-Qn3" firstAttribute="top" secondItem="1KQ-oR-uJ5" secondAttribute="bottom" constant="10" id="iVW-l4-D9D"/>
                             <constraint firstItem="dGD-4U-MeH" firstAttribute="leading" secondItem="3Ur-1I-4K7" secondAttribute="trailing" constant="27" id="jkK-8N-ej5"/>
+                            <constraint firstItem="J3O-WP-1zj" firstAttribute="centerY" secondItem="qlD-45-RoB" secondAttribute="centerY" id="lVI-dc-7dI"/>
                             <constraint firstItem="JcO-81-SqS" firstAttribute="centerY" secondItem="Qaq-HO-yMo" secondAttribute="centerY" id="mLT-Ds-K1g"/>
                             <constraint firstItem="J3O-WP-1zj" firstAttribute="top" secondItem="fOf-HA-C5s" secondAttribute="bottom" constant="10" id="mQP-RC-cCG"/>
                             <constraint firstItem="dlw-9C-Dvf" firstAttribute="top" secondItem="JcO-81-SqS" secondAttribute="bottom" constant="19" id="r5O-rK-AmU"/>
                             <constraint firstItem="JcO-81-SqS" firstAttribute="leading" secondItem="Qaq-HO-yMo" secondAttribute="trailing" constant="9" id="stv-OH-Bh2"/>
                             <constraint firstItem="iIu-PQ-eWL" firstAttribute="top" secondItem="3Ur-1I-4K7" secondAttribute="bottom" constant="10" id="uIP-zA-nzB"/>
                             <constraint firstItem="wAV-VD-ITG" firstAttribute="top" secondItem="IPy-ls-na8" secondAttribute="top" constant="2" id="vDC-6P-enO"/>
-                            <constraint firstItem="dQt-a4-axV" firstAttribute="top" secondItem="J3O-WP-1zj" secondAttribute="bottom" constant="10" id="wg8-M1-15L"/>
                             <constraint firstAttribute="bottom" secondItem="IPy-ls-na8" secondAttribute="bottom" constant="21" id="yWI-Yg-mum"/>
                             <constraint firstItem="CHT-iK-owq" firstAttribute="top" secondItem="DX4-YY-TMA" secondAttribute="bottom" constant="10" id="zsf-mM-brG"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="blueprints_Button" destination="2LZ-zy-RWG" id="4HL-yW-rP2"/>
                         <outlet property="classes_Button" destination="fOf-HA-C5s" id="aoe-kJ-kri"/>
                         <outlet property="computerEAs_Button" destination="qlD-45-RoB" id="dXq-Ql-YeW"/>
                         <outlet property="computerGroups_Button" destination="3Ur-1I-4K7" id="O8g-7z-vx6"/>
