@@ -4456,7 +4456,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             var withOptionKey = false
             let theRow = self.object_TableView.selectedRow
 
-            if self.unusedItems_TableArray?.count != nil {
+            if self.unusedItems_TableArray?.count != nil, theRow >= 0 {
                 if let itemName = self.unusedItems_TableArray?[theRow] {
         //                print("[removeObject_Action] itemName: \(itemName)")
         //                print("[removeObject_Action] unusedItems_TableDict: \(String(describing: unusedItems_TableDict))")
@@ -4615,159 +4615,74 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         let viewing = view_PopUpButton.title
         
+        // category key in unusedItems_TableDict → masterObjectDict key
+        let categoryToMasterKey: [String: String] = [
+            "packages":                       "packages",
+            "scripts":                        "scripts",
+            "computergroups":                 "computerGroups",
+            "osxconfigurationprofiles":       "osxconfigurationprofiles",
+            "ebooks":                         "ebooks",
+            "policies":                       "policies",
+            "printers":                       "printers",
+            "restrictedsoftware":             "restrictedsoftware",
+            "computerextensionattributes":    "computerextensionattributes",
+            "mobiledevicegroups":             "mobileDeviceGroups",
+            "mobiledeviceapplications":       "mobiledeviceapplications",
+            "mobiledeviceconfigurationprofiles": "mobiledeviceconfigurationprofiles",
+            "classes":                        "classes",
+            "mobiledeviceextensionattributes": "mobiledeviceextensionattributes",
+            "macapplications":                "macapplications",
+            "blueprints":                     "blueprints",
+        ]
+
         var masterItemsToDeleteArray = [[String:String]]()
-        if (viewing == "All" && packages_Button.state.rawValue == 1) || viewing == "Packages" {
-            for (key, _) in masterObjectDict["packages"]! {
-                if masterObjectDict["packages"]![key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["packages"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove package with id: \(key)")
-                    masterItemsToDeleteArray.append(["packages":id])
+        let selectedRows = object_TableView.selectedRowIndexes
+        if selectedRows.isEmpty {
+            working(isWorking: false)
+            Alert.shared.display(header: "Nothing selected", message: "Select one or more items to delete.")
+            return
+        }
+        for row in selectedRows {
+            guard let displayedName = unusedItems_TableArray?[row],
+                  let itemDict = unusedItems_TableDict?[row] else { continue }
+            let itemName = displayedName.replacingOccurrences(of: ")    [disabled]", with: ")")
+            for (_, category) in itemDict as [String: String] {
+                guard let masterKey = categoryToMasterKey[category] else {
+                    WriteToLog.shared.message("[remove_Action] no masterKey for category '\(category)' item '\(itemName)'")
+                    continue
                 }
+                guard let id = masterObjectDict[masterKey]?[itemName]?["id"] else {
+                    WriteToLog.shared.message("[remove_Action] id not found in masterObjectDict[\(masterKey)][\(itemName)]")
+                    continue
+                }
+                WriteToLog.shared.message("[remove_Action] queuing \(category) '\(itemName)' id: \(id)")
+                masterItemsToDeleteArray.append([category: id])
             }
         }
-
-        if (viewing == "All" && scripts_Button.state.rawValue == 1) || viewing == "Scripts" {
-            for (key, _) in masterObjectDict["scripts"]! {
-                if masterObjectDict["scripts"]![key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove script with id: \(id)")
-                    masterItemsToDeleteArray.append(["scripts":id])
-                }
-            }
-        }
-
-        if (viewing == "All" && computerGroups_Button.state.rawValue == 1) || viewing == "Computer Groups" {
-            for (key, _) in masterObjectDict["computerGroups"]! {
-                if masterObjectDict["computerGroups"]![key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove computer group with id: \(id)")
-                    masterItemsToDeleteArray.append(["computergroups":id])
-                }
-            }
-        }
-
-        if (viewing == "All" && computerProfiles_Button.state.rawValue == 1) || viewing == "Configuration Policies" {
-            for (key, _) in masterObjectDict["osxconfigurationprofiles"]! {
-                if masterObjectDict["osxconfigurationprofiles"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove computer configuration profile with id: \(id)")
-                    masterItemsToDeleteArray.append(["osxconfigurationprofiles":id])
-                }
-            }
-        }
-        
-        if (viewing == "All" && ebooks_Button.state.rawValue == 1) || viewing == "eBooks" {
-            for (key, _) in masterObjectDict["ebooks"]! {
-                if masterObjectDict["ebooks"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove eBook with id: \(key)")
-                    masterItemsToDeleteArray.append(["ebooks":id])
-                }
-            }
-        }
-
-        if (viewing == "All" && policies_Button.state.rawValue == 1) || viewing == "Policies" {
-            print("[remove_Action] removeDisabledPolicies: \(removeDisabledPolicies)")
-            for (key, _) in masterObjectDict["policies"]! {
-                if masterObjectDict["policies"]?[key]?["used"] == "false" || (removeDisabledPolicies && masterObjectDict["policies"]?[key]?["enabled"] == "false") {
-                    let id = "\(String(describing: masterObjectDict["policies"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove policy with id: \(id)")
-                    masterItemsToDeleteArray.append(["policies":id])
-                }
-            }
-        }
-        
-        if (viewing == "All" && printers_Button.state.rawValue == 1) || viewing == "Printers" {
-            for (key, _) in masterObjectDict["printers"]! {
-                if masterObjectDict["printers"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["printers"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove printer with id: \(id)")
-                    masterItemsToDeleteArray.append(["printers":id])
-                }
-            }
-        }
-        
-        if (viewing == "All" && restrictedSoftware_Button.state.rawValue == 1) || viewing == "Restricted Software" {
-            for (key, _) in masterObjectDict["restrictedsoftware"]! {
-                if masterObjectDict["restrictedsoftware"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove restricted software with id: \(id)")
-                    masterItemsToDeleteArray.append(["restrictedsoftware":id])
-                }
-            }
-        }
-        
-        if (viewing == "All" && computerEAs_Button.state.rawValue == 1) || viewing == "Computer EAs" {
-            for (key, _) in masterObjectDict["computerextensionattributes"]! {
-                if masterObjectDict["computerextensionattributes"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["computerextensionattributes"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove computer extension attribute with id: \(id)")
-                    masterItemsToDeleteArray.append(["computerextensionattributes":id])
-                }
-            }
-        }
-
-        if (viewing == "All" && mobileDeviceGroups_Button.state.rawValue == 1) || viewing == "Mobile Device Groups" {
-            for (key, _) in masterObjectDict["mobileDeviceGroups"]! {
-                if masterObjectDict["mobileDeviceGroups"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove mobile device group with id: \(id)")
-                    masterItemsToDeleteArray.append(["mobiledevicegroups":id])
-                }
-            }
-        }
-
-        if (viewing == "All" && mobileDeviceApps_Button.state.rawValue == 1) || viewing == "Mobile Device Apps" {
-            for (key, _) in masterObjectDict["mobiledeviceapplications"]! {
-                if masterObjectDict["mobiledeviceapplications"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove mobile device application with id: \(id)")
-                    masterItemsToDeleteArray.append(["mobiledeviceapplications":id])
-                }
-            }
-        }
-
-        if (viewing == "All" && configurationProfiles_Button.state.rawValue == 1) || viewing == "Mobile Device Config. Profiles" {
-            for (key, _) in masterObjectDict["mobiledeviceconfigurationprofiles"]! {
-                if masterObjectDict["mobiledeviceconfigurationprofiles"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove mobile device configuration profile with id: \(id)")
-                    masterItemsToDeleteArray.append(["mobiledeviceconfigurationprofiles":id])
-                }
-            }
-        }
-        
-        if (viewing == "All" && classes_Button.state.rawValue == 1) || viewing == "Classes" {
-            for (key, _) in masterObjectDict["classes"]! {
-                if masterObjectDict["classes"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["classes"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove class with id: \(id)")
-                    masterItemsToDeleteArray.append(["classes":id])
-                }
-            }
-        }
-        
-        if (viewing == "All" && mobileDeviceEAs_Button.state.rawValue == 1) || viewing == "Mobile Device EAs" {
-            for (key, _) in masterObjectDict["mobiledeviceextensionattributes"]! {
-                if masterObjectDict["mobiledeviceextensionattributes"]?[key]?["used"] == "false" {
-                    let id = "\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]!["id"]!))"
-                    WriteToLog.shared.message("[remove_Action] remove mobile device extension attribute with id: \(id)")
-                    masterItemsToDeleteArray.append(["mobiledeviceextensionattributes":id])
-                }
-            }
-        }
-        
-//        print("masterItemsToDeleteArray: \(masterItemsToDeleteArray)")
 
         // alert the user before deleting
-        let continueDelete = Alert.shared.warning(header: "Caution:", message: "You are about to remove \(masterItemsToDeleteArray.count) objects, are you sure you want to continue?")
+        let continueDelete = Alert.shared.warning(header: "Caution:", message: "You are about to remove \(selectedRows.count) objects, are you sure you want to continue?")
+
+        // build a name lookup so we can remove successfully deleted items from the list
+        // [category: name] pairs parallel to masterItemsToDeleteArray
+        var itemNamesToDelete = [(category: String, name: String)]()
+        for row in selectedRows {
+            guard let displayedName = unusedItems_TableArray?[row],
+                  let itemDict = unusedItems_TableDict?[row] else { continue }
+            let itemName = displayedName.replacingOccurrences(of: ")    [disabled]", with: ")")
+            for (_, category) in itemDict as [String: String] {
+                itemNamesToDelete.append((category: category, name: displayedName))
+                break
+            }
+        }
 
         if continueDelete == "OK" {
             theDeleteQ.addOperation { [self] in
                 self.counter = 0
                 var completed = false
+                var deletedNames = [(category: String, name: String)]()
                 // loop through master list and delete items - start
-                
+
                 DispatchQueue.main.async {
                     self.process_TextField.isHidden = false
                 }
@@ -4845,6 +4760,9 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 if success {
                                     deleteCount += 1
                                     WriteToLog.shared.message("[remove_Action] removed category \(category) with id: \(id)")
+                                    if let pair = itemNamesToDelete.first(where: { $0.category == category && $0.name.replacingOccurrences(of: ")    [disabled]", with: "") == (self.masterObjectDict[self.categoryToMasterKey(category)]?.first(where: { $0.value["id"] == id })?.key ?? "") }) {
+                                        deletedNames.append(pair)
+                                    }
                                 } else {
                                     failedDeleteCount += 1
                                     WriteToLog.shared.message("[remove_Action] failed to remove category \(category) with id: \(id)")
@@ -4856,12 +4774,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                         let item = (failedDeleteCount == 1) ? "item was":"items were"
                                         extraMessage = "\nNote, \(failedDeleteCount) \(item) not deleted."
                                     }
-                                    Alert.shared.display(header: "Removal process complete.\(extraMessage)", message: "")
                                     DispatchQueue.main.async {
+                                        self.removeDeletedItemsFromList(deletedNames)
+                                        Alert.shared.display(header: "Removal process complete.\(extraMessage)", message: "")
                                         self.spinner_ProgressIndicator.isIndeterminate = true
+                                        self.working(isWorking: false)
+                                        self.process_TextField.isHidden = true
                                     }
-                                    self.working(isWorking: false)
-                                    self.process_TextField.isHidden = true
                                 }
                             }
                         } else {
@@ -4880,23 +4799,26 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 } else {
                                     deleteCount+=1
                                     WriteToLog.shared.message("[remove_Action] removed category \(category) with id: \(id)")
+                                    if let pair = itemNamesToDelete.first(where: { $0.category == category && $0.name.replacingOccurrences(of: ")    [disabled]", with: "") == (self.masterObjectDict[self.categoryToMasterKey(category)]?.first(where: { $0.value["id"] == id })?.key ?? "") }) {
+                                        deletedNames.append(pair)
+                                    }
                                 }
                                 self.counter += 1
 
                                 completed = true
 
-        //                        print("json returned packages: \(result)")
                                 if self.counter == masterItemsToDeleteArray.count {
                                     if failedDeleteCount > 0 {
                                         let item = (failedDeleteCount == 1) ? "item was":"items were"
                                         extraMessage = "\nNote, \(failedDeleteCount) \(item) not deleted."
                                     }
-                                    Alert.shared.display(header: "Removal process complete.\(extraMessage)", message: "")
                                     DispatchQueue.main.async {
+                                        self.removeDeletedItemsFromList(deletedNames)
+                                        Alert.shared.display(header: "Removal process complete.\(extraMessage)", message: "")
                                         self.spinner_ProgressIndicator.isIndeterminate = true
+                                        self.working(isWorking: false)
+                                        self.process_TextField.isHidden = true
                                     }
-                                    self.working(isWorking: false)
-                                    self.process_TextField.isHidden = true
                                 }
 
                             }   // Xml().action - end
@@ -4913,7 +4835,28 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         }
     }
     // remove objects from the server - end
-    
+
+    private func categoryToMasterKey(_ category: String) -> String {
+        switch category {
+        case "computergroups":   return "computerGroups"
+        case "mobiledevicegroups": return "mobileDeviceGroups"
+        default:                 return category
+        }
+    }
+
+    private func removeDeletedItemsFromList(_ deleted: [(category: String, name: String)]) {
+        for pair in deleted {
+            let masterKey = categoryToMasterKey(pair.category)
+            let itemName  = pair.name.replacingOccurrences(of: ")    [disabled]", with: ")")
+            masterObjectDict[masterKey]?.removeValue(forKey: itemName)
+            if let idx = unusedItems_TableArray?.firstIndex(of: pair.name) {
+                unusedItems_TableArray?.remove(at: idx)
+                unusedItems_TableDict?.remove(at: idx)
+            }
+        }
+        object_TableView.reloadData()
+    }
+
     @IBAction func updateViewButton_Action(_ sender: NSButton) {
         var withOptionKey = false
         // check for option key - start
@@ -5284,6 +5227,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
         DispatchQueue.main.async {
             let theRow = self.object_TableView.selectedRow
+            guard theRow >= 0 else { return }
             let webBase = useApiClient == 0 ? JamfProServer.serverURL : JamfProServer.source
 
             if let displayedName = self.unusedItems_TableArray?[theRow] {
@@ -5583,6 +5527,11 @@ extension ViewController: NSTableViewDelegate {
         return nil
     }
     
+    func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
+        guard let name = unusedItems_TableArray?[row] else { return false }
+        return (itemSeperators.firstIndex(of: name) ?? -1) == -1
+    }
+
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping(  URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }

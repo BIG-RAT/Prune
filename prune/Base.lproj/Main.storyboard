@@ -1129,7 +1129,7 @@ Gw
                                     <rect key="frame" x="1" y="1" width="751" height="308"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="LhO-qp-1s9">
+                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="LhO-qp-1s9">
                                             <rect key="frame" x="0.0" y="0.0" width="751" height="308"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="8"/>
@@ -1153,7 +1153,7 @@ Gw
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="HHG-dq-qU7">
-                                                                    <rect key="frame" x="0.0" y="-7" width="747" height="26"/>
+                                                                    <rect key="frame" x="2" y="-7" width="747" height="26"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="743" id="F4f-eQ-Ygy"/>
                                                                         <constraint firstAttribute="height" constant="26" id="pJ2-Tv-Wtz"/>
@@ -1167,7 +1167,7 @@ Gw
                                                             </subviews>
                                                             <constraints>
                                                                 <constraint firstItem="HHG-dq-qU7" firstAttribute="top" secondItem="HsG-u6-Ddp" secondAttribute="top" constant="-2" id="PgB-57-YLB"/>
-                                                                <constraint firstItem="HHG-dq-qU7" firstAttribute="leading" secondItem="HsG-u6-Ddp" secondAttribute="leading" constant="2" id="SFY-g5-slc"/>
+                                                                <constraint firstItem="HHG-dq-qU7" firstAttribute="leading" secondItem="HsG-u6-Ddp" secondAttribute="leading" constant="4" id="SFY-g5-slc"/>
                                                             </constraints>
                                                             <connections>
                                                                 <outlet property="textField" destination="HHG-dq-qU7" id="30o-2c-gXx"/>
