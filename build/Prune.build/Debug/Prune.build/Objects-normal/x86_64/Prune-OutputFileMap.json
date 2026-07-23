@@ -1,0 +1,189 @@
+{
+  "" : {
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Prune-primary.dia",
+    "emit-module-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Prune-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Prune-primary-emit-module.dia",
+    "pch" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Prune-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Prune-primary.swiftdeps"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/AboutVC.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AboutVC.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AboutVC.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AboutVC.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AboutVC.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AboutVC.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AboutVC.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AboutVC.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AboutVC~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Alert.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Alert.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Alert.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Alert.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Alert.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Alert.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Alert.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Alert.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Alert~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/AppDelegate.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AppDelegate.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AppDelegate.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AppDelegate.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AppDelegate.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AppDelegate.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AppDelegate.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AppDelegate.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/AppDelegate~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Credentials.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Credentials.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Credentials.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Credentials.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Credentials.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Credentials.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Credentials.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Credentials.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Credentials~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Globals.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Globals.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Globals.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Globals.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Globals.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Globals.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Globals.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Globals.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Globals~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/ImportView.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ImportView.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ImportView.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ImportView.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ImportView.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ImportView.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ImportView.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ImportView.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ImportView~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/JamfPro.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/JamfPro.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/JamfPro.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/JamfPro.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/JamfPro.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/JamfPro.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/JamfPro.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/JamfPro.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/JamfPro~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Json.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Json.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Json.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Json.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Json.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Json.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Json.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Json.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Json~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/LoginViewController.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/LoginViewController.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/LoginViewController.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/LoginViewController.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/LoginViewController.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/LoginViewController.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/LoginViewController.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/LoginViewController.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/LoginViewController~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/PlatformAPI/PlatformAPIClient.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIClient.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIClient.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIClient.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIClient.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIClient.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIClient.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIClient.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIClient~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/PlatformAPI/PlatformAPIEndpoints.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIEndpoints.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIEndpoints.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIEndpoints.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIEndpoints.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIEndpoints.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIEndpoints.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIEndpoints.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/PlatformAPIEndpoints~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/TelemetryDeckConfig.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/TelemetryDeckConfig.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/TelemetryDeckConfig.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/TelemetryDeckConfig.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/TelemetryDeckConfig.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/TelemetryDeckConfig.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/TelemetryDeckConfig.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/TelemetryDeckConfig.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/TelemetryDeckConfig~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/Time.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Time.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Time.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Time.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Time.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Time.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Time.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Time.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/Time~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/ViewController.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ViewController.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ViewController.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ViewController.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ViewController.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ViewController.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ViewController.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ViewController.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/ViewController~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/WriteToLog.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/WriteToLog.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/WriteToLog.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/WriteToLog.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/WriteToLog.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/WriteToLog.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/WriteToLog.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/WriteToLog.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/WriteToLog~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/XmlDotNotationParser.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlDotNotationParser.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlDotNotationParser.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlDotNotationParser.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlDotNotationParser.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlDotNotationParser.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlDotNotationParser.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlDotNotationParser.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlDotNotationParser~partial.swiftmodule"
+  },
+  "/Users/leslie/Documents/GitHub/Prune/prune/XmlParser.swift" : {
+    "const-values" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlParser.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlParser.d",
+    "diagnostics" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlParser.dia",
+    "index-unit-output-path" : "/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlParser.o",
+    "llvm-bc" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlParser.bc",
+    "object" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlParser.o",
+    "swift-dependencies" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlParser.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Documents/GitHub/Prune/build/Prune.build/Debug/Prune.build/Objects-normal/x86_64/XmlParser~partial.swiftmodule"
+  }
+}

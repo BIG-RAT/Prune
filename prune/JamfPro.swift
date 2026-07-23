@@ -358,16 +358,16 @@ class JamfPro: NSObject, URLSessionDelegate {
                         if JamfProServer.source.range(of: "/?failover=", options: [.regularExpression, .caseInsensitive]) != nil {
                             _ = Alert.shared.warning(header: "Authentication Failed", message: "Ensure you are not using the failover URL.")
                         } else {
-                            _ = Alert.shared.display(header: "\(serverUrl)", message: "Failed to authenticate to \(serverUrl). \nStatus Code: \(httpResponse.statusCode)")
-                            WriteToLog.shared.message("[getToken] Failed to authenticate to \(serverUrl).  Response error: \(httpResponse.statusCode)")
+                            _ = Alert.shared.display(header: "Authentication Failed", message: "Failed to authenticate to \(tokenUrlString). \nStatus Code: \(httpResponse.statusCode)")
+                            WriteToLog.shared.message("[getToken] Failed to authenticate to \(tokenUrlString).  Response error: \(httpResponse.statusCode)")
                         }
                         JamfProServer.validToken  = false
                         completion((httpResponse.statusCode, "failed"))
                         return
                     }
                 } else {
-                    _ = Alert.shared.display(header: "\(serverUrl)", message: "Failed to connect. \nUnknown error, verify url and port.")
-                    WriteToLog.shared.message("[getToken] token response error from \(serverUrl).  Verify url and port")
+                    _ = Alert.shared.display(header: "Connection Failed", message: "Failed to connect to \(tokenUrlString). \nUnknown error, verify url and port.")
+                    WriteToLog.shared.message("[getToken] token response error from \(tokenUrlString).  Verify url and port")
                     JamfProServer.validToken  = false
                     completion((0, "failed"))
                     return

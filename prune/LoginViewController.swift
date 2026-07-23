@@ -93,6 +93,11 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
                 if let info = availableIntegrationsDict[selectedTitle] {
                     jamfProServer_textfield.stringValue   = info["tenantId"] as? String ?? ""
                     jamfProUsername_textfield.stringValue = info["clientId"] as? String ?? ""
+                    let savedRegion = info["region"] as? String ?? "US"
+                    if let idx = ["US", "EU", "APAC"].firstIndex(of: savedRegion) {
+                        region_PopUp.selectItem(at: idx)
+                    }
+                    applyRegionSelection()
                 }
             } else {
                 displayName_Label.stringValue = "Server:"
@@ -140,6 +145,13 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
     var lastServerDN           = ""
 
     @IBOutlet weak var saveCreds_button: NSButton!
+
+    // Region row — added programmatically, shown only in Platform API mode
+    var region_Label                = NSTextField(labelWithString: "Region:")
+    var region_PopUp                = NSPopUpButton()
+    var tenantTopConstraint:        NSLayoutConstraint?  // storyboard: tenantField.top = selectPopUp.bottom + 10
+    var regionTopConstraint:        NSLayoutConstraint?  // regionPopUp.top = selectPopUp.bottom + 10
+    var tenantBelowRegionConstraint: NSLayoutConstraint? // tenantField.top = regionPopUp.bottom + 10
     
     @IBAction func hideCreds_action(_ sender: NSButton) {
         print("[hideCreds_action] button state: \(hideCreds_button.state.rawValue)")
@@ -216,6 +228,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
 
         if theSender == "Login" {
             JamfProServer.validToken = false
+            if useApiClient == 0 { applyRegionSelection() }
             let dataToBeSent = (selectServer_Button.titleOfSelectedItem!, JamfProServer.source, JamfProServer.username, JamfProServer.password, saveCreds_button.state.rawValue)
             spinner_PI.stopAnimation(self)
             delegate?.sendLoginInfo(loginInfo: dataToBeSent)
@@ -257,6 +270,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
                         availableIntegrationsDict[displayName] = [
                             "tenantId": JamfProServer.source as AnyObject,
                             "clientId": JamfProServer.username as AnyObject,
+                            "region":   (region_PopUp.titleOfSelectedItem ?? "US") as AnyObject,
                             "date":     Date() as AnyObject
                         ]
                         if saveServers { sharedDefaults!.set(availableIntegrationsDict, forKey: "integrationsDict") }
@@ -423,6 +437,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             password_label.stringValue    = "Password:"
             jamfProServer_textfield.placeholderString = "https://your.jamf.server"
         }
+        updateRegionRowVisibility()
     }
     
     func controlTextDidEndEditing(_ obj: Notification) {
@@ -457,31 +472,31 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             }
         }
     }
-    func controlTextDidChange(_ obj: Notification) {
-        if let textField = obj.object as? NSTextField {
-            jamfProPassword_textfield.stringValue = ""
-            switch textField.identifier!.rawValue {
-            case "server":
-                if jamfProUsername_textfield.stringValue != "" || jamfProPassword_textfield.stringValue != "" {
-                    let accountDict = Credentials().retrieve(service: jamfProServer_textfield.stringValue.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
-                    
-                    if accountDict.count == 1 {
-                        for (username, password) in accountDict {
-                            jamfProUsername_textfield.stringValue = username
-                            jamfProPassword_textfield.stringValue = password
-                        }
-//                        setWindowSize(setting: 0)
-                    } else {
-                        jamfProUsername_textfield.stringValue = ""
-                        jamfProPassword_textfield.stringValue = ""
-//                        setWindowSize(setting: 1)
-                    }
-                }
-            default:
-                break
-            }
-        }
-    }
+//    func controlTextDidChange(_ obj: Notification) {
+//        if let textField = obj.object as? NSTextField {
+//            jamfProPassword_textfield.stringValue = ""
+//            switch textField.identifier!.rawValue {
+//            case "server":
+//                if !jamfProUsername_textfield.stringValue.isEmpty || !jamfProPassword_textfield.stringValue.isEmpty {
+//                    let accountDict = Credentials().retrieve(service: jamfProServer_textfield.stringValue.fqdnFromUrl, account: jamfProUsername_textfield.stringValue)
+//                    
+//                    if accountDict.count == 1 {
+//                        for (username, password) in accountDict {
+//                            jamfProUsername_textfield.stringValue = username
+//                            jamfProPassword_textfield.stringValue = password
+//                        }
+////                        setWindowSize(setting: 0)
+//                    } else {
+//                        jamfProUsername_textfield.stringValue = ""
+//                        jamfProPassword_textfield.stringValue = ""
+////                        setWindowSize(setting: 1)
+//                    }
+//                }
+//            default:
+//                break
+//            }
+//        }
+//    }
     
     func credentialsCheck() {
         let keychainService = jamfProServer_textfield.stringValue.fqdnFromUrl
@@ -521,6 +536,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
     }
     
     func setWindowSize(setting: Int) {
+        let regionExtra: CGFloat = (useApiClient == 0) ? 42 : 0
         if setting == 0 {
             preferredContentSize = CGSize(width: 518, height: 85)
             hideCreds_button.toolTip = "show username/password fields"
@@ -532,7 +548,7 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
             password_label.isHidden            = true
             saveCreds_button.isHidden          = true
         } else {
-            preferredContentSize = CGSize(width: 518, height: 252)
+            preferredContentSize = CGSize(width: 518, height: 252 + regionExtra)
             hideCreds_button.toolTip = "hide username/password fields"
             jamfProServer_textfield.isHidden   = false
             jamfProUsername_textfield.isHidden = false
@@ -544,6 +560,88 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
         }
     }
         
+    private func setupRegionRow() {
+        guard let container = jamfProServer_textfield.superview else { return }
+
+        region_Label.translatesAutoresizingMaskIntoConstraints = false
+        region_Label.isEditable = false
+        region_Label.isBezeled = false
+        region_Label.drawsBackground = false
+        region_Label.alignment = .right
+
+        region_PopUp.translatesAutoresizingMaskIntoConstraints = false
+        region_PopUp.addItems(withTitles: ["US", "EU", "APAC"])
+        region_PopUp.target = self
+        region_PopUp.action = #selector(regionChanged(_:))
+
+        container.addSubview(region_Label)
+        container.addSubview(region_PopUp)
+
+        // Align label with serverURL_Label (same leading/trailing), vertically centred on popup
+        NSLayoutConstraint.activate([
+            region_Label.leadingAnchor.constraint(equalTo: serverURL_Label.leadingAnchor),
+            region_Label.trailingAnchor.constraint(equalTo: serverURL_Label.trailingAnchor),
+            region_Label.centerYAnchor.constraint(equalTo: region_PopUp.centerYAnchor),
+            // Popup aligns left with jamfProServer_textfield, fixed width
+            region_PopUp.leadingAnchor.constraint(equalTo: jamfProServer_textfield.leadingAnchor),
+            region_PopUp.widthAnchor.constraint(equalToConstant: 120),
+        ])
+
+        // Vertical: region row sits 10pt below selectServer_Button
+        regionTopConstraint = region_PopUp.topAnchor.constraint(
+            equalTo: selectServer_Button.bottomAnchor, constant: 10)
+        // Tenant field sits 10pt below region popup (active when region row visible)
+        tenantBelowRegionConstraint = jamfProServer_textfield.topAnchor.constraint(
+            equalTo: region_PopUp.bottomAnchor, constant: 10)
+
+        // Find the storyboard constraint that places tenantField directly below selectServer_Button
+        for c in container.constraints where
+            c.firstItem === jamfProServer_textfield &&
+            c.firstAttribute == .top &&
+            c.secondItem === selectServer_Button &&
+            c.secondAttribute == .bottom {
+            tenantTopConstraint = c
+            break
+        }
+
+        // Restore saved region from the last used integration, if any
+        if lastIntegrationDN != "",
+           let info = availableIntegrationsDict[lastIntegrationDN],
+           let savedRegion = info["region"] as? String,
+           let idx = ["US", "EU", "APAC"].firstIndex(of: savedRegion) {
+            region_PopUp.selectItem(at: idx)
+        }
+        applyRegionSelection()
+    }
+
+    @objc private func regionChanged(_ sender: NSPopUpButton) {
+        applyRegionSelection()
+    }
+
+    private func applyRegionSelection() {
+        switch region_PopUp.titleOfSelectedItem ?? "US" {
+        case "EU":   JamfProServer.region = "eu"
+        case "APAC": JamfProServer.region = "apac"
+        default:     JamfProServer.region = "us"
+        }
+    }
+
+    private func updateRegionRowVisibility() {
+        let show = (useApiClient == 0)
+        region_Label.isHidden = !show
+        region_PopUp.isHidden = !show
+
+        if show {
+            tenantTopConstraint?.isActive = false
+            regionTopConstraint?.isActive = true
+            tenantBelowRegionConstraint?.isActive = true
+        } else {
+            tenantBelowRegionConstraint?.isActive = false
+            regionTopConstraint?.isActive = false
+            tenantTopConstraint?.isActive = true
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -655,6 +753,10 @@ class LoginViewController: NSViewController, NSTextFieldDelegate {
                 }
             }
         }
+
+        // 6. Region row (Platform API only)
+        setupRegionRow()
+        updateRegionRowVisibility()
 
         NSApplication.shared.activate(ignoringOtherApps: true)
     }

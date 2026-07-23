@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>colors</key>
+	<array/>
+	<key>images</key>
+	<array>
+		<dict>
+			<key>catalogPath</key>
+			<string>/Users/leslie/Documents/GitHub/Prune/prune/Assets.xcassets</string>
+			<key>objcSymbol</key>
+			<string>ACImageNameMagnifyingGlass</string>
+			<key>relativePath</key>
+			<string>./magnifyingGlass.imageset</string>
+			<key>swiftSymbol</key>
+			<string>magnifyingGlass</string>
+		</dict>
+		<dict>
+			<key>catalogPath</key>
+			<string>/Users/leslie/Documents/GitHub/Prune/prune/Assets.xcassets</string>
+			<key>objcSymbol</key>
+			<string>ACImageNameRadar</string>
+			<key>relativePath</key>
+			<string>./radar.imageset</string>
+			<key>swiftSymbol</key>
+			<string>radar</string>
+		</dict>
+	</array>
+	<key>symbols</key>
+	<array/>
+</dict>
+</plist>

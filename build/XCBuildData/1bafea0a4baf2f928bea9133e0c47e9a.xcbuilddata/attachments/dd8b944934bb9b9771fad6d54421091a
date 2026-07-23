@@ -1,0 +1,289 @@
+{
+  "" : {
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck-primary.dia",
+    "emit-module-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck-primary-emit-module.dia",
+    "pch" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck-primary.swiftdeps"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Helpers/CryptoHashing.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/CryptoHashing.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/CryptoHashing.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/CryptoHashing.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/CryptoHashing.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/CryptoHashing.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/CryptoHashing.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/CryptoHashing.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/CryptoHashing~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Helpers/DictionaryExt.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DictionaryExt.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DictionaryExt.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DictionaryExt.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DictionaryExt.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DictionaryExt.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DictionaryExt.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DictionaryExt.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DictionaryExt~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Helpers/DurationSignalTracker.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DurationSignalTracker.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DurationSignalTracker.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DurationSignalTracker.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DurationSignalTracker.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DurationSignalTracker.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DurationSignalTracker.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DurationSignalTracker.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/DurationSignalTracker~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Helpers/JSONFormatting.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/JSONFormatting.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/JSONFormatting.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/JSONFormatting.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/JSONFormatting.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/JSONFormatting.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/JSONFormatting.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/JSONFormatting.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/JSONFormatting~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Helpers/LogHandler.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/LogHandler.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/LogHandler.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/LogHandler.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/LogHandler.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/LogHandler.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/LogHandler.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/LogHandler.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/LogHandler~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Helpers/SessionManager.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SessionManager.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SessionManager.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SessionManager.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SessionManager.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SessionManager.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SessionManager.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SessionManager.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SessionManager~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Helpers/TelemetryEnvironment.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryEnvironment.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryEnvironment.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryEnvironment.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryEnvironment.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryEnvironment.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryEnvironment.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryEnvironment.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryEnvironment~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Modifiers/TrackNavigationModifier.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrackNavigationModifier.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrackNavigationModifier.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrackNavigationModifier.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrackNavigationModifier.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrackNavigationModifier.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrackNavigationModifier.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrackNavigationModifier.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrackNavigationModifier~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/PirateMetrics/TelemetryDeck+Acquisition.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Acquisition.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Acquisition.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Acquisition.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Acquisition.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Acquisition.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Acquisition.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Acquisition.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Acquisition~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/PirateMetrics/TelemetryDeck+Activation.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Activation.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Activation.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Activation.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Activation.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Activation.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Activation.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Activation.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Activation~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/PirateMetrics/TelemetryDeck+Referral.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Referral.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Referral.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Referral.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Referral.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Referral.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Referral.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Referral.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Referral~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/PirateMetrics/TelemetryDeck+Revenue.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Revenue.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Revenue.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Revenue.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Revenue.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Revenue.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Revenue.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Revenue.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Revenue~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Presets/AnyIdentifiableError.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/AnyIdentifiableError.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/AnyIdentifiableError.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/AnyIdentifiableError.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/AnyIdentifiableError.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/AnyIdentifiableError.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/AnyIdentifiableError.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/AnyIdentifiableError.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/AnyIdentifiableError~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Presets/ErrorCategory.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/ErrorCategory.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/ErrorCategory.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/ErrorCategory.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/ErrorCategory.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/ErrorCategory.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/ErrorCategory.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/ErrorCategory.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/ErrorCategory~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Presets/IdentifiableError.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/IdentifiableError.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/IdentifiableError.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/IdentifiableError.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/IdentifiableError.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/IdentifiableError.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/IdentifiableError.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/IdentifiableError.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/IdentifiableError~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Presets/NavigationStatus.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/NavigationStatus.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/NavigationStatus.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/NavigationStatus.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/NavigationStatus.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/NavigationStatus.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/NavigationStatus.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/NavigationStatus.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/NavigationStatus~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Presets/TelemetryDeck+Errors.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Errors.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Errors.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Errors.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Errors.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Errors.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Errors.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Errors.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Errors~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Presets/TelemetryDeck+Navigation.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Navigation.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Navigation.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Navigation.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Navigation.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Navigation.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Navigation.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Navigation.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Navigation~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Presets/TelemetryDeck+Purchases.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Purchases.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Purchases.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Purchases.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Purchases.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Purchases.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Purchases.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Purchases.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck+Purchases~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Presets/TrialConversionTracker.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrialConversionTracker.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrialConversionTracker.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrialConversionTracker.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrialConversionTracker.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrialConversionTracker.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrialConversionTracker.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrialConversionTracker.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TrialConversionTracker~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Signals/Signal+Helpers.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal+Helpers.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal+Helpers.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal+Helpers.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal+Helpers.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal+Helpers.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal+Helpers.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal+Helpers.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal+Helpers~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Signals/Signal.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/Signal~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Signals/SignalCache.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalCache.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalCache.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalCache.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalCache.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalCache.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalCache.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalCache.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalCache~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Signals/SignalEnricher.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalEnricher.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalEnricher.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalEnricher.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalEnricher.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalEnricher.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalEnricher.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalEnricher.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalEnricher~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/Signals/SignalManager.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalManager.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalManager.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalManager.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalManager.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalManager.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalManager.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalManager.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/SignalManager~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/TelemetryClient.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryClient.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryClient.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryClient.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryClient.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryClient.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryClient.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryClient.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryClient~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/Sources/TelemetryDeck/TelemetryDeck.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/TelemetryDeck~partial.swiftmodule"
+  },
+  "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/DerivedSources/resource_bundle_accessor.swift" : {
+    "const-values" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/resource_bundle_accessor.swiftconstvalues",
+    "dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/resource_bundle_accessor.d",
+    "diagnostics" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/resource_bundle_accessor.dia",
+    "index-unit-output-path" : "/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/resource_bundle_accessor.o",
+    "llvm-bc" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/resource_bundle_accessor.bc",
+    "object" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/resource_bundle_accessor.o",
+    "swift-dependencies" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/resource_bundle_accessor.swiftdeps",
+    "swiftmodule" : "/Users/leslie/Library/Developer/Xcode/DerivedData/Prune-ctvhpemzkhefdlbgxwnvupbhwsat/SourcePackages/checkouts/SwiftSDK/build/TelemetryDeck.build/Debug/TelemetryDeck.build/Objects-normal/x86_64/resource_bundle_accessor~partial.swiftmodule"
+  }
+}
