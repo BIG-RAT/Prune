@@ -3416,11 +3416,33 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     }
 
     func unused(itemDictionary: [[String:Any]]) {
-//        print("[\(#line)-unused] itemDictionary: \(itemDictionary)")
+        let endpointDisplayName: [String: String] = [
+            "blueprints":                        "Blueprints",
+            "classes":                           "Classes",
+            "computerextensionattributes":       "Computer EAs",
+            "computergroups":                    "Computer Groups",
+            "osxconfigurationprofiles":          "Computer Profiles",
+            "ebooks":                            "eBooks",
+            "macapplications":                   "Mac Apps",
+            "mobiledeviceapplications":          "Mobile Device Apps",
+            "mobiledeviceconfigurationprofiles": "Mobile Device Config. Profiles",
+            "mobiledeviceextensionattributes":   "Mobile Device EAs",
+            "mobiledevicegroups":                "Mobile Device Groups",
+            "packages":                          "Packages",
+            "policies":                          "Policies",
+            "printers":                          "Printers",
+            "restrictedsoftware":                "Restricted Software",
+            "scripts":                           "Scripts",
+        ]
+        let sortedDictionary = itemDictionary.sorted {
+            let a = endpointDisplayName[$0.keys.first ?? ""] ?? $0.keys.first ?? ""
+            let b = endpointDisplayName[$1.keys.first ?? ""] ?? $1.keys.first ?? ""
+            return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
+        }
         DispatchQueue.main.async { [self] in
             var unusedCount = 0
             var sortedArray = [String]()
-            let dictCount   = itemDictionary.count
+            let dictCount   = sortedDictionary.count
             
             if unusedItems_TableArray?.count != nil {
                 unusedItems_TableArray?.removeAll()
@@ -3436,7 +3458,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 } else {
                     unusedItems_TableDict!.append(["----- header -----":"----- header -----"])
                 }
-                let currentDict = itemDictionary[i]
+                let currentDict = sortedDictionary[i]
                 for (type, theDict) in currentDict {
                     let currentItem = type
                     let newDict = theDict as! [String:[String:String]]
@@ -5098,54 +5120,25 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
     func setViewButton(setOn: Bool) {
         if setOn {
-            if packagesButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Packages")
-            }
-            if scriptsButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Scripts")
-            }
-            if ebooksButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "eBooks")
-            }
-            if classesButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Classes")
-            }
-            if computerGroupsButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Computer Groups")
-            }
-            if computerProfilesButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Computer Profiles")
-            }
-            if macAppsButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Mac Apps")
-            }
-            if policiesButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Policies")
-            }
-            if printersButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Printers")
-            }
-            if restrictedSoftwareButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Restricted Software")
-            }
-            if computerEAsButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Computer EAs")
-            }
-            if mobileDeviceGroupsButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Mobile Device Groups")
-            }
-            if mobileDeviceAppsButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Mobile Device Apps")
-            }
-            if configurationProfilesButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Mobile Device Config. Profiles")
-            }
-            if mobileDeviceEAsButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Mobile Device EAs")
-            }
-            if blueprintsButtonState == "on" {
-                view_PopUpButton.addItem(withTitle: "Blueprints")
-            }
+            var titles = [String]()
+            if packagesButtonState == "on"           { titles.append("Packages") }
+            if scriptsButtonState == "on"            { titles.append("Scripts") }
+            if ebooksButtonState == "on"             { titles.append("eBooks") }
+            if classesButtonState == "on"            { titles.append("Classes") }
+            if computerGroupsButtonState == "on"     { titles.append("Computer Groups") }
+            if computerProfilesButtonState == "on"   { titles.append("Computer Profiles") }
+            if macAppsButtonState == "on"            { titles.append("Mac Apps") }
+            if policiesButtonState == "on"           { titles.append("Policies") }
+            if printersButtonState == "on"           { titles.append("Printers") }
+            if restrictedSoftwareButtonState == "on" { titles.append("Restricted Software") }
+            if computerEAsButtonState == "on"        { titles.append("Computer EAs") }
+            if mobileDeviceGroupsButtonState == "on" { titles.append("Mobile Device Groups") }
+            if mobileDeviceAppsButtonState == "on"   { titles.append("Mobile Device Apps") }
+            if configurationProfilesButtonState == "on" { titles.append("Mobile Device Config. Profiles") }
+            if mobileDeviceEAsButtonState == "on"    { titles.append("Mobile Device EAs") }
+            if blueprintsButtonState == "on"         { titles.append("Blueprints") }
+            titles.sort { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+            for title in titles { view_PopUpButton.addItem(withTitle: title) }
         } else {
             view_PopUpButton.removeAllItems()
             view_PopUpButton.addItem(withTitle: "All")
