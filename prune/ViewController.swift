@@ -4458,6 +4458,37 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                 }
             }
             
+            if self.blueprintsButtonState == "on" {
+                var firstTitle = true
+                let blueprintsLogFile = "pruneBlueprints_\(timeStamp).json"
+                let exportURL = getDownloadDirectory().appendingPathComponent(blueprintsLogFile)
+
+                do {
+                    try "{\(header),\n \"unusedBlueprints\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
+
+                    if let logFileOp = try? FileHandle(forUpdating: exportURL) {
+                        for key in sortedArrayFromDict(theDict: masterObjectDict["blueprints"]!) {
+                            if masterObjectDict["blueprints"]![key]?["used"] == "false" {
+                                logFileOp.seekToEndOfFile()
+                                if firstTitle {
+                                    text = "\t{\"id\": \"\(masterObjectDict["blueprints"]![key]?["id"] ?? "")\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    firstTitle = false
+                                } else {
+                                    text = ",\n\t{\"id\": \"\(masterObjectDict["blueprints"]![key]?["id"] ?? "")\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                }
+                                logFileOp.write(text.data(using: String.Encoding.utf8)!)
+                            }
+                        }
+                        logFileOp.seekToEndOfFile()
+                        logFileOp.write("\n]}".data(using: String.Encoding.utf8)!)
+                        logFileOp.closeFile()
+                        exportedItems.append("\tUnused Blueprints")
+                    }
+                } catch {
+                    WriteToLog.shared.message("failed to write the following: <unusedBlueprints>")
+                }
+            }   // if self.blueprintsButtonState == "on" - end
+
             if (exportedItems.count + failedExported.count > 2) {
                 var exportSummary = ""
                 if exportedItems.count > 1 {
