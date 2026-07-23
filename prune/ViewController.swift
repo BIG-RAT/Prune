@@ -3937,7 +3937,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let packageLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["packages"]!) {
-                            if masterObjectDict["packages"]![key]?["used"]! == "false" {
+                            if masterObjectDict["packages"]![key]?["used"] == "false" {
                                 packageLogFileOp.seekToEndOfFile()
                                 if firstPackage {
                                     text = "\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
@@ -3972,7 +3972,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let scriptLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["scripts"]!) {
-                            if masterObjectDict["scripts"]![key]?["used"]! == "false" {
+                            if masterObjectDict["scripts"]![key]?["used"] == "false" {
                                 scriptLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstScript {
@@ -4007,7 +4007,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let ebooksLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["ebooks"]!) {
-                            if masterObjectDict["ebooks"]![key]?["used"]! == "false" {
+                            if masterObjectDict["ebooks"]![key]?["used"] == "false" {
                                 ebooksLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstEbook {
@@ -4042,7 +4042,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let classesLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["classes"]!) {
-                            if masterObjectDict["classes"]![key]?["used"]! == "false" {
+                            if masterObjectDict["classes"]![key]?["used"] == "false" {
                                 classesLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstClass {
@@ -4077,7 +4077,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let computerGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["computerGroups"]!) {
-                            if masterObjectDict["computerGroups"]![key]?["used"]! == "false" {
+                            if masterObjectDict["computerGroups"]![key]?["used"] == "false" {
                                 computerGroupLogFileOp.seekToEndOfFile()
     //                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"},\n"
                                 if firstComputerGroup {
@@ -4111,7 +4111,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let computerProfileLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["osxconfigurationprofiles"]!) {
-                            if masterObjectDict["osxconfigurationprofiles"]![key]?["used"]! == "false" {
+                            if masterObjectDict["osxconfigurationprofiles"]![key]?["used"] == "false" {
                                 computerProfileLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstComputerProfile {
@@ -4149,7 +4149,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let macAppLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["macapplications"]!) {
-                            if masterObjectDict["macapplications"]![key]?["used"]! == "false" {
+                            if masterObjectDict["macapplications"]![key]?["used"] == "false" {
                                 macAppLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 let displayName = key.escapeDoubleQuotes
@@ -4185,11 +4185,11 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let policyLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["policies"]!) {
-                            if masterObjectDict["policies"]![key]?["used"]! == "false" || masterObjectDict["policies"]![key]?["enabled"]! == "false" {
+                            if masterObjectDict["policies"]![key]?["used"] == "false" || masterObjectDict["policies"]![key]?["enabled"] == "false" {
                                 policyLogFileOp.seekToEndOfFile()
 
                                 var displayName = key.escapeDoubleQuotes
-                                if masterObjectDict["policies"]![key]?["enabled"]! == "false" {
+                                if masterObjectDict["policies"]![key]?["enabled"] == "false" {
                                     displayName.append("    [disabled]")
                                 }
 
@@ -4225,7 +4225,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let printerLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["printers"]!) {
-                            if masterObjectDict["printers"]![key]?["used"]! == "false" {
+                            if masterObjectDict["printers"]![key]?["used"] == "false" {
                                 printerLogFileOp.seekToEndOfFile()
 
                                 var displayName = key.escapeDoubleQuotes
@@ -4260,7 +4260,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["restrictedsoftware"]!) {
-                            if masterObjectDict["restrictedsoftware"]![key]?["used"]! == "false" {
+                            if masterObjectDict["restrictedsoftware"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstTitle {
@@ -4294,7 +4294,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["computerextensionattributes"]!) {
-                            if masterObjectDict["computerextensionattributes"]![key]?["used"]! == "false" {
+                            if masterObjectDict["computerextensionattributes"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstTitle {
@@ -4328,7 +4328,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let mobileDeviceGroupLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobileDeviceGroups"]!) {
-                            if masterObjectDict["mobileDeviceGroups"]![key]?["used"]! == "false" {
+                            if masterObjectDict["mobileDeviceGroups"]![key]?["used"] == "false" {
                                 mobileDeviceGroupLogFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"},\n"
                                 if firstMobileDeviceGrp {
@@ -4362,7 +4362,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceapplications"]!) {
-                            if masterObjectDict["mobiledeviceapplications"]![key]?["used"]! == "false" {
+                            if masterObjectDict["mobiledeviceapplications"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstMobileDeviceApp {
@@ -4396,7 +4396,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceconfigurationprofiles"]!) {
-                            if masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["used"]! == "false" {
+                            if masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstConfigurationProfile {
@@ -4430,7 +4430,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                     
                     if let logFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceextensionattributes"]!) {
-                            if masterObjectDict["mobiledeviceextensionattributes"]![key]?["used"]! == "false" {
+                            if masterObjectDict["mobiledeviceextensionattributes"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
 //                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstTitle {
