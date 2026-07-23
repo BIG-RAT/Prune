@@ -1,0 +1,4 @@
+module TelemetryDeck {
+header "TelemetryDeck-Swift.h"
+export *
+}

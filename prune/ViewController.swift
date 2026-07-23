@@ -3927,6 +3927,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         working(isWorking: true)
         let header = "\"jamfServer\": \"\(JamfProServer.source)\",\n \"username\": \"\(JamfProServer.username)\""
         exportQ.sync {
+            guard !self.masterObjectDict.isEmpty else {
+                DispatchQueue.main.async { self.working(isWorking: false) }
+                return
+            }
             if self.packagesButtonState == "on" {
                 var firstPackage = true
                 let packageLogFile = "prunePackages_\(timeStamp).json"
@@ -3940,10 +3944,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                             if masterObjectDict["packages"]![key]?["used"] == "false" {
                                 packageLogFileOp.seekToEndOfFile()
                                 if firstPackage {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstPackage = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["packages"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
     //                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
@@ -3969,17 +3973,17 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
 
                 do {
                     try "{\(header),\n \"unusedScripts\":[\n".write(to: exportURL, atomically: true, encoding: .utf8)
-                    
+
                     if let scriptLogFileOp = try? FileHandle(forUpdating: exportURL) {
                         for key in sortedArrayFromDict(theDict: masterObjectDict["scripts"]!) {
                             if masterObjectDict["scripts"]![key]?["used"] == "false" {
                                 scriptLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: scriptsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: scriptsDict[key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstScript {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstScript = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["scripts"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
     //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
@@ -4009,12 +4013,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["ebooks"]!) {
                             if masterObjectDict["ebooks"]![key]?["used"] == "false" {
                                 ebooksLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: ebooksDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: ebooksDict[key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstEbook {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstEbook = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["ebooks"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
     //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
@@ -4044,12 +4048,12 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["classes"]!) {
                             if masterObjectDict["classes"]![key]?["used"] == "false" {
                                 classesLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: classesDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: classesDict[key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstClass {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstClass = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["classes"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: scriptsDict[key]!["name"]!))\"},\n"
     //                            let text = "\t<id>\(key)</id><name>\(String(describing: scriptsDict[key]!["name"]!))</name>\n"    // old - xml format
@@ -4079,14 +4083,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["computerGroups"]!) {
                             if masterObjectDict["computerGroups"]![key]?["used"] == "false" {
                                 computerGroupLogFileOp.seekToEndOfFile()
-    //                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]!["groupType"]!))\"},\n"
+    //                            let text = "\t{\"id\": \"\(String(describing: computerGroupsDict[key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: computerGroupsDict[key]?["groupType"] ?? ""))\"},\n"
                                 if firstComputerGroup {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["groupType"]!))\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]?["groupType"] ?? ""))\"}"
                                     firstComputerGroup = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]!["groupType"]!))\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["computerGroups"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["computerGroups"]![key]?["groupType"] ?? ""))\"}"
                                 }
-    //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
+    //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]?["id"] ?? ""))</id><name>\(key)</name>\n"
                                 computerGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
                             }
                         }   // for (key, _) in
@@ -4113,14 +4117,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["osxconfigurationprofiles"]!) {
                             if masterObjectDict["osxconfigurationprofiles"]![key]?["used"] == "false" {
                                 computerProfileLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstComputerProfile {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstComputerProfile = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["osxconfigurationprofiles"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
-    //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]!["id"]!))</id><name>\(key)</name>\n"
+    //                            let text = "\t<id>\(String(describing: computerGroupsDict[key]?["id"] ?? ""))</id><name>\(key)</name>\n"
                                 computerProfileLogFileOp.write(text.data(using: String.Encoding.utf8)!)
                                 firstComputerProfile = false
                             }
@@ -4151,13 +4155,13 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["macapplications"]!) {
                             if masterObjectDict["macapplications"]![key]?["used"] == "false" {
                                 macAppLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: policiesDict[key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 let displayName = key.escapeDoubleQuotes
                                 if firstMacApp {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["macapplications"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["macapplications"]![key]?["id"] ?? ""))\", \"name\": \"\(displayName)\"}"
                                     firstMacApp = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["macapplications"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["macapplications"]![key]?["id"] ?? ""))\", \"name\": \"\(displayName)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
     //                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
@@ -4194,10 +4198,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 }
 
                                 if firstPolicy {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["policies"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["policies"]![key]?["id"] ?? ""))\", \"name\": \"\(displayName)\"}"
                                     firstPolicy = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["policies"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["policies"]![key]?["id"] ?? ""))\", \"name\": \"\(displayName)\"}"
                                 }
     //                            let text = "\t{\"id\": \"\(key)\", \"name\": \"\(String(describing: packagesDict[key]!["name"]!))\"},\n"
     //                            let text = "\t{\"id\": \"\(key)\",\n\"name\": \"\(String(describing: packagesDict[key]!["name"]!))\",\n\"used\": \"false\"},\n"
@@ -4231,10 +4235,10 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                                 var displayName = key.escapeDoubleQuotes
 
                                 if firstPolicy {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["printers"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["printers"]![key]?["id"] ?? ""))\", \"name\": \"\(displayName)\"}"
                                     firstPolicy = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["printers"]![key]!["id"]!))\", \"name\": \"\(displayName)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["printers"]![key]?["id"] ?? ""))\", \"name\": \"\(displayName)\"}"
                                 }
                                 printerLogFileOp.write(text.data(using: String.Encoding.utf8)!)
                             }
@@ -4262,14 +4266,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["restrictedsoftware"]!) {
                             if masterObjectDict["restrictedsoftware"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstTitle {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstTitle = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
-    //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))</id><name>\(key)</name>\n"
+    //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]?["id"] ?? ""))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
                             }
                         }   // for (key, _) in
@@ -4296,14 +4300,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["computerextensionattributes"]!) {
                             if masterObjectDict["computerextensionattributes"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstTitle {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["computerextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["computerextensionattributes"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstTitle = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["computerextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["computerextensionattributes"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
-    //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))</id><name>\(key)</name>\n"
+    //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]?["id"] ?? ""))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
                             }
                         }   // for (key, _) in
@@ -4330,14 +4334,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobileDeviceGroups"]!) {
                             if masterObjectDict["mobileDeviceGroups"]![key]?["used"] == "false" {
                                 mobileDeviceGroupLogFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]!["groupType"]!))\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: mobileDeviceGroupsDict[key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: mobileDeviceGroupsDict[key]?["groupType"] ?? ""))\"},\n"
                                 if firstMobileDeviceGrp {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["groupType"]!))\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]?["groupType"] ?? ""))\"}"
                                     firstMobileDeviceGrp = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]!["groupType"]!))\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\", \"groupType\": \"\(String(describing: masterObjectDict["mobileDeviceGroups"]![key]?["groupType"] ?? ""))\"}"
                                 }
-    //                            let text = "\t<id>\(String(describing: mobileDeviceGroupLogFileOp[key]!["id"]!))</id><name>\(key)</name>\n"
+    //                            let text = "\t<id>\(String(describing: mobileDeviceGroupLogFileOp[key]?["id"] ?? ""))</id><name>\(key)</name>\n"
                                 mobileDeviceGroupLogFileOp.write(text.data(using: String.Encoding.utf8)!)
                             }
                         }   // for (key, _) in
@@ -4364,14 +4368,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceapplications"]!) {
                             if masterObjectDict["mobiledeviceapplications"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstMobileDeviceApp {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstMobileDeviceApp = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
-    //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]!["id"]!))</id><name>\(key)</name>\n"
+    //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceapplications"]![key]?["id"] ?? ""))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
                             }
                         }   // for (key, _) in
@@ -4398,14 +4402,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceconfigurationprofiles"]!) {
                             if masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstConfigurationProfile {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstConfigurationProfile = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
-    //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]!["id"]!))</id><name>\(key)</name>\n"
+    //                            let text = "\t<id>\(String(describing: masterObjectDict["mobiledeviceconfigurationprofiles"]![key]?["id"] ?? ""))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
                             }
                         }   // for (key, _) in
@@ -4432,14 +4436,14 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
                         for key in sortedArrayFromDict(theDict: masterObjectDict["mobiledeviceextensionattributes"]!) {
                             if masterObjectDict["mobiledeviceextensionattributes"]![key]?["used"] == "false" {
                                 logFileOp.seekToEndOfFile()
-//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
+//                                let text = "\t{\"id\": \"\(String(describing: masterObjectDict["restrictedsoftware"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"},\n"
                                 if firstTitle {
-                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = "\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                     firstTitle = false
                                 } else {
-                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]!["id"]!))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
+                                    text = ",\n\t{\"id\": \"\(String(describing: masterObjectDict["mobiledeviceextensionattributes"]![key]?["id"] ?? ""))\", \"name\": \"\(key.escapeDoubleQuotes)\"}"
                                 }
-    //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]!["id"]!))</id><name>\(key)</name>\n"
+    //                            let text = "\t<id>\(String(describing: masterObjectDict["restrictedsoftware"]![key]?["id"] ?? ""))</id><name>\(key)</name>\n"
                                 logFileOp.write(text.data(using: String.Encoding.utf8)!)
                             }
                         }   // for (key, _) in
