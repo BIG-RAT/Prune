@@ -3776,7 +3776,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
             }
             
             // ensure the import file came from the server we're logged into
-            let loggedInto = jamfServer_TextField.stringValue.replacingOccurrences(of: "://", with: "/")
+            let loggedInto = JamfProServer.source.replacingOccurrences(of: "://", with: "/")
             let tmpArray = loggedInto.components(separatedBy: "/")
             let serverFromFile = (objectJSON?["jamfServer"] as? String)!.replacingOccurrences(of: "://", with: "/")
             let tmpArray2 = serverFromFile.components(separatedBy: "/")
@@ -4663,7 +4663,6 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
         
         let removeDisabledPolicies = NSEvent.modifierFlags.contains(.option) ? true : false
         
-        JamfProServer.source = jamfServer_TextField.stringValue.replacingOccurrences(of: "?failover", with: "")
         jamfCreds            = "\(JamfProServer.username):\(JamfProServer.password)"
         let jamfUtf8Creds    = jamfCreds.data(using: String.Encoding.utf8)
         jamfBase64Creds      = (jamfUtf8Creds?.base64EncodedString())!
@@ -5354,8 +5353,7 @@ class ViewController: NSViewController, ImportViewDelegate, SendingLoginInfoDele
     func sendLoginInfo(loginInfo: (String,String,String,String,Int)) {
         
         var saveCredsState: Int?
-        (jamfServer_TextField.stringValue, _, _, _,saveCredsState) = loginInfo
-//        (_,jamfServer_TextField.stringValue,uname_TextField.stringValue,passwd_TextField.stringValue,saveCredsState) = loginInfo
+        (jamfServer_TextField.stringValue, _, _, _, saveCredsState) = loginInfo
         
         // Platform mode: JamfProServer.source is a tenant UUID, not a URL — skip URL validation
         if useApiClient != 0 {
