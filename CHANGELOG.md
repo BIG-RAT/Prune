@@ -1,6 +1,9 @@
 ## 📜 Version History
 
-### v4.0.0 (2026-07-29)
+### v4.0.2 (2026-07-29)
+- Address issue #65 (packages fail to delete).
+
+### v4.0.1 (2026-07-29)
 - Add Platform API support.
 - Add blueprints scan for computer and mobile device groups.
 - Delete workflow changed. Now you select (shift and cmd keys support) what you want to delete rather than filtering the list and delete what’s left.
